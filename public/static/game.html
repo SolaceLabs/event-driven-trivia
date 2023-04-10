@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>EDA Trivia - Game</title>
+<meta charset="UTF-8">
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+<meta name="viewport" content="initial-scale=1.0 , minimum-scale=1.0 , maximum-scale=1.0" />
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/3.0.1/iconfont/material-icons.min.css">
+<link rel="stylesheet" href="styles/common.css">
+<link rel="stylesheet" href="styles/trivia.css">
+<link rel="stylesheet" href="styles/flipdown.css">
+<link rel="stylesheet" href="styles/spinner.css">
+<link rel="stylesheet" href="styles/countdown.css">
+<link rel="stylesheet" href="https://rawcdn.githack.com/nextapps-de/winbox/0.2.6/dist/css/winbox.min.css">
+
+<style>
+html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+</style>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://kit.fontawesome.com/80b1d4a982.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@3.1.1/dist/index.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.4/hammer.min.js'></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/tsparticles-preset-fireworks@2/tsparticles.preset.fireworks.bundle.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/tsparticles-preset-snow@2/tsparticles.preset.snow.bundle.min.js"></script>
+<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js'></script>
+<script type="text/javascript" src="scripts/paho-mqtt.js"></script>
+<script type="text/javascript" src="scripts/SolaceClient.js"></script>
+<script type="text/javascript" src="scripts/flipdown.js"></script>
+<script type="text/javascript" src="scripts/shorthash.js"></script>
+<script type="text/javascript" src="scripts/countdown.js"></script>
+<script type="text/javascript" src="scripts/names.js"></script>
+<script type="text/javascript" src="scripts/tminusten.js"></script>
+<script type="text/javascript" src="scripts/logger.js"></script>
+
+</head>
+<body class="w3-light-grey" >
+  <div id="spinner"></div>
+  <div id="invalid_game"  style="background-size: contain;"></div>
+  <div id="could_not_connect_to_broker" style="background-size: contain;"></div>
+  
+  <div id="game_content">
+    <!-- Top container -->
+    <div class="w3-bar w3-top w3-black w3-large">
+      <span class="trivia-title w3-bar-item w3-left"></span>
+      <span class="topnav w3-bar-item w3-right">
+        <a href="javascript:void(0);" class="icon" onclick="switchContext(event)">
+          <i class="fa fa-bars"></i>
+        </a>
+        <span class="w3-right" >
+          <img height="42" src="images/solace.png" style="margin-top:-12px;margin-right:10px;"/>
+        </span>
+        <span id="contextLinks">
+          <a href="#dashboard" onclick="openDashboard()">Dashboard</a>
+          <a href="#trivia" onclick="openTrivia()">Trivia</a>
+          <a href="#logs" onclick="openLogs()">Logs</a>
+        </span>
+      </span>
+    </div>
+
+    <div class="w3-container w3-padding-large">
+      <div class="w3-row-padding">
+        <h5 id="trivia-not-available" class="w3-center" style="flex:auto; margin-top: 50px;"></h5>
+      </div>
+    </div>
+
+    <!-- DASHBOARD CONTENT! -->
+    <div class="player-name-holder"> <span class="player-name" id="player-id"></span></div>
+    <div id="trivia-controller" class="w3-container w3-padding-large trivia-controller" style="padding:unset !important;">
+      <div class="w3-container w3-padding-large">
+        <div id="count-down-tracker" class="w3-row-padding w3-margin-bottom">
+          <!-- <h5 class="w3-center"><b><i class="fa fa-clock-o"></i> Countdown To Game</b></h5> -->
+          <div id="flipdown" class="flipdown" style="margin: auto;width:max-content; padding: 10px;"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="w3-row-padding w3-margin-bottom" >
+      <div class="w3-twothird">
+        <div class="w3-third">
+            <div class="w3-container sol-accent-1 w3-padding-large">
+            <div class="w3-left"><i class="fa fa-question-circle w3-xxxlarge"></i></div>
+            <div class="w3-right">
+              <h3 id="trivia-no-of-questions">-</h3>
+            </div>
+            <div class="w3-clear"></div>
+            <h4>Questions</h4>
+          </div>
+        </div>
+        <div class="w3-third">
+          <div class="w3-container sol-accent-2 w3-padding-large">
+            <div class="w3-left"><i class="fa-solid fa-bell w3-xxxlarge"></i></div>
+            <div class="w3-right">
+              <h3 id="trivia-time-limit">-</h3>
+            </div>
+            <div class="w3-clear"></div>
+            <h4>Time Limit</h4>
+          </div>
+        </div>
+        <div class="w3-third">
+          <div class="w3-container sol-accent-3 w3-text-white w3-padding-large">
+            <div class="w3-left"><i class="fa fa-users w3-xxxlarge"></i></div>
+            <div class="w3-right">
+              <h3 id="trivia-participants">-</h3>
+            </div>
+            <div class="w3-clear"></div>
+            <h4>Participants</h4>
+          </div>
+        </div>
+      </div>
+      <div class="w3-third">
+        <div class="w3-half">
+          <div class="w3-container sol-accent-4 w3-padding-large">
+            <div class="w3-left"><i class="fa fa-award w3-xxxlarge"></i></div>
+            <div class="w3-right">
+              <h3 id="trivia-your-score">-</h3>
+            </div>
+            <div class="w3-clear"></div>
+            <h4>Score</h4>
+          </div>
+        </div>
+        <div class="w3-half">
+          <div class="w3-container sol-accent-5 w3-padding-large">
+            <div class="w3-left"><i class="fa fa-trophy w3-xxxlarge"></i></div>
+            <div class="w3-right">
+              <h3 id="trivia-your-rank">-</h3>
+            </div>
+            <div class="w3-clear"></div>
+            <h4>Rank</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w3-panel">
+      <div class="w3-row-padding" style="margin:0 -16px">
+        <!-- PREGAME CHAT -->
+        <div id="trivia-chat" class="w3-third">
+          <div style="height:48px;">
+            <h5 class="w3-left">Chatter</h5>
+            <button id="trivia-chat-resize" class="w3-right circular-button not-for-mobile" style="display:block; margin:10px 0; border-radius: 25px; "><i class="fas fa-expand"></i></button>
+          </div>          
+          <div class="w3-card-4 w3-white" style="min-height:320px;width: 100%;display:flex;justify-content:center;align-items:center; ">
+            <div style="display: inline-block;position: relative;height:100%; width: 100%;">
+              <div id="trivia-modal-chat" class="w3-container w3-light-grey trivia-chat">
+                <div id="trivia-chat-container" class="w3-white trivia-chat-container" style="height:320px; overflow: scroll;">
+                  <ul class="w3-ul trivia-chat-list" style="height: inherit;">
+                  </ul>            
+                </div>
+                        
+                <div class="trivia-chat-input-area">
+                  <input id="trivia-chat-input" class="trivia-chat-input" type="text">
+                  <button class="trivia-chat-submit"> <i class="material-icons"> send</i></button>
+                  <button class="trivia-chat-emoji-button not-for-mobile"> &#127773;</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- SCORECARD -->
+        <div id="trivia-score-card" class="w3-third">
+          <div id="trivia-performance-load"></div>
+          <div id="trivia-performance-resize"></div>
+          <div style="height:48px;">
+            <h5 class="w3-left">Scorecard</h5>
+            <button id="trivia-scorecard-resize" class="w3-right circular-button not-for-mobile" style="display:block; margin:10px 0; border-radius: 25px; "><i class="fas fa-expand"></i></button>
+            <button id="trivia-scorecard-load" class="w3-right circular-button" style="margin:10px 0; border-radius: 25px; "><i class="fa fa-refresh"></i></button>
+          </div>
+          <div class="w3-card-4 w3-white" style="min-height:320px;width: 100%;display:flex;justify-content:center;align-items:center; ">
+            <div style="display: inline-block;position: relative;height:100%; width: 100%;">
+              <div id="trivia-score-card-table-container" class="fixTableHead trivia-score-card-table w3-card-4 w3-white" style="height:320px;overflow: scroll;">
+                <table class="w3-table w3-bordered  w3-card-4 w3-white">
+                  <thead class="w3-bordered w3-card w3-white"><tr><th>Q No</th><th>Answered?</th><th>Correct</th><th>Score</th></tr></thead>
+                  <tbody id="trivia-score-card-table" >
+                  </tbody>
+                </table>    
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- LEADERBOARD -->
+        <div id="trivia-leader-board" class="w3-third">
+          <div style="height:48px;">
+            <h5 class="w3-left">Leaderboard</h5>
+            <button id="trivia-leaderboard-resize" class="w3-right circular-button not-for-mobile" style="display:block; margin:10px 0; border-radius: 25px; "><i class="fas fa-expand"></i></button>
+            <button id="trivia-leaderboard-load" class="w3-right circular-button" style="margin:10px 0; border-radius: 25px; "><i class="fa fa-refresh"></i></button>
+          </div>
+          <div class="w3-card-4 w3-white" style="min-height:320px;width: 100%;display:flex;justify-content:center;align-items:center; ">
+            <div style="display: inline-block;position: relative;height:100%; width: 100%;">
+              <div id="trivia-leader-board-table-container" class="fixTableHead trivia-leader-board-table w3-card-4 w3-white" style="height:320px;overflow: scroll;">
+                <table class="w3-table w3-bordered  w3-card-4 w3-white">
+                  <thead class="w3-bordered w3-card w3-white"><tr><th>Rank</th><th>Player</th><th>Correct</th><th>Score</th></tr></thead>
+                  <tbody id="trivia-leader-board-table" >
+                  </tbody>
+                </table>    
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w3-panel">
+      <div class="w3-row-padding" style="margin:0 -16px">
+        <!-- GAME ACTIVITY -->
+        <div id="trivia-activity" class="w3-panel">
+          <div style="height:48px;">
+            <h5 class="w3-left">Activity</h5>
+            <button id="trivia-activity-resize" class="w3-right circular-button not-for-mobile" style="display:block; margin:10px 0; border-radius: 25px; "><i class="fas fa-expand"></i></button>
+          </div>
+          <div class="w3-card-4 w3-white" style="min-height:320px;width: 100%;height: 100%;display:flex;justify-content:center;align-items:center; ">
+            <div style="display: inline-block;position: relative;height:100%; width: 100%;">
+              <div id="trivia-activity-container" class="w3-light-grey" style="display: flex;align-items: center;height:100%; width: 100%;">
+                <canvas id="trivia-activity-canvas" class="trivia-leader-board-table w3-card-4 w3-white" style="height:320px;overflow: scroll;"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="trivia-stats-sent-resize"></div>
+      <div id="trivia-stats-received-resize"></div>
+    </div>
+
+    <div id="refresh-warning-footer" class="refresh-footer"></div>
+    <div id="snackbar"></div>
+    
+    <!-- Footer -->
+    <!-- <footer class="w3-container w3-padding-16 w3-light-grey">
+      <h4>FOOTER</h4>
+      <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
+    </footer> -->
+
+    <!-- End page content -->
+  </div>
+  <!-- TRIVIA CONTENT -->
+  <div id="trivia-modal">
+    <!-- Top container -->
+    <div class="w3-bar w3-top w3-black w3-large">
+      <span class="trivia-title w3-bar-item w3-left"></span>
+    </div>
+
+    <div id="trivia-pane">
+      <div id="tsparticles" class="overlay"></div>
+      <div id="trivia-modal-countdown" class="countdown-overlay modal-body" style="display:none;">
+        <div class="countdown__container">
+          <div class="countdown" > <!-- countdown--wide  -->
+            <div class="countdown__fill" id="ticker"></div>
+            <div class="countdown__digit" id="seconds">00</div>
+          </div>
+        </div>
+      </div>
+      <div id="trivia-modal-content">
+        <!-- TRIVIA Q&A -->
+        <div class="trivia-twothird center-of-div">
+          <div class="trivia-container">
+            <div class="w3-row-padding flex-container" style="background-color: unset;align-items: flex-start;">
+              <div class="timer" style="min-width: 74px;">
+                <div class="timer-item">
+                  <div class="timer-number seconds"></div>
+                  <div class="timer-info">Seconds</div>
+                </div>
+              </div>
+              <div class="trivia-question w3-center" style="flex-grow: 1; ">
+                <div id="trivia-question-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit adipiscing elit adipiscing elit adipiscing elit adipiscing elit</div>
+              </div>
+              <div class="timer" style="min-width: 74px;">
+                <div class="timer-item">
+                  <div class="timer-number minutes" id="trivia-question-number">1</div>
+                  <div class="timer-info">Question</div>
+                </div>
+              </div>
+            </div>
+            <div class="w3-row-padding w3-margin-bottom" style="padding-top:22px">
+              <div class="w3-half" style="flex-grow: 1;" id="trivia-question-choice-container-1">
+                <div class="trivia-answer" id="trivia-question-choice-1">Answer 1</div>
+              </div>
+              <div class="w3-half" style="flex-grow: 1;" id="trivia-question-choice-container-2">
+                <div class="trivia-answer" id="trivia-question-choice-2">Answer 2</div>
+              </div>
+              <div class="w3-half" style="flex-grow: 1;" id="trivia-question-choice-container-3">
+                <div class="trivia-answer" id="trivia-question-choice-3">Answer 3</div>
+              </div>
+              <div class="w3-half" style="flex-grow: 1;" id="trivia-question-choice-container-4">
+                <div class="trivia-answer" id="trivia-question-choice-4">Answer 4</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRIVIA SIDEBAR -->
+        <!-- <div class="w3-third trivia-third stack-in-div"> 
+          <div id="your-score-grid" class="validation-grid"></div>                  
+
+          <div id="trivia-modal-chat" class="w3-container w3-light-grey trivia-chat">
+            <div id="trivia-chat-container" class="w3-white trivia-chat-container">
+              <ul class="w3-ul trivia-chat-list">
+              </ul>            
+            </div>
+                    
+            <div class="trivia-chat-input-area">
+              <input id="trivia-chat-input" class="trivia-chat-input" type="text">
+              <button class="trivia-chat-submit"> <i class="material-icons"> send</i></button>
+              <button class="trivia-chat-emoji-button"> &#127773;</button>
+            </div>
+          </div>
+        </div> -->
+      </div>
+      <div class="w3-black modal-header-text" style="width: unset">
+        <div style="float:right;">
+          <a href="javascript:void(0);" class="icon" onclick="exitTrivia()">
+            <span class="w3-large w3-right clear">Exit <i class="fa fa-right-from-bracket"></i> </span>
+          </a>
+        </div>
+      </div>
+    </div>  
+  </div>
+
+  <!-- PLAYER NAME FORM -->
+  <div id="player-name-form" class="overlay">
+    <!-- <a href="javascript:void(0)" class="closebtn"  onclick="closeNicknameDialog()">&times;</a> -->
+    <div class="player-name-modal">
+      <div class="msg-text" id="player-name-intro"></div>
+      <form class="center-of-div">
+        <img src="images/person.svg" alt="Avatar" class="w3-circle w3-margin-top">
+
+        <label><b>Nickname</b></label>
+        <input class="w3-input w3-border w3-margin-bottom" type="text" 
+              placeholder="Enter Nickname" id="nickname" required>
+        <div class="w3-center"><br>
+          <button onclick="randomPlayerName()" type="button" class="w3-button trivia-subdued-button">Random</button>
+          <button onclick="updatePlayerName()" type="button" class="w3-button trivia-button">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- INFO LOG CONTENT -->
+  <div id="info-log-modal" class="modal">
+    <div class="w3-bar w3-top w3-black w3-large">
+      <span class="trivia-title w3-bar-item w3-left"></span>
+      <span class="topnav w3-bar-item w3-right">
+        <div id="info-log-close" class="w3-large close"><i class="fa fa-close"></i></div>
+        <div id="info-log-clear" class="w3-large clear"><i class="fa fa-trash"></i> Clear</div>
+      </span>
+    </div>    
+    <div id="info-log-modal-content" class="modal-body w3-bar-item"></div>
+  </div>
+  
+  <script type="text/javascript" src="scripts/common.js"></script>
+  <script type="text/javascript" src="scripts/game.js"></script>
+  <script>    // DEBUG
+    // window.nickName = undefined;
+    window.nickName = pickRandomName();
+    window.type = 'player';
+    window.questions = [];
+    window.currentQuestion = 0;
+    window.timeLimit = 0;
+
+    document.getElementById("game_content").style.display = 'block';
+    document.getElementById("trivia-modal").style.display = 'none';
+    document.getElementById("tsparticles").style.display = 'none';
+
+    // openNicknameDialog();
+    setup();
+    
+
+    // document.getElementById("game_content").style.display = 'none';
+    // document.getElementById("trivia-modal").style.display = 'block';
+    // gameStart();
+
+  </script>
+</body>
+</html>

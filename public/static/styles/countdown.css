@@ -1,0 +1,164 @@
+.flex-container {
+  display: flex;
+  /* align-items: stretch; */
+  background-color: #f1f1f1;
+}
+
+/* .flex-container > div {
+  background-color: DodgerBlue;
+  color: white;
+  margin: 10px;
+  text-align: center;
+  line-height: 75px;
+  font-size: 30px;
+} */
+
+.timer {
+	/* display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center; */
+	font-family: "Lato", sans-serif;
+}
+.timer-item {
+	/* margin: 0px 20px; */
+}
+.timer-number {
+	/* width: 100px; */
+	/* height: 110px; */
+	border-radius: 10px;
+	text-align: center;
+	/* line-height: 110px; */
+	font-weight: 700;
+	color: #00cc91;
+	font-size: 48px;
+	/* margin-bottom: 15px; */
+	overflow: hidden;
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	    -ms-user-select: none;
+	        user-select: none;
+}
+.timer-number.days {
+	background: #FF565C;
+	text-shadow: rgba(71, 24, 26, 0.118) 1px 1px, rgba(113, 38, 41, 0.136) 2px 2px, rgba(140, 47, 50, 0.154) 3px 3px, rgba(159, 54, 57, 0.172) 4px 4px, rgba(173, 58, 62, 0.19) 5px 5px, rgba(184, 62, 66, 0.208) 6px 6px, rgba(193, 65, 70, 0.226) 7px 7px, rgba(200, 67, 72, 0.244) 8px 8px, rgba(206, 69, 74, 0.262) 9px 9px, rgba(211, 71, 76, 0.28) 10px 10px, rgba(215, 72, 78, 0.298) 11px 11px, rgba(219, 74, 79, 0.316) 12px 12px, rgba(222, 75, 80, 0.334) 13px 13px, rgba(225, 76, 81, 0.352) 14px 14px, rgba(227, 77, 82, 0.37) 15px 15px, rgba(229, 77, 83, 0.388) 16px 16px, rgba(231, 78, 83, 0.406) 17px 17px, rgba(233, 79, 84, 0.424) 18px 18px, rgba(235, 79, 85, 0.442) 19px 19px, rgba(236, 80, 85, 0.46) 20px 20px, rgba(238, 80, 86, 0.478) 21px 21px, rgba(239, 81, 86, 0.496) 22px 22px, rgba(240, 81, 87, 0.514) 23px 23px, rgba(241, 81, 87, 0.532) 24px 24px, rgba(242, 82, 87, 0.55) 25px 25px, rgba(243, 82, 88, 0.568) 26px 26px, rgba(244, 82, 88, 0.586) 27px 27px, rgba(245, 83, 88, 0.604) 28px 28px, rgba(246, 83, 89, 0.622) 29px 29px, rgba(246, 83, 89, 0.64) 30px 30px, rgba(247, 83, 89, 0.658) 31px 31px, rgba(248, 84, 89, 0.676) 32px 32px, rgba(248, 84, 90, 0.694) 33px 33px, rgba(249, 84, 90, 0.712) 34px 34px, rgba(249, 84, 90, 0.73) 35px 35px, rgba(250, 84, 90, 0.748) 36px 36px, rgba(250, 84, 90, 0.766) 37px 37px, rgba(251, 85, 90, 0.784) 38px 38px, rgba(251, 85, 91, 0.802) 39px 39px, rgba(252, 85, 91, 0.82) 40px 40px, rgba(252, 85, 91, 0.838) 41px 41px, rgba(252, 85, 91, 0.856) 42px 42px, rgba(253, 85, 91, 0.874) 43px 43px, rgba(253, 85, 91, 0.892) 44px 44px, rgba(254, 86, 91, 0.91) 45px 45px, rgba(254, 86, 92, 0.928) 46px 46px, rgba(254, 86, 92, 0.946) 47px 47px, rgba(254, 86, 92, 0.964) 48px 48px, rgba(255, 86, 92, 0.982) 49px 49px, #ff565c 50px 50px, rgba(0, 0, 0, 0.1) 0px 0px;
+}
+.timer-number.hours {
+	background: #00CB6E;
+	text-shadow: rgba(0, 57, 31, 0.118) 1px 1px, rgba(0, 90, 49, 0.136) 2px 2px, rgba(0, 111, 60, 0.154) 3px 3px, rgba(0, 126, 69, 0.172) 4px 4px, rgba(0, 138, 75, 0.19) 5px 5px, rgba(0, 146, 79, 0.208) 6px 6px, rgba(0, 153, 83, 0.226) 7px 7px, rgba(0, 159, 86, 0.244) 8px 8px, rgba(0, 164, 89, 0.262) 9px 9px, rgba(0, 168, 91, 0.28) 10px 10px, rgba(0, 171, 93, 0.298) 11px 11px, rgba(0, 174, 94, 0.316) 12px 12px, rgba(0, 177, 96, 0.334) 13px 13px, rgba(0, 179, 97, 0.352) 14px 14px, rgba(0, 181, 98, 0.37) 15px 15px, rgba(0, 183, 99, 0.388) 16px 16px, rgba(0, 184, 100, 0.406) 17px 17px, rgba(0, 186, 101, 0.424) 18px 18px, rgba(0, 187, 101, 0.442) 19px 19px, rgba(0, 188, 102, 0.46) 20px 20px, rgba(0, 189, 103, 0.478) 21px 21px, rgba(0, 190, 103, 0.496) 22px 22px, rgba(0, 191, 104, 0.514) 23px 23px, rgba(0, 192, 104, 0.532) 24px 24px, rgba(0, 193, 105, 0.55) 25px 25px, rgba(0, 194, 105, 0.568) 26px 26px, rgba(0, 194, 105, 0.586) 27px 27px, rgba(0, 195, 106, 0.604) 28px 28px, rgba(0, 196, 106, 0.622) 29px 29px, rgba(0, 196, 106, 0.64) 30px 30px, rgba(0, 197, 107, 0.658) 31px 31px, rgba(0, 197, 107, 0.676) 32px 32px, rgba(0, 198, 107, 0.694) 33px 33px, rgba(0, 198, 107, 0.712) 34px 34px, rgba(0, 199, 108, 0.73) 35px 35px, rgba(0, 199, 108, 0.748) 36px 36px, rgba(0, 199, 108, 0.766) 37px 37px, rgba(0, 200, 108, 0.784) 38px 38px, rgba(0, 200, 108, 0.802) 39px 39px, rgba(0, 200, 109, 0.82) 40px 40px, rgba(0, 201, 109, 0.838) 41px 41px, rgba(0, 201, 109, 0.856) 42px 42px, rgba(0, 201, 109, 0.874) 43px 43px, rgba(0, 202, 109, 0.892) 44px 44px, rgba(0, 202, 109, 0.91) 45px 45px, rgba(0, 202, 109, 0.928) 46px 46px, rgba(0, 202, 110, 0.946) 47px 47px, rgba(0, 203, 110, 0.964) 48px 48px, rgba(0, 203, 110, 0.982) 49px 49px, #00cb6e 50px 50px, rgba(0, 0, 0, 0.1) 0px 0px;
+}
+.timer-number.minutes {
+	background: #000;
+	/* text-shadow: rgba(71, 53, 22, 0.118) 1px 1px, rgba(112, 84, 35, 0.136) 2px 2px, rgba(139, 104, 43, 0.154) 3px 3px, rgba(158, 118, 49, 0.172) 4px 4px, rgba(172, 129, 54, 0.19) 5px 5px, rgba(183, 137, 57, 0.208) 6px 6px, rgba(192, 144, 60, 0.226) 7px 7px, rgba(199, 149, 62, 0.244) 8px 8px, rgba(205, 153, 64, 0.262) 9px 9px, rgba(210, 157, 65, 0.28) 10px 10px, rgba(214, 160, 67, 0.298) 11px 11px, rgba(218, 163, 68, 0.316) 12px 12px, rgba(221, 165, 69, 0.334) 13px 13px, rgba(224, 167, 70, 0.352) 14px 14px, rgba(226, 169, 70, 0.37) 15px 15px, rgba(228, 171, 71, 0.388) 16px 16px, rgba(230, 172, 72, 0.406) 17px 17px, rgba(232, 174, 72, 0.424) 18px 18px, rgba(234, 175, 73, 0.442) 19px 19px, rgba(235, 176, 73, 0.46) 20px 20px, rgba(237, 177, 74, 0.478) 21px 21px, rgba(238, 178, 74, 0.496) 22px 22px, rgba(239, 179, 74, 0.514) 23px 23px, rgba(240, 180, 75, 0.532) 24px 24px, rgba(241, 181, 75, 0.55) 25px 25px, rgba(242, 181, 75, 0.568) 26px 26px, rgba(243, 182, 76, 0.586) 27px 27px, rgba(244, 182, 76, 0.604) 28px 28px, rgba(245, 183, 76, 0.622) 29px 29px, rgba(245, 184, 76, 0.64) 30px 30px, rgba(246, 184, 77, 0.658) 31px 31px, rgba(247, 185, 77, 0.676) 32px 32px, rgba(247, 185, 77, 0.694) 33px 33px, rgba(248, 185, 77, 0.712) 34px 34px, rgba(248, 186, 77, 0.73) 35px 35px, rgba(249, 186, 77, 0.748) 36px 36px, rgba(249, 187, 78, 0.766) 37px 37px, rgba(250, 187, 78, 0.784) 38px 38px, rgba(250, 187, 78, 0.802) 39px 39px, rgba(251, 188, 78, 0.82) 40px 40px, rgba(251, 188, 78, 0.838) 41px 41px, rgba(251, 188, 78, 0.856) 42px 42px, rgba(252, 188, 78, 0.874) 43px 43px, rgba(252, 189, 78, 0.892) 44px 44px, rgba(253, 189, 79, 0.91) 45px 45px, rgba(253, 189, 79, 0.928) 46px 46px, rgba(253, 189, 79, 0.946) 47px 47px, rgba(253, 190, 79, 0.964) 48px 48px, rgba(254, 190, 79, 0.982) 49px 49px, #febe4f 50px 50px, rgba(0, 0, 0, 0.1) 0px 0px; */
+}
+.timer-number.seconds {
+	background: #000;
+	/* text-shadow: rgba(25, 54, 66, 0.118) 1px 1px, rgba(40, 85, 104, 0.136) 2px 2px, rgba(50, 105, 129, 0.154) 3px 3px, rgba(57, 120, 146, 0.172) 4px 4px, rgba(62, 130, 159, 0.19) 5px 5px, rgba(66, 139, 170, 0.208) 6px 6px, rgba(69, 145, 178, 0.226) 7px 7px, rgba(71, 150, 184, 0.244) 8px 8px, rgba(73, 155, 190, 0.262) 9px 9px, rgba(75, 159, 194, 0.28) 10px 10px, rgba(77, 162, 198, 0.298) 11px 11px, rgba(78, 165, 201, 0.316) 12px 12px, rgba(79, 167, 204, 0.334) 13px 13px, rgba(80, 169, 207, 0.352) 14px 14px, rgba(81, 171, 209, 0.37) 15px 15px, rgba(82, 173, 211, 0.388) 16px 16px, rgba(83, 174, 213, 0.406) 17px 17px, rgba(83, 176, 215, 0.424) 18px 18px, rgba(84, 177, 216, 0.442) 19px 19px, rgba(84, 178, 218, 0.46) 20px 20px, rgba(85, 179, 219, 0.478) 21px 21px, rgba(85, 180, 220, 0.496) 22px 22px, rgba(86, 181, 221, 0.514) 23px 23px, rgba(86, 182, 222, 0.532) 24px 24px, rgba(86, 182, 223, 0.55) 25px 25px, rgba(87, 183, 224, 0.568) 26px 26px, rgba(87, 184, 225, 0.586) 27px 27px, rgba(87, 184, 226, 0.604) 28px 28px, rgba(88, 185, 226, 0.622) 29px 29px, rgba(88, 185, 227, 0.64) 30px 30px, rgba(88, 186, 228, 0.658) 31px 31px, rgba(88, 186, 228, 0.676) 32px 32px, rgba(89, 187, 229, 0.694) 33px 33px, rgba(89, 187, 229, 0.712) 34px 34px, rgba(89, 188, 230, 0.73) 35px 35px, rgba(89, 188, 230, 0.748) 36px 36px, rgba(89, 189, 231, 0.766) 37px 37px, rgba(90, 189, 231, 0.784) 38px 38px, rgba(90, 189, 232, 0.802) 39px 39px, rgba(90, 190, 232, 0.82) 40px 40px, rgba(90, 190, 232, 0.838) 41px 41px, rgba(90, 190, 233, 0.856) 42px 42px, rgba(90, 190, 233, 0.874) 43px 43px, rgba(90, 191, 233, 0.892) 44px 44px, rgba(90, 191, 234, 0.91) 45px 45px, rgba(91, 191, 234, 0.928) 46px 46px, rgba(91, 191, 234, 0.946) 47px 47px, rgba(91, 192, 234, 0.964) 48px 48px, rgba(91, 192, 235, 0.982) 49px 49px, #5bc0eb 50px 50px, rgba(0, 0, 0, 0.1) 0px 0px; */
+}
+.timer-info {
+	text-transform: uppercase;
+	text-align: center;
+	opacity: 0.6;
+	font-size: 10px;
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	    -ms-user-select: none;
+	        user-select: none;
+	letter-spacing: 1px;
+}
+
+.countdown__container {
+  height: calc(100vh - 72px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.countdown {
+  display: block;
+  width: 66vmin;
+  height: 66vmin;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Oswald", sans-serif;
+  font-weight: 400;
+  font-size: 25vmin;
+  border-radius: 50%;
+  overflow: hidden;
+  /* cursor: pointer; */
+  transition: width, height, border-radius, font-size;
+  transition-duration: 0.2s;
+}
+.countdown--ended {
+  -webkit-animation: buzz 0.5s;
+          animation: buzz 0.5s;
+}
+.countdown:active {
+  transform: scale(1.02);
+}
+@-webkit-keyframes buzz {
+  0% {
+    transform: rotate(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: rotate(6deg);
+  }
+  20%, 40%, 60%, 80% {
+    transform: rotate(-6deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+@keyframes buzz {
+  0% {
+    transform: rotate(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: rotate(6deg);
+  }
+  20%, 40%, 60%, 80% {
+    transform: rotate(-6deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+.countdown--wide {
+  width: 100%;
+  height: 100%;
+  font-size: 50vmin;
+  border-radius: 0;
+}
+.countdown__fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background: #000;
+  opacity: 1;
+}
+.countdown__digit {
+  /* top: 20%; */
+  /* left: 1%; */
+  /* position: absolute; */
+  width: 100%;
+  color: #FCA829;
+  text-align: center;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>W3.CSS Template</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/3.0.1/iconfont/material-icons.min.css">
+<link rel="stylesheet" href="styles/common.css">
+<link rel="stylesheet" href="styles/trivia.css">
+<link rel="stylesheet" href="styles/flipdown.css">
+<link rel="stylesheet" href="styles/spinner.css">
+<link rel="stylesheet" href="styles/countdown.css">
+<link rel="stylesheet" href="https://rawcdn.githack.com/nextapps-de/winbox/0.2.6/dist/css/winbox.min.css">
+
+<style>
+html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+</style>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://kit.fontawesome.com/80b1d4a982.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@3.1.1/dist/index.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src="scripts/paho-mqtt.js"></script>
+<script type="text/javascript" src="scripts/SolaceClient.js"></script>
+<script type="text/javascript" src="scripts/flipdown.js"></script>
+<script type="text/javascript" src="scripts/shorthash.js"></script>
+<script type="text/javascript" src="scripts/countdown.js"></script>
+<script type="text/javascript" src="scripts/names.js"></script>
+<script type="text/javascript" src="scripts/tminusten.js"></script>
+<script type="text/javascript" src="https://rawcdn.githack.com/nextapps-de/winbox/0.2.6/dist/js/winbox.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.4/hammer.min.js'></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/tsparticles-preset-fireworks@2/tsparticles.preset.fireworks.bundle.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/tsparticles-preset-snow@2/tsparticles.preset.snow.bundle.min.js"></script>
+
+</head>
+<body class="w3-light-grey" onload="setup()">
+  <div id="game_content">
+    <!-- Top container -->
+    <div class="w3-bar w3-top w3-black w3-large">
+      <span id="trivia-title" class="trivia-title w3-bar-item w3-left"></span>
+      <span class="topnav w3-bar-item w3-right">
+        <a href="javascript:void(0);" class="icon" onclick="switchContext(event)">
+          <i class="fa fa-bars"></i>
+        </a>
+        <span class="w3-right" >
+          <img height="42" src="images/solace.png" style="margin-top:-12px;margin-right:10px;"/>
+        </span>
+        <span id="contextLinks">
+          <a href="#dashboard" onclick="openDashboard()">Dashboard</a>
+          <a href="#trivia" onclick="openTrivia()">Trivia</a>
+          <a href="#logs" onclick="openLogs()">Logs</a>
+        </span>
+      </span>
+    </div>
+
+    <!-- Modal InfoLog content -->
+    <div id="info-log-modal" class="modal">
+      <div class="modal-content">
+        <div class="w3-black modal-header">
+          <span class="w3-large close"><i class="fa fa-close"></i></span>
+          <span class="w3-large">What is happening?</span>
+        </div>
+        <div id="info-log-modal-content" class="modal-body"></div>
+        <div class="w3-black modal-footer">
+          <span class="w3-large w3-right clear"><i class="fa fa-trash"></i> Clear</span>
+        </div>
+      </div>  
+    </div>
+
+    <!-- TRIVIA CONTENT -->
+    <div id="trivia-modal" class="modal">
+      <div class="modal-content">
+        <div id="trivia-title" class="trivia-title w3-black modal-header w3-large w3-center">Trivia Title</div>
+        <div id="trivia-pane">
+          <div id="trivia-modal-content" class="modal-body">
+              <div class="w3-twothird trivia-twothird center-of-div" style="border: 2px solid red;">
+                  Recommendations
+Implementing the Idempotent Consumer and Transactional Outbox patterns together is the recommended approach to minimise duplicate actions occurring. The only risk here is a duplicate POST occurring. While the same is true when combining the Idempotent Consumer with Kafka Transactions, there are two transactional managers in play here, meaning more complexity, more things to go wrong, and more testing needed.
+
+For each of these approaches there is nothing that can be done to completely remove the chance of a duplicate POST. It is therefore important to ensure that that call is itself idempotent, with the third party service dealing with that idempotent requirement.
+
+Implementing the Idempotent Consumer and Transactional Outbox patterns together is the recommended approach to minimise duplicate actions occurring. The only risk here is a duplicate POST occurring. While the same is true when combining the Idempotent Consumer with Kafka Transactions, there are two transactional managers in play here, meaning more complexity, more things to go wrong, and more testing needed.
+
+For each of these approaches there is nothing that can be done to completely remove the chance of a duplicate POST. It is therefore important to ensure that that call is itself idempotent, with the third party service dealing with that idempotent requirement.
+
+Implementing the Idempotent Consumer and Transactional Outbox patterns together is the recommended approach to minimise duplicate actions occurring. The only risk here is a duplicate POST occurring. While the same is true when combining the Idempotent Consumer with Kafka Transactions, there are two transactional managers in play here, meaning more complexity, more things to go wrong, and more testing needed.
+
+For each of these approaches there is nothing that can be done to completely remove the chance of a duplicate POST. It is therefore important to ensure that that call is itself idempotent, with the third party service dealing with that idempotent requirement.
+
+
+Implementing the Idempotent Consumer and Transactional Outbox patterns together is the recommended approach to minimise duplicate actions occurring. The only risk here is a duplicate POST occurring. While the same is true when combining the Idempotent Consumer with Kafka Transactions, there are two transactional managers in play here, meaning more complexity, more things to go wrong, and more testing needed.
+
+For each of these approaches there is nothing that can be done to completely remove the chance of a duplicate POST. It is therefore important to ensure that that call is itself idempotent, with the third party service dealing with that idempotent requirement.
+
+              </div>
+
+              <!-- TRIVIA SIDEBAR -->
+              <div class="w3-third trivia-third stack-in-div" style="border: 2px solid rgb(65, 5, 204);"> 
+                <div>Scorecard</div>
+                <div class="validation-grid">
+                  <div class="validation-grid-item w3-green">1</div>
+                  <div class="validation-grid-item w3-red">2</div>
+                  <div class="validation-grid-item w3-black">3</div>  
+                  <div class="validation-grid-item">4</div>
+                  <div class="validation-grid-item">5</div>
+                  <div class="validation-grid-item">6</div>
+                  <div class="validation-grid-item">7</div>
+                  <div class="validation-grid-item">8</div>  
+                  <div class="validation-grid-item">9</div>  
+                  <div class="validation-grid-item">10</div>  
+                  <div class="validation-grid-item">11</div>  
+                  <div class="validation-grid-item">12</div>  
+                  <div class="validation-grid-item">13</div>  
+                  <div class="validation-grid-item">14</div>  
+                  <div class="validation-grid-item">15</div>  
+                  <div class="validation-grid-item">16</div>  
+                  <div class="validation-grid-item">17</div>  
+                  <div class="validation-grid-item">18</div>  
+                  <div class="validation-grid-item">19</div>  
+                  <div class="validation-grid-item">20</div>  
+                  <div class="validation-grid-item">21</div>  
+                  <div class="validation-grid-item">22</div>  
+                </div>                  
+
+                <!-- TRIVIA GAME CHAT -->
+                <div id="trivia-modal-chat" class="w3-container w3-light-grey trivia-chat">
+                  <div id="trivia-chat-container" class="w3-white trivia-chat-container">
+                    <ul id="trivia-chat-list"  class="w3-ul" style="display: flex; justify-content: center; align-items: center; height: inherit;">
+                    </ul>            
+                  </div>
+                          
+                  <div class="trivia-chat-input-area">
+                    <input id="trivia-chat-input" class="trivia-chat-input" type="text">
+                    <button class="trivia-chat-submit"> <i class="material-icons"> send</i></button>
+                    <button class="trivia-chat-emoji-button"> &#127773;</button>
+                  </div>
+                </div>
+
+              </div>
+          </div>
+        </div>
+        <!-- <div class="w3-black modal-footer" style="width: unset">
+          <div style="float:right;">
+            <a href="javascript:void(0);" class="icon" onclick="exitTrivia()">
+              <span class="w3-large w3-right clear">Exit <i class="fa fa-right-from-bracket"></i> </span>
+            </a>
+          </div>
+        </div> -->
+      </div>  
+    </div>
+  </div>
+  <script type="text/javascript" src="scripts/common.js"></script>
+  <script type="text/javascript" src="scripts/game.js"></script>
+  <script>    // DEBUG
+    window.nickName = pickRandomName();
+    window.type = 'player';
+    window.questions = [];
+    window.currentQuestion = 0;
+    window.timeLimit = 0;
+
+    document.getElementById("trivia-modal-content").style.display = 'none';
+    document.getElementById("trivia-modal").style.display = 'block';
+    gameStart();
+
+  </script>
+</body>
+</html>

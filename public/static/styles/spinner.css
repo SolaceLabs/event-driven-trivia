@@ -1,0 +1,71 @@
+/* (A) FULL SCREEN WRAPPER */
+#spinner {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  opacity: .8;
+  width: 100vw; height: 100vh;
+  background: url('../images/movingblocks.gif') 50% 50% no-repeat rgb(249,249,249);
+}
+ 
+/* (B) CENTER LOADING SPINNER */
+#spinner img {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%);
+}
+ 
+/* (C) SHOW & HIDE */
+#spinner {
+  visibility: hidden;
+  opacity: 0;
+}
+#spinner.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* INVALID GAME */
+#invalid_game {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width:100%;
+  height:100%;
+  z-index: 9999;
+  /* opacity: .8; */
+  background: url('../images/unknown_game.gif') 50% 50% no-repeat rgb(249,249,249);
+}
+ 
+#invalid_game {
+  visibility: hidden;
+  opacity: 0;
+}
+#invalid_game.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* COULD NOT CONNECT TO BROKER */
+#could_not_connect_to_broker {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  /* opacity: .8; */
+  background: url('../images/no_broker_connection.gif') 50% 50% no-repeat rgb(249,249,249);
+}
+ 
+#could_not_connect_to_broker {
+  visibility: hidden;
+  opacity: 0;
+}
+#could_not_connect_to_broker.show {
+  visibility: visible;
+  opacity: 1;
+}
