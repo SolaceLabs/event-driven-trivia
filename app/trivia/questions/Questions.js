@@ -149,17 +149,25 @@ function Questions(props) {
 
   const refreshQuestions = async (filters = undefined) => {
     const params = new URLSearchParams();
-    if (filters) params.append('category', JSON.stringify(filters));
-    else params.append('category', JSON.stringify(filterList));
+    params.append('category', JSON.stringify(filterList));
 
     const response = await api.getQuestions(params);
     if (!response.success) {
       updateResult('error', response.message);
       setQuestions([]);
-      return;
+    } else {
+      setQuestions(response.data);
+
+      const response1 = await api.getCategories();
+      if (!response1.success) {
+        setCategories([]);
+        updateResult('success', 'Questions refreshed successfully');
+      } else {
+        updateResult('success', 'Questions refreshed successfully');
+        setCategories(response1.data);
+      }
     }
-    console.log('Questions', response.data);
-    setQuestions(response.data);
+
     setCurrentRow(false);
   };
 

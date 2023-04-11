@@ -44,6 +44,14 @@ function CategoriesUpload(props) {
   const classes = useStyles();
   const [csvFile, setCsvFile] = React.useState('');
   const [createCategory, setCreateCategory] = React.useState(false);
+  const config = {
+    headers: {
+      Authorization: `${
+        localStorage.getItem('token')
+      }`
+    },
+    csvFile,
+  };
 
   const handleChange = () => {
     setCreateCategory(!createCategory);
@@ -51,16 +59,9 @@ function CategoriesUpload(props) {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    const config = {
-      headers: {
-        Authorization: `${
-          localStorage.getItem('token')
-        }`
-      },
-      csvFile,
-    };
-
-    axios.post('/api/trivia/categories/upload', config, {})
+    const formData = new FormData();
+    formData.append('csvFile', csvFile);
+    axios.post('/api/trivia/categories/upload', formData, config)
       .then(res => {
         console.log(res);
         updateResult('success', 'New categories upload successful');

@@ -98,6 +98,7 @@ function Trivias(props) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showCloneDialog, setShowCloneDialog] = useState(false);
   const [showReopenDialog, setShowReopenDialog] = useState(false);
+  const [reopenAllowed, setReopenAllowed] = useState(false);
   const { classes } = props;
   const [anchorEl2, setAnchorEl2] = React.useState(null);
   const openRowMenu = Boolean(anchorEl2);
@@ -470,6 +471,10 @@ function Trivias(props) {
               aria-haspopup="true"
               onClick={(e) => {
                 setCurrentRow(tableMeta.rowData);
+                if (tableMeta.rowData[9] === 'COMPLETED' || tableMeta.rowData[9] === 'ABORTED'
+                    || tableMeta.rowData[9] === 'EXPIRED') setReopenAllowed(true);
+                else setReopenAllowed(false);
+
                 handleClickRowMenu(e);
               }}
             >
@@ -496,7 +501,7 @@ function Trivias(props) {
                   <EditIcon/>
                 </IconButton> Edit
               </MenuItem>
-              {(tableMeta.rowData[9] === 'COMPLETED' || tableMeta.rowData[9] === 'ABORTED' || tableMeta.rowData[9] === 'EXPIRED')
+              {reopenAllowed
                 && <MenuItem key={'Reopen' + tableMeta.rowData[0]} onClick={(e) => {
                   handleCloseRowMenu();
                   setShowReopenDialog(true);

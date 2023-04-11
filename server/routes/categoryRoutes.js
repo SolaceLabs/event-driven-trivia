@@ -10,6 +10,7 @@ const router = express.Router();
 const multer = require('multer');
 const fs = require('fs');
 const Category = require('../models/category');
+const Question = require('../models/question');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -173,10 +174,26 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/delete', async (req, res) => {
+  let deleted = 0;
+  let notDeleted = 0;
   for (let i = 0; i < req.body.ids.length; i++) {
-    await Category.findByIdAndRemove(req.body.ids[i]);
+    const category = await Category.findById(req.body.ids[i]);
+    if (!category) {
+      notDeleted++;
+    } else {
+      await Question.remove({ category: category.name });
+      await Category.findByIdAndRemove(req.body.ids[i]);
+      deleted++;
+    }
   }
-  res.json({ success: true, message: 'Delete category(s) successful' });
+
+  if (notDeleted === req.body.ids.length) {
+    res.json({ success: false, message: 'Could not delete categories, try again later!' });
+  } else if (deleted === req.body.ids.length) {
+    res.json({ success: false, message: deleted + ' Categories successfully deleted!' });
+  } else if (deleted !== 0 && notDeleted !== 0) {
+    res.json({ success: true, message: 'Could not delete ' + notDeleted + ' Categories, however' + deleted + ' Categories successfully deleted' });
+  }
 });
 
 router.post('/upload', upload.single('csvFile'), async (req, res, next) => {

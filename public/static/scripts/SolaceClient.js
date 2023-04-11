@@ -4,7 +4,7 @@
 /* eslint-disable no-undef */
 class SolaceClient {
   constructor(name, code, type, onConnectionSuccess, onConnectionError, onConnectionLost) {
-    console.debug('Create SolaceClient for name: ', name + ' game: ', code, ' type: ', type);
+    console.log('Create SolaceClient for name: ', name + ' game: ', code, ' type: ', type);
     this.topics = [];
     this.callbacks = {};
     this.name = name;
@@ -47,13 +47,13 @@ class SolaceClient {
     connectOptions.password = MQTT_PASSWORD;
     connectOptions.invocationContext = { code: this.code };
     connectOptions.onSuccess = ((invocationContext) => {
-      console.debug(this.getTime(), `Client connected to: ${MQTT_HOST}:${MQTT_PORT}`);
+      console.log(this.getTime(), `Client connected to: ${MQTT_HOST}:${MQTT_PORT}`);
       this.connected = true;
       this.onConnectionSuccess(this, this.code);
       return true;
     });
     connectOptions.onFailure = ((message) => {
-      console.debug(this.getTime(), `Failed to connect: ${message.errorCode}\n${message.errorMessage}`);
+      console.log(this.getTime(), `Failed to connect: ${message.errorCode}\n${message.errorMessage}`);
       this.connected = false;
       this.onConnectionError(this, this.code);
       return false;
@@ -62,7 +62,7 @@ class SolaceClient {
     // try to connect!
     this.client.connect(connectOptions);
     this.client.onConnectionLost = ((err) => {
-      console.debug(this.getTime(), `Client connection lost:${err.errorCode}\n${err.errorMessage}`);
+      console.log(this.getTime(), `Client connection lost:${err.errorCode}\n${err.errorMessage}`);
       this.connected = false;
       this.reconnect = true;
       this.onConnectionLost(this, this.code);
@@ -75,23 +75,23 @@ class SolaceClient {
     this.client.onMessageDelivered = ((message) => {
       const topic = message.destinationName;
       const text = message.payloadString;
-      // console.debug(this.getTime(), `Message published: topic=${topic} text=${text}`);
-      console.debug(this.getTime(), `Message published: topic=${topic}`);
+      // console.log(this.getTime(), `Message published: topic=${topic} text=${text}`);
+      console.log(this.getTime(), `Message published: topic=${topic}`);
     });
   }
 
   // Gracefully disconnects from Solace message router
   disconnect() {
-    console.debug(this.getTime(), 'Disconnecting from Solace message router...');
+    console.log(this.getTime(), 'Disconnecting from Solace message router...');
     if (this.isConnected()) {
       try {
         this.client.disconnect();
         this.connected = false;
       } catch (error) {
-        console.debug(this.getTime(), error.toString());
+        console.log(this.getTime(), error.toString());
       }
     } else {
-      console.debug(this.getTime(), 'Not connected to Solace message router.');
+      console.log(this.getTime(), 'Not connected to Solace message router.');
     }
   }
 
@@ -101,12 +101,12 @@ class SolaceClient {
       payload.destinationName = topic;
       try {
         this.client.send(payload);
-        console.debug(this.getTime(), 'Message published.');
+        console.log(this.getTime(), 'Message published.');
       } catch (error) {
-        console.debug(this.getTime(), error.toString());
+        console.log(this.getTime(), error.toString());
       }
     } else {
-      console.debug(this.getTime(), 'Cannot publish because not connected to Solace message router.');
+      console.log(this.getTime(), 'Cannot publish because not connected to Solace message router.');
     }
   }
 
@@ -124,16 +124,16 @@ class SolaceClient {
 
       const subscribedTopic = Object.keys(this.callbacks).find(topic => fixTopicName === topic.regExStr);
       if (subscribedTopic && this.callbacks[fixTopicName].isSubscribed) {
-        console.debug(this.getTime(), 'Already subscribed to "' + topicName + '" and ready to receive messages.');
+        console.log(this.getTime(), 'Already subscribed to "' + topicName + '" and ready to receive messages.');
       } else {
-        console.debug(this.getTime(), 'Subscribing to topic: ' + topicName);
+        console.log(this.getTime(), 'Subscribing to topic: ' + topicName);
         const subscribeOptions = {};
         subscribeOptions.onSuccess = ((invocationContext) => {
-          console.debug(this.getTime(), `Successfully subscribed to topic: ${topicName}`);
+          console.log(this.getTime(), `Successfully subscribed to topic: ${topicName}`);
           return true;
         });
         subscribeOptions.onFailure = ((message) => {
-          console.debug(this.getTime(), `Could not subscribe to topic: ${topicName}`);
+          console.log(this.getTime(), `Could not subscribe to topic: ${topicName}`);
           return false;
         });
         try {
@@ -142,11 +142,11 @@ class SolaceClient {
             name: topicName, regExStr: fixTopicName, callback, isSubscribed: true
           };
         } catch (error) {
-          console.debug(this.getTime(), error.toString());
+          console.log(this.getTime(), error.toString());
         }
       }
     } else {
-      console.debug(this.getTime(), 'Cannot issue subscribe request because not connected to Solace message router.');
+      console.log(this.getTime(), 'Cannot issue subscribe request because not connected to Solace message router.');
     }
   }
 
@@ -157,25 +157,25 @@ class SolaceClient {
 
       const subscribedTopic = Object.keys(this.callbacks).find(topic => fixTopicName === topic.regExStr);
       if (subscribedTopic) {
-        console.debug(this.getTime(), 'Unsubscribing topic: ' + topicName);
+        console.log(this.getTime(), 'Unsubscribing topic: ' + topicName);
         const unsubscribeOptions = {};
         unsubscribeOptions.onSuccess = ((invocationContext) => {
-          console.debug(this.getTime(), `Successfully unsubscribed topic: ${topicName}`);
+          console.log(this.getTime(), `Successfully unsubscribed topic: ${topicName}`);
           return true;
         });
         unsubscribeOptions.onFailure = ((message) => {
-          console.debug(this.getTime(), `Could not unsubscribe topic: ${topicName}`);
+          console.log(this.getTime(), `Could not unsubscribe topic: ${topicName}`);
           return false;
         });
         try {
           this.client.unsubscribe(topicName, unsubscribeOptions);
           delete this.callbacks[fixTopicName];
         } catch (error) {
-          console.debug(this.getTime(), error.toString());
+          console.log(this.getTime(), error.toString());
         }
       }
     } else {
-      console.debug(this.getTime(), 'Cannot issue unsubscribe request, because not connected to Solace message router.');
+      console.log(this.getTime(), 'Cannot issue unsubscribe request, because not connected to Solace message router.');
     }
   }
 
@@ -196,7 +196,7 @@ class SolaceClient {
     }
 
     if (!delivered) {
-      console.debug(this.getTime(), 'No callback registered for topic ' + topic);
+      console.log(this.getTime(), 'No callback registered for topic ' + topic);
     }
   }
 }

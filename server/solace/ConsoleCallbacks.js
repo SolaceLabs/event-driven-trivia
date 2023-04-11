@@ -99,13 +99,13 @@ class ConsoleCallbacks {
   });
 
   onTriviaActivityCallback = (message) => {
-    // `trivia/+/+/${window.gameCode}`
+    // `trivia/${game_code}/+/+`
 
     const topic = message.getDestination();
     const topicName = topic.getName();
     const parts = topicName.split('/');
-    const game_code = parts[3];
-    const reply_to = (['question', 'usercount'].includes(parts[2])) ? undefined : parts[4];
+    const game_code = parts[1];
+    const reply_to = (['question', 'usercount'].includes(parts[3])) ? undefined : parts[4];
 
     const activity = activityTopics.findIndex(axis => topicName.indexOf(axis) > 0);
     if (!activity) {
@@ -128,15 +128,15 @@ class ConsoleCallbacks {
     };
 
     reply_to
-      ? this.consoleClient.publish(`trivia/activity/user/${game_code}/${reply_to}`, payload)
-      : this.consoleClient.publish(`trivia/activity/broadcast/${game_code}`, payload);
+      ? this.consoleClient.publish(`trivia/${game_code}/activity/user/${reply_to}`, payload)
+      : this.consoleClient.publish(`trivia/${game_code}/activity/broadcast`, payload);
   }
 
   onGameRestartCallback = (message) => {
-    // 'trivia/broadcast/restart/${window.gameCode}
+    // 'trivia/${game_code}/broadcast/restart
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
 
     const players = triviaPlayersConfig.get('players') ? triviaPlayersConfig.get('players') : {};
     delete players[game_code];
@@ -144,10 +144,10 @@ class ConsoleCallbacks {
   }
 
   onGameInfoCallback = (message) => {
-    // 'trivia/query/info/${window.gameCode}/${window.nickName}'
+    // 'trivia/${game_code}/query/info/${window.nickName}'
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
     const reply_to = parts[4];
     console.log(this.getTime(), '=== Trivia Console query on game code: ' + game_code + ' from ' + reply_to + '===');
 
@@ -178,20 +178,20 @@ class ConsoleCallbacks {
               const players = triviaPlayersConfig.get('players') ? triviaPlayersConfig.get('players') : {};
               if (players[game_code]) trivia.players = players[game_code];
 
-              this.consoleClient.publish(`trivia/response/info/${game_code}/${reply_to}`, trivia);
+              this.consoleClient.publish(`trivia/${game_code}/response/info/${reply_to}`, trivia);
             }
           })
           .catch(err => {
             const players = triviaPlayersConfig.get('players') ? triviaPlayersConfig.get('players') : {};
             if (players[game_code]) trivia.players = players[game_code];
-            this.consoleClient.publish(`trivia/response/info/${game_code}/${reply_to}`, trivia);
+            this.consoleClient.publish(`trivia/${game_code}/response/info/${reply_to}`, trivia);
           });
       })
       .catch(err => {
         const error = 'No Trivia found';
         console.log(this.getTime(), err);
         console.log(this.getTime(), error);
-        this.consoleClient.publish(`trivia/update/error/${game_code}/${reply_to}`, { message: error });
+        this.consoleClient.publish(`trivia/${game_code}/update/error/gameinfo/${reply_to}`, { message: error });
       });
   }
 
@@ -204,14 +204,14 @@ class ConsoleCallbacks {
       result[qno] = { corrects, incorrects };
     });
 
-    this.consoleClient.publish(`trivia/response/performance/${game_code}/${reply_to}`, result);
+    this.consoleClient.publish(`trivia/${game_code}/response/performance/${reply_to}`, result);
   }
 
   onPerformanceCallback = (message) => {
-    // 'trivia/query/performance/${window.gameCode}/${window.nickName}'
+    // 'trivia/${game_code}/query/performance/${window.nickName}'
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
     const reply_to = parts[4];
 
     TriviaStats.aggregate([
@@ -230,17 +230,17 @@ class ConsoleCallbacks {
       .catch(err => {
         const error = 'No answers found';
         console.log(this.getTime(), err);
-        this.consoleClient.publish(`trivia/update/error/${game_code}/${reply_to}`, { message: error });
+        this.consoleClient.publish(`trivia/${game_code}/update/error/performance/${reply_to}`, { message: error });
       });
 
     console.log(this.getTime(), '=== Trivia Console performance response on game code: ' + game_code + ' from session: ' + reply_to + ' ===');
   }
 
   onScorecardCallback = (message) => {
-    // 'trivia/query/scorecard/${window.gameCode}/${window.nickName}'
+    // 'trivia/${game_code}/query/scorecard/${window.nickName}'
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
     const reply_to = parts[4];
 
     TriviaStats.aggregate([
@@ -262,26 +262,26 @@ class ConsoleCallbacks {
       }
     ])
       .then(list => {
-        this.consoleClient.publish(`trivia/response/scorecard/${game_code}/${reply_to}`, { answers: list[0].answers });
+        this.consoleClient.publish(`trivia/${game_code}/response/scorecard/${reply_to}`, { answers: list[0].answers });
       })
       .catch(err => {
         const error = 'No answers found';
         console.log(this.getTime(), err);
-        this.consoleClient.publish(`trivia/update/error/${game_code}/${reply_to}`, { message: error });
+        this.consoleClient.publish(`trivia/${game_code}/update/error/scorecard/${reply_to}`, { message: error });
       });
 
     console.log(this.getTime(), '=== Trivia Console scorecard response on game code: ' + game_code + ' from session: ' + reply_to + ' ===');
   }
 
   onChatCallback = (message) => {
-    // 'trivia/update/chat/${window.gameCode}/${window.nickName}'
+    // 'trivia/${game_code}/update/chat/${window.nickName}'
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
     const reply_to = parts[4];
     const chat = JSON.parse(message.getBinaryAttachment());
 
-    this.consoleClient.publish(`trivia/broadcast/chat/${game_code}`, chat);
+    this.consoleClient.publish(`trivia/${game_code}/broadcast/chat`, chat);
     Trivia.findOne({ hash: game_code })
       .then(t => {
         if (!t) { throw new Error('No Trivia found'); }
@@ -304,10 +304,10 @@ class ConsoleCallbacks {
   }
 
   onGetRankCallback = (message) => {
-    // 'trivia/query/getrank/${window.gameCode}/${window.nickName}'
+    // 'trivia/${game_code}/query/getrank/${window.nickName}'
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
     const reply_to = parts[4];
 
     TriviaStats.find({ hash: game_code })
@@ -317,13 +317,13 @@ class ConsoleCallbacks {
         if (!stats) { throw new Error('No Trivia found'); }
 
         const score = stats.score.find(s => s.player === reply_to);
-        this.consoleClient.publish(`trivia/response/getrank/${game_code}/${reply_to}`, score);
+        this.consoleClient.publish(`trivia/${game_code}/response/getrank/${reply_to}`, score);
       })
       .catch(err => {
         const error = 'No Trivia found';
         console.log(this.getTime(), err);
         console.log(this.getTime(), error);
-        this.consoleClient.publish(`trivia/update/error/${game_code}/${reply_to}`, { message: error });
+        this.consoleClient.publish(`trivia/${game_code}/update/error/getrank/${reply_to}`, { message: error });
       });
   }
 
@@ -367,27 +367,27 @@ class ConsoleCallbacks {
       });
 
     if (reply_to) {
-      this.consoleClient.publish(`trivia/response/leaderboard/${stats.hash}/${reply_to}`, scores.filter(s => s.rank > 0));
+      this.consoleClient.publish(`trivia/${stats.hash}/response/leaderboard/${reply_to}`, scores.filter(s => s.rank > 0));
     } else {
-      this.consoleClient.publish(`trivia/response/leaderboard/${stats.hash}`, scores.filter(s => s.rank > 0));
+      this.consoleClient.publish(`trivia/${stats.hash}/response/leaderboard`, scores.filter(s => s.rank > 0));
     }
   }
 
   onEventGroupsCallback = (message) => {
-    // 'trivia/query/eventgroups/${window.gameCode}/${window.nickName}' XXX
+    // 'trivia/${game_code}/query/eventgroups/${window.nickName}'
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
     const reply_to = parts[4];
     const groups = Object.values(activities).sort((a, b) => (a.category < b.category ? -1 : 1));
-    this.consoleClient.publish(`trivia/response/eventgroups/${game_code}`, groups);
+    this.consoleClient.publish(`trivia/${game_code}/response/eventgroups/${reply_to}`, groups);
   }
 
   onLeaderboardCallback = (message) => {
-    // 'trivia/query/leaderboard/${window.gameCode}/${window.nickName}'
+    // 'trivia/${game_code}/query/leaderboard/${window.nickName}'
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
     const reply_to = parts[4];
 
     TriviaStats.find({ hash: game_code })
@@ -407,15 +407,15 @@ class ConsoleCallbacks {
         const error = 'No Trivia found';
         console.log(this.getTime(), err);
         console.log(this.getTime(), error);
-        this.consoleClient.publish(`trivia/update/error/${game_code}/${reply_to}`, { message: error });
+        this.consoleClient.publish(`trivia/${game_code}/update/error/leaderboard/${reply_to}`, { message: error });
       });
   }
 
   onValidateCallback = (message) => {
-    // 'trivia/query/validation/${window.gameCode}/${window.nickName}'
+    // 'trivia/${game_code}/query/validation/${window.nickName}'
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
     const reply_to = parts[4];
     const admin = JSON.parse(message.getBinaryAttachment());
 
@@ -425,10 +425,10 @@ class ConsoleCallbacks {
           const trivia = trivias[0];
           if (!trivia) { throw new Error('No Trivia found'); }
 
-          this.consoleClient.publish(`trivia/response/validation/${game_code}/${reply_to}`,
+          this.consoleClient.publish(`trivia/${game_code}/response/validation/${reply_to}`,
             { message: 'Admin code validation', success: trivia.adminHash === admin.hash });
         } else {
-          this.consoleClient.publish(`trivia/response/validation/${game_code}/${reply_to}`,
+          this.consoleClient.publish(`trivia/${game_code}/response/validation/${reply_to}`,
             { message: 'No Trivia found', success: false });
         }
       })
@@ -436,15 +436,15 @@ class ConsoleCallbacks {
         const error = 'No Trivia found';
         console.log(this.getTime(), err);
         console.log(this.getTime(), error);
-        this.consoleClient.publish(`trivia/update/error/${game_code}/${reply_to}`, { message: error });
+        this.consoleClient.publish(`trivia/${game_code}/update/error/validate/${reply_to}`, { message: error });
       });
   }
 
   onGameEndedCallback = async (message) => {
-    // 'trivia/update/user/${window.gameCode}/${window.nickName}/${action}'
+    // 'trivia/${game_code}/update/user/${window.nickName}/${action}'
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
 
     const players = triviaPlayersConfig.get('players') ? triviaPlayersConfig.get('players') : {};
     triviaPlayersConfig.set('players', players);
@@ -480,12 +480,12 @@ class ConsoleCallbacks {
       // ignore
     } else {
       if (game.connected.includes(reply_to) && action === 'CONNECTED') {
-        this.consoleClient.publish(`trivia/broadcast/usercount/${game_code}/${game.current}`);
+        this.consoleClient.publish(`trivia/${game_code}/broadcast/usercount/${game.current}`);
         return;
       }
 
       if (!game.connected.includes(reply_to) && action === 'DISCONNECTED') {
-        this.consoleClient.publish(`trivia/broadcast/usercount/${game_code}/${game.current}`);
+        this.consoleClient.publish(`trivia/${game_code}/broadcast/usercount/${game.current}`);
         return;
       }
 
@@ -498,74 +498,27 @@ class ConsoleCallbacks {
       game.timeStamp = new Date();
       players[game_code] = game;
 
-      this.consoleClient.publish(`trivia/broadcast/usercount/${game_code}/${game.current}`);
+      this.consoleClient.publish(`trivia/${game_code}/broadcast/usercount/${game.current}`);
     }
     triviaPlayersConfig.set('players', players);
   }
 
   onUserUpdateCallback = async (message) => {
-    // 'trivia/update/user/${window.gameCode}/${window.nickName}/${action}'
+    // 'trivia/${game_code}/update/user/${window.nickName}/${action}'
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
     const reply_to = parts[4];
     const action = parts[5];
 
     this.updateTriviaUsersConfig(game_code, reply_to, action);
-
-    // Trivia.findOne({ hash: game_code })
-    //   .then(t => {
-    //     if (!t) { throw new Error('No Trivia found'); }
-
-    //     const trivia = t.toObject();
-    //     if (!trivia.players) {
-    //       trivia.players = {
-    //         names: [], connected: [], current: 0, high: 1
-    //       };
-    //     }
-    //     if (!trivia.players.current && action === 'DISCONNECTED') {
-    //       // ignore
-    //     } else {
-    //       if (trivia.players.connected.includes(reply_to) && action === 'CONNECTED') {
-    //         // this.consoleClient.publish(`trivia/broadcast/usercount/${game_code}/${trivia.players.current}`);
-    //         // console.log('Update player stats success');
-    //         return;
-    //       }
-
-    //       if (!trivia.players.connected.includes(reply_to) && action === 'DISCONNECTED') {
-    //         // this.consoleClient.publish(`trivia/broadcast/usercount/${game_code}/${trivia.players.current}`);
-    //         // console.log('Update player stats success');
-    //         return;
-    //       }
-
-    //       if (!trivia.players.names.includes(reply_to)) trivia.players.names.push(reply_to);
-    //       if (!trivia.players.connected.includes(reply_to) && action === 'CONNECTED') trivia.players.connected.push(reply_to);
-    //       if (trivia.players.connected.includes(reply_to) && action === 'DISCONNECTED') trivia.players.connected = trivia.players.connected.filter(a => a !== reply_to);
-    //       trivia.players.current += ((action === 'CONNECTED') ? 1 : -1);
-    //       trivia.players.current < 0 ? trivia.players.current = 0 : trivia.players.current;
-    //       trivia.players.high = (trivia.players.current > trivia.players.high) ? trivia.players.current : trivia.players.high;
-    //       trivia.players.timeStamp = new Date();
-    //     }
-
-    //     Trivia.findOneAndUpdate(
-    //       { hash: game_code },
-    //       { $set: { players: trivia.players } },
-    //       (err, result) => {
-    //         if (err) {
-    //           console.log('Update player stats failed: ', err);
-    //           throw new Error('No Trivia found');
-    //         } else {
-    //           // this.consoleClient.publish(`trivia/broadcast/usercount/${game_code}/${trivia.players.current}`);
-    //         }
-    //       });
-    //   });
   }
 
   onAnswerCallback = async (message) => {
-    // 'trivia/update/answer/${window.gameCode}/${window.nickName}/${qid}'
+    // 'trivia/${game_code}/update/answer/${window.nickName}/${qid}'
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
     const reply_to = parts[4];
     const qid = parts[5];
 
@@ -626,7 +579,7 @@ class ConsoleCallbacks {
                 .catch(err => {
                   const error = 'No answers found';
                   console.log(this.getTime(), err);
-                  this.consoleClient.publish(`trivia/update/error/${game_code}/${reply_to}`, { message: error });
+                  this.consoleClient.publish(`trivia/${game_code}/update/error/answer/${reply_to}`, { message: error });
                 });
             }
           }
@@ -636,7 +589,7 @@ class ConsoleCallbacks {
         const error = 'Answer update failed';
         console.log(this.getTime(), err);
         console.log(this.getTime(), error);
-        this.consoleClient.publish(`trivia/update/error/${game_code}/${reply_to}`, { message: error });
+        this.consoleClient.publish(`trivia/${game_code}/update/error/answer/${reply_to}`, { message: error });
       });
   }
 
@@ -697,7 +650,7 @@ class ConsoleCallbacks {
           const _message = 'No Trivia found';
           console.log(this.getTime(), err);
           console.log(this.getTime(), _message);
-          this.consoleClient.publish(`trivia/update/error/${game_code}/${reply_to}`, { message: _message });
+          this.consoleClient.publish(`trivia/${game_code}/update/error/worker/${reply_to}`, { message: _message });
         });
     } else if (msg.type === TriviaConstants.GAME_END_REQUEST) {
       console.log(this.getTime(), 'Game Ended - Terminating Worker thread', msg.message);
@@ -724,8 +677,8 @@ class ConsoleCallbacks {
           }
         });
 
-      console.log(this.getTime(), `Publish trivia/update/gameaborted/${game_code}`);
-      this.consoleClient.publish(`trivia/update/gameaborted/${game_code}`, msg.message);
+      console.log(this.getTime(), `Publish trivia/${game_code}/update/gameaborted`);
+      this.consoleClient.publish(`trivia/${game_code}/update/gameaborted`, msg.message);
       worker.kill('SIGHUP');
     } else if (msg.type === TriviaConstants.CONNECTION_ERROR) {
       console.log(this.getTime(), 'Connection Error - Terminating Worker thread', msg.message);
@@ -737,19 +690,19 @@ class ConsoleCallbacks {
   }
 
   onStartCallback = async (message) => {
-    // 'trivia/update/start/${window.gameCode}'
+    // 'trivia/${game_code}/update/start'
     const topic = message.getDestination();
     const parts = topic.getName().split('/');
-    const game_code = parts[3];
+    const game_code = parts[1];
     const reply_to = parts[4];
 
     const status = await this.getGameStatus(game_code);
     if (status === 'TRIVIA_NOT_FOUND') {
-      this.consoleClient.publish(`trivia/update/error/${game_code}/${reply_to}`, { message: 'Trivia not found' });
+      this.consoleClient.publish(`trivia/${game_code}/update/error/start/${reply_to}`, { message: 'Trivia not found' });
       return;
     }
     if (status === 'STARTED') {
-      this.consoleClient.publish(`trivia/update/error/${game_code}/${reply_to}`, { message: 'Trivia already in progress' });
+      this.consoleClient.publish(`trivia/${game_code}/update/error/start/${reply_to}`, { message: 'Trivia already in progress' });
       return;
     }
 

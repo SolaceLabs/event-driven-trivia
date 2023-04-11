@@ -329,7 +329,7 @@ function Categories(props) {
       {showDeleteDialog
         && <AlertDialog
           title='Delete Category(s)'
-          description='Are you sure you want to delete selected Category(s)?'
+          description='This will also delete questions under this category, Are you sure you want to delete selected Category(s)?'
           cancel='Cancel'
           submit='Confirm'
           onSubmit={onRowsDeleteConfirm}

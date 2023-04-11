@@ -430,10 +430,12 @@ router.post('/delete', async (req, res) => {
       notDeleted++;
     }
   }
-  if (deleted === 0) {
+  if (notDeleted === req.body.ids.length) {
     res.json({ success: false, message: 'Could not delete, Trivia(s) are in progress, try again later!' });
-  } else {
-    res.json({ success: true, message: 'Could not delete ' + notDeleted + ' in progress Trivias, ' + deleted + ' Trivia(s) successfully deleted' });
+  } else if (deleted === req.body.ids.length) {
+    res.json({ success: false, message: deleted + ' Trivia(s) successfully deleted!' });
+  } else if (deleted !== 0 && notDeleted !== 0) {
+    res.json({ success: true, message: 'Could not delete ' + notDeleted + ' in progress Trivias, however' + deleted + ' Trivia(s) successfully deleted' });
   }
 });
 

@@ -65,19 +65,19 @@ consoleClient.setOnConnectionLost(consoleCallbacks.onConnectionLost);
 consoleCallbacks.setConsoleClient(consoleClient);
 
 consoleClient.connect();
-consoleClient.subscribe('trivia/query/info/>', consoleCallbacks.onGameInfoCallback);
-consoleClient.subscribe('trivia/query/scorecard/>', consoleCallbacks.onScorecardCallback);
-consoleClient.subscribe('trivia/query/performance/>', consoleCallbacks.onPerformanceCallback);
-consoleClient.subscribe('trivia/query/leaderboard/>', consoleCallbacks.onLeaderboardCallback);
-consoleClient.subscribe('trivia/query/eventgroups/>', consoleCallbacks.onEventGroupsCallback);
-consoleClient.subscribe('trivia/query/getrank/>', consoleCallbacks.onGetRankCallback);
-consoleClient.subscribe('trivia/query/validation/>', consoleCallbacks.onValidateCallback);
-consoleClient.subscribe('trivia/update/start/>', consoleCallbacks.onStartCallback);
-consoleClient.subscribe('trivia/update/chat/>', consoleCallbacks.onChatCallback);
-consoleClient.subscribe('trivia/update/answer/>', consoleCallbacks.onAnswerCallback);
-consoleClient.subscribe('trivia/update/user/>', consoleCallbacks.onUserUpdateCallback);
-consoleClient.subscribe('trivia/update/gameended/>', consoleCallbacks.onGameEndedCallback);
-consoleClient.subscribe('trivia/broadcast/restart/>', consoleCallbacks.onGameRestartCallback);
+consoleClient.subscribe('trivia/*/query/info/>', consoleCallbacks.onGameInfoCallback);
+consoleClient.subscribe('trivia/*/query/scorecard/>', consoleCallbacks.onScorecardCallback);
+consoleClient.subscribe('trivia/*/query/performance/>', consoleCallbacks.onPerformanceCallback);
+consoleClient.subscribe('trivia/*/query/leaderboard/>', consoleCallbacks.onLeaderboardCallback);
+consoleClient.subscribe('trivia/*/query/eventgroups/>', consoleCallbacks.onEventGroupsCallback);
+consoleClient.subscribe('trivia/*/query/getrank/>', consoleCallbacks.onGetRankCallback);
+consoleClient.subscribe('trivia/*/query/validation/>', consoleCallbacks.onValidateCallback);
+consoleClient.subscribe('trivia/*/update/start/>', consoleCallbacks.onStartCallback);
+consoleClient.subscribe('trivia/*/update/chat/>', consoleCallbacks.onChatCallback);
+consoleClient.subscribe('trivia/*/update/answer/>', consoleCallbacks.onAnswerCallback);
+consoleClient.subscribe('trivia/*/update/user/>', consoleCallbacks.onUserUpdateCallback);
+consoleClient.subscribe('trivia/*/update/gameended/>', consoleCallbacks.onGameEndedCallback);
+consoleClient.subscribe('trivia/*/broadcast/restart/>', consoleCallbacks.onGameRestartCallback);
 consoleCallbacks.setupPlayerSynch();
 
 const monitorClient = new ConsoleClient('monitor');
@@ -89,7 +89,7 @@ monitorClient.setOnConnectionLost(monitorCallbacks.onConnectionLost);
 monitorCallbacks.setConsoleClient(monitorClient);
 
 monitorClient.connect();
-monitorClient.subscribe('trivia/>', monitorCallbacks.onTriviaActivityCallback);
+monitorClient.subscribe('trivia/*/>', monitorCallbacks.onTriviaActivityCallback);
 
 // api routes
 const authRoutes = require('./routes/authRoutes');

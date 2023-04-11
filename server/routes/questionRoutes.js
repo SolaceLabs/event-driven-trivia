@@ -9,6 +9,7 @@ const router = express.Router();
 const multer = require('multer');
 const fs = require('fs');
 const Question = require('../models/question');
+const Category = require('../models/category');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -219,26 +220,30 @@ router.post('/upload', upload.single('csvFile'), async (req, res, next) => {
 
   const allFileContents = fs.readFileSync(filename, 'utf-8');
   const allLines = allFileContents.split(/\r?\n/);
+  const questions = [];
   for (let i = 1; i < allLines.length; i++) {
-    try {
-      if (allLines[i].length) {
-        console.log('before save');
-        const fields = allLines[i].split('\t');
-        const question = await Question.create({
-          category: fields[0],
-          question: fields[1],
-          choice_1: fields[2],
-          choice_2: fields[3],
-          choice_3: fields[4],
-          choice_4: fields[5],
-          answer: fields[6]
-        });
-        console.log('after save');
-        console.log('Question created: ', question);
-      }
-    } catch (error) {
-      return res.json({ success: false, message: error.message, });
-    }
+    const fields = allLines[i].split('\t');
+    questions.push({
+      category: fields[0],
+      question: fields[1],
+      choice_1: fields[2],
+      choice_2: fields[3],
+      choice_3: fields[4],
+      choice_4: fields[5],
+      answer: fields[6]
+    });
+  }
+
+  const categories = questions.map((item) => item.category).filter((value, index, self) => self.indexOf(value) === index);
+  for (let i = 0; i < categories.length; i++) {
+    const category = await Category.find({ name: categories[i] });
+    if (!category.length) await Category.insertMany([{ name: categories[i] }]);
+  }
+
+  try {
+    await Question.insertMany(questions);
+  } catch (error) {
+    return res.json({ success: false, message: error.message, });
   }
 
   res.send({ code: 200, status: true, message: 'ok' });

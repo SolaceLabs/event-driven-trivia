@@ -142,8 +142,8 @@ class ConsoleClient {
 
   onMessageArrived = function (message) {
     const topic = message.getDestination();
+
     console.log(this.getTime(), `${this.name}: Received message: on topic ` + topic.getName());
-    // console.log(this.getTime(), 'Received message: "' + message.getBinaryAttachment() + '", details:\n' + message.dump());
 
     const topics = Object.values(this.callbacks);
     let delivered = 0;

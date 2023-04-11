@@ -92,7 +92,7 @@ function updateCountDown(startAt, down = true) {
 }
 
 function updateGameChat(message, controller = false) {
-  // `trivia/update/chat/${window.gameCode}`
+  // `trivia/${window.gameCode}/update/chat`
   const date = new Date(message.timestamp);
   const timestamp = date.toLocaleString('en-US', {
     weekday: 'short', // long, short, narrow
@@ -125,7 +125,7 @@ function submitAdminCode() {
     .getElementById('admincode')
     .value;
   if (adminCode && adminCode.length) {
-    client.publish(`trivia/query/validation/${window.gameCode}/${window.nickName}`, { hash: adminCode });
+    client.publish(`trivia/${window.gameCode}/query/validation/${window.nickName}`, { hash: adminCode });
     window.adminCode = adminCode;
     document.getElementById('admin-confirmation-form').style.display = 'none';
     document.getElementById('spinner').classList.add('show');
@@ -147,7 +147,7 @@ function sendChatMessage(message) {
 
   updateHappening('Message: ' + message, INFO);
   updateHappening('Contains emoji: ' + emojiRegex.test(message), DEBUG);
-  client.publish(`trivia/update/chat/${window.gameCode}/${window.nickName}`, {
+  client.publish(`trivia/${window.gameCode}/update/chat/${window.nickName}`, {
     name: window.nickName,
     message,
     emoji,
@@ -163,7 +163,7 @@ function showSnack(message) {
 }
 
 function gameError(message) {
-  // `trivia/update/error/${window.gameCode}/+`
+  // `trivia/${window.gameCode}/update/error/#`
   updateHappening('Message received on gameError: ' + message.destinationName, ERROR);
   const trivia = JSON.parse(message.payloadString);
   showSnack(trivia.message);
@@ -180,7 +180,7 @@ function gameError(message) {
 }
 
 function gameUserCountUpdate(message) {
-  // `trivia/broadcast/usercount/${window.gameCode}/+`
+  // `trivia/${window.gameCode}/broadcast/usercount/#`
   const topic = message.destinationName;
   const parts = topic.split('/');
   const count = parts[4];
@@ -247,7 +247,7 @@ function gameActivityUpdate(message) {
 }
 
 function gamePerformanceUpdate(message) {
-  // `trivia/response/performance/${window.gameCode}/+`
+  // `trivia/${window.gameCode}/response/performance/#`
   const payload = JSON.parse(message.payloadString);
   // gamePerformanceChart.data.labels = Object.keys(payload);
   const questions = Object.keys(payload);
@@ -264,13 +264,13 @@ function gamePerformanceUpdate(message) {
 }
 
 function gameRestart(message) {
-  // `trivia/broadcast/restart/${window.gameCode}
+  // `trivia/${window.gameCode}/broadcast/restart/${window.gameCode}
   updateHappening('Message received on gameRestart: ' + message.destinationName, INFO);
   location.reload();
 }
 
 function gameInfo(message) {
-  // `trivia/response/info/${window.gameCode}/${window.nickName}
+  // `trivia/${window.gameCode}/response/info/${window.nickName}
   updateHappening('Message received on gameInfo: ' + message.destinationName, INFO);
   const trivia = JSON.parse(message.payloadString);
 
@@ -357,7 +357,7 @@ function gameChat(message) {
 }
 
 function gameStart(message) {
-  // `trivia/update/gamestarted/${window.gameCode}`
+  // `trivia/${window.gameCode}/update/gamestarted`
   updateHappening('Message received on gameStart confirmation: ' + message.destinationName, INFO);
   document.getElementById('count-down-tracker').style.display = 'none';
   document.getElementById('count-down-tracker').parentNode.classList.remove('w3-padding-large');
@@ -374,7 +374,7 @@ function gameStart(message) {
 }
 
 function gameEnd(message) {
-  // `trivia/update/gameended/${window.gameCode}`
+  // `trivia/${window.gameCode}/update/gameended`
   updateHappening('Message received on gameEnd' + message.destinationName, INFO);
   const flipDown = document.querySelector('#flipdown');
   if (flipDown) {
@@ -398,12 +398,12 @@ function gameEnd(message) {
 
   document.querySelector('.abort-button').style.display = 'none';
   document.querySelector('.power-button').style.display = 'none';
-  client.publish(`trivia/query/leaderboard/${window.gameCode}/${window.nickName}`);
-  client.publish(`trivia/query/performance/${window.gameCode}/${window.nickName}`);
+  client.publish(`trivia/${window.gameCode}/query/leaderboard/${window.nickName}`);
+  client.publish(`trivia/${window.gameCode}/query/performance/${window.nickName}`);
 }
 
 function gameAbort(message) {
-  // `trivia/update/gameaborted/${window.gameCode}`
+  // `trivia/${window.gameCode}/update/gameaborted`
   updateHappening('Message received on gameAbort' + message.destinationName, INFO);
   const flipDown = document.querySelector('#flipdown');
   if (flipDown) {
@@ -426,12 +426,12 @@ function gameAbort(message) {
 
   document.querySelector('.abort-button').style.display = 'none';
   document.querySelector('.power-button').style.display = 'none';
-  client.publish(`trivia/query/leaderboard/${window.gameCode}/${window.nickName}`);
-  client.publish(`trivia/query/performance/${window.gameCode}/${window.nickName}`);
+  client.publish(`trivia/${window.gameCode}/query/leaderboard/${window.nickName}`);
+  client.publish(`trivia/${window.gameCode}/query/performance/${window.nickName}`);
 }
 
 function gameLeaderboard(message) {
-  // `trivia/response/leaderboard/${window.gameCode}/+`
+  // `trivia/${window.gameCode}/response/leaderboard/#`
   updateHappening('Message received on gameLeaderboard' + message.destinationName, INFO);
   const ranks = JSON.parse(message.payloadString);
   const table = document.getElementById('trivia-leader-board-table');
@@ -464,13 +464,13 @@ function gameLeaderboard(message) {
 }
 
 function gameEventGroups(message) {
-  // `trivia/response/eventgroups/${window.gameCode}/+`
+  // `trivia/${window.gameCode}/response/eventgroups/#`
   const groups = JSON.parse(message.payloadString);
   window.eventGroups = groups.map(g => { g.selected = true; return g; });
 }
 
 function gameQuestion(message) {
-  // `trivia/update/question/${window.gameCode}/+`
+  // `trivia/${window.gameCode}/update/question/#`
   const question = JSON.parse(message.payloadString);
   document.querySelector('#trivia-progress-title').innerHTML = 'Trivia Progress';
   updateHappening('Message received on gameQuestion' + message.destinationName, INFO);
@@ -487,7 +487,7 @@ function closeAdminDialog() {
 }
 
 function gameValidation(message) {
-  // `trivia/response/validation/${window.gameCode}/${window.nickName}`
+  // `trivia/${window.gameCode}/response/validation/${window.nickName}`
   updateHappening('Message received on gameValidation' + message.destinationName, INFO);
   document.getElementById('spinner').classList.remove('show');
   const result = JSON.parse(message.payloadString);
@@ -511,31 +511,31 @@ function solaceClientConnected() {
     document.getElementById('game_content').classList.remove('hide');
     document.getElementById('game_content').classList.add('show');
 
-    client.subscribe(`trivia/activity/user/${window.gameCode}/#`, gameActivityUpdate);
-    client.subscribe(`trivia/activity/broadcast/${window.gameCode}`, gameActivityUpdate);
-    client.subscribe(`trivia/broadcast/usercount/${window.gameCode}/+`, gameUserCountUpdate);
-    client.subscribe(`trivia/broadcast/chat/${window.gameCode}`, gameChat);
-    client.subscribe(`trivia/broadcast/restart/${window.gameCode}`, gameRestart);
-    client.subscribe(`trivia/response/info/${window.gameCode}/${window.nickName}`, gameInfo);
-    client.subscribe(`trivia/response/performance/${window.gameCode}`, gamePerformanceUpdate);
-    client.subscribe(`trivia/response/performance/${window.gameCode}/+`, gamePerformanceUpdate);
-    client.subscribe(`trivia/response/leaderboard/${window.gameCode}`, gameLeaderboard);
-    client.subscribe(`trivia/response/leaderboard/${window.gameCode}/+`, gameLeaderboard);
-    client.subscribe(`trivia/response/eventgroups/${window.gameCode}`, gameEventGroups);
-    client.subscribe(`trivia/response/eventgroups/${window.gameCode}/+`, gameEventGroups);
-    client.subscribe(`trivia/response/validation/${window.gameCode}/${window.nickName}`, gameValidation);
-    client.subscribe(`trivia/update/error/${window.gameCode}/+`, gameError);
-    client.subscribe(`trivia/update/gameaborted/${window.gameCode}`, gameAbort);
-    client.subscribe(`trivia/update/gameended/${window.gameCode}`, gameEnd);
-    client.subscribe(`trivia/update/gamestarted/${window.gameCode}`, gameStart);
-    client.subscribe(`trivia/update/question/${window.gameCode}/+`, gameQuestion);
+    client.subscribe(`trivia/${window.gameCode}/activity/user/#`, gameActivityUpdate);
+    client.subscribe(`trivia/${window.gameCode}/activity/broadcast`, gameActivityUpdate);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/usercount/#`, gameUserCountUpdate);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/chat`, gameChat);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/restart`, gameRestart);
+    client.subscribe(`trivia/${window.gameCode}/response/info/${window.nickName}`, gameInfo);
+    client.subscribe(`trivia/${window.gameCode}/response/performance`, gamePerformanceUpdate);
+    client.subscribe(`trivia/${window.gameCode}/response/performance/#`, gamePerformanceUpdate);
+    client.subscribe(`trivia/${window.gameCode}/response/leaderboard`, gameLeaderboard);
+    client.subscribe(`trivia/${window.gameCode}/response/leaderboard/#`, gameLeaderboard);
+    client.subscribe(`trivia/${window.gameCode}/response/eventgroups`, gameEventGroups);
+    client.subscribe(`trivia/${window.gameCode}/response/eventgroups/#`, gameEventGroups);
+    client.subscribe(`trivia/${window.gameCode}/response/validation/${window.nickName}`, gameValidation);
+    client.subscribe(`trivia/${window.gameCode}/update/error/+/#`, gameError);
+    client.subscribe(`trivia/${window.gameCode}/update/gameaborted`, gameAbort);
+    client.subscribe(`trivia/${window.gameCode}/update/gameended`, gameEnd);
+    client.subscribe(`trivia/${window.gameCode}/update/gamestarted`, gameStart);
+    client.subscribe(`trivia/${window.gameCode}/update/question/#`, gameQuestion);
 
     if (client.reconnect) {
       return;
     }
 
-    client.publish(`trivia/query/info/${window.gameCode}/${window.nickName}`);
-    client.publish(`trivia/query/eventgroups/${window.gameCode}/${window.nickName}`);
+    client.publish(`trivia/${window.gameCode}/query/info/${window.nickName}`);
+    client.publish(`trivia/${window.gameCode}/query/eventgroups/${window.nickName}`);
   } else {
     document.getElementById('spinner').classList.remove('show');
     document.getElementById('invalid_game').classList.add('show');
@@ -611,7 +611,7 @@ window.addEventListener('load', () => {
   }
 
   document.querySelector('#trivia-performance-load').addEventListener('click', () => {
-    client.publish(`trivia/query/performance/${window.gameCode}/${window.nickName}`);
+    client.publish(`trivia/${window.gameCode}/query/performance/${window.nickName}`);
   });
 
   if (!window.status) {
@@ -653,18 +653,18 @@ window.addEventListener('load', () => {
     //   .add('power-button-disabled');
     document.querySelector('.power-button').style.display = 'none';
     document.querySelector('.abort-button').style.display = 'block';
-    client.publish(`trivia/update/start/${window.gameCode}/${window.nickName}`);
+    client.publish(`trivia/${window.gameCode}/update/start/${window.nickName}`);
   });
 
   document.querySelector('.abort-button').addEventListener('click', () => {
     document.querySelector('.power-button').classList.add('power-button-disabled');
     document.querySelector('.power-button').style.display = 'block';
     document.querySelector('.abort-button').style.display = 'none';
-    client.publish(`trivia/update/abort/${window.gameCode}/${window.nickName}`);
+    client.publish(`trivia/${window.gameCode}/update/abort/${window.nickName}`);
   });
 
   document.querySelector('#trivia-leaderboard-load').addEventListener('click', () => {
-    client.publish(`trivia/query/leaderboard/${window.gameCode}/${window.nickName}`);
+    client.publish(`trivia/${window.gameCode}/query/leaderboard/${window.nickName}`);
   });
 
   ctxActivityLive = document.getElementById('trivia-activity-canvas');

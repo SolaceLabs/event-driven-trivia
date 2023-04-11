@@ -38,15 +38,15 @@ const startTriviaRun = async (trivia, questions) => {
 
   try {
     const sessionHash = shortHash(trivia.name + '@' + (new Date()).getMilliseconds());
-    console.log(getTime(), `Publish trivia/gamestarted/${game_code} with game session id ${sessionHash}`);
-    client.publish(`trivia/update/gamestarted/${game_code}`, { sessionId: sessionHash, startAt: new Date().getTime() });
+    console.log(getTime(), `Publish trivia/${game_code}/update/gamestarted with game session id ${sessionHash}`);
+    client.publish(`trivia/${game_code}/update/gamestarted`, { sessionId: sessionHash, startAt: new Date().getTime() });
 
     await snooze(8000);
 
     const question = questions[qCounter++];
-    console.log(getTime(), `Publish trivia/update/question/${game_code}/${qCounter}`);
+    console.log(getTime(), `Publish trivia//${game_code}update/question/${qCounter}`);
 
-    client.publish(`trivia/update/question/${game_code}/${qCounter}`, {
+    client.publish(`trivia/${game_code}/update/question/${qCounter}`, {
       question: question.question,
       choice_1: question.choice_1,
       choice_2: question.choice_2,
@@ -64,7 +64,7 @@ const startTriviaRun = async (trivia, questions) => {
       // eslint-disable-next-line no-await-in-loop
       await snooze(interval * 1000);
       const _question = questions[qCounter++];
-      client.publish(`trivia/update/question/${game_code}/${qCounter}`, {
+      client.publish(`trivia/${game_code}/update/question/${qCounter}`, {
         question: _question.question,
         choice_1: _question.choice_1,
         choice_2: _question.choice_2,
@@ -86,7 +86,7 @@ const startTriviaRun = async (trivia, questions) => {
     await snooze(trivia.time_limit * 1000);
 
     console.log(getTime(), `Publish trivia/update/gameended/${game_code}`, { sessionId: sessionHash });
-    client.publish(`trivia/update/gameended/${game_code}`, { sessionId: sessionHash });
+    client.publish(`trivia/${game_code}/update/gameended`, { sessionId: sessionHash });
 
     await snooze(8000);
 
@@ -127,7 +127,7 @@ const initSession = async (hash) => {
   sessionClient.setOnConnectionLost(onConnectionLost);
 
   sessionClient.connect();
-  sessionClient.subscribe(`trivia/update/abort/${hash}/>`, onAbortCallback);
+  sessionClient.subscribe(`trivia/${hash}/update/abort/>`, onAbortCallback);
 
   // await until(() => { sessionClient.readyForUse; });
   // return true;
