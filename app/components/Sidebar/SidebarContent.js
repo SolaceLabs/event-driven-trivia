@@ -23,28 +23,10 @@ function SidebarContent(props) {
     loadTransition,
     leftSidebar,
     dataMenu,
-    status,
-    anchorEl,
-    openMenuStatus,
-    closeMenuStatus,
-    changeStatus,
     userAttr
   } = props;
   const [transform, setTransform] = useState(0);
   const refSidebar = useRef(null);
-
-  const setStatus = st => {
-    switch (st) {
-      case 'online':
-        return classes.online;
-      case 'idle':
-        return classes.idle;
-      case 'bussy':
-        return classes.bussy;
-      default:
-        return classes.offline;
-    }
-  };
 
   const handleScroll = (event) => {
     setTransform(event.target.scrollTop);
@@ -72,34 +54,6 @@ function SidebarContent(props) {
           />
           <div>
             <h4>{userAttr.name}</h4>
-            <Button size="small" onClick={openMenuStatus}>
-              <i className={classNames(classes.dotStatus, setStatus(status))} />
-              <FormattedMessage {...messages[status]} />
-            </Button>
-            <Menu
-              id="status-menu"
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={closeMenuStatus}
-              className={classes.statusMenu}
-            >
-              <MenuItem onClick={() => changeStatus('online')}>
-                <i className={classNames(classes.dotStatus, classes.online)} />
-                <FormattedMessage {...messages.online} />
-              </MenuItem>
-              <MenuItem onClick={() => changeStatus('idle')}>
-                <i className={classNames(classes.dotStatus, classes.idle)} />
-                <FormattedMessage {...messages.idle} />
-              </MenuItem>
-              <MenuItem onClick={() => changeStatus('bussy')}>
-                <i className={classNames(classes.dotStatus, classes.bussy)} />
-                <FormattedMessage {...messages.bussy} />
-              </MenuItem>
-              <MenuItem onClick={() => changeStatus('offline')}>
-                <i className={classNames(classes.dotStatus, classes.offline)} />
-                <FormattedMessage {...messages.offline} />
-              </MenuItem>
-            </Menu>
           </div>
         </div>
       </div>
@@ -128,11 +82,7 @@ SidebarContent.propTypes = {
   loadTransition: PropTypes.func,
   leftSidebar: PropTypes.bool.isRequired,
   dataMenu: PropTypes.array.isRequired,
-  status: PropTypes.string.isRequired,
   anchorEl: PropTypes.object,
-  openMenuStatus: PropTypes.func.isRequired,
-  closeMenuStatus: PropTypes.func.isRequired,
-  changeStatus: PropTypes.func.isRequired,
 };
 
 SidebarContent.defaultProps = {

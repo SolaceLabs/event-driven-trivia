@@ -65,9 +65,10 @@ function LoginTrivia(props) {
 
     updateResult('info', response.message);
     localStorage.setItem('token', response.token);
+    localStorage.setItem('name', response.name);
     setTimeout(() => {
       history.push('/app/trivia/dashboard');
-    }, 3000);
+    }, 1000);
   };
 
   const handleCloseStyle = (event, reason) => {

@@ -8,6 +8,8 @@ const CategorySchema = new Schema(
   {
     name: { type: String, unique: true, required: true },
     description: { type: String },
+    owner: { type: 'ObjectId', ref: 'User' },
+    shared: { type: Boolean, default: false },
   },
   {
     timestamps: true,

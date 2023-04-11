@@ -53,6 +53,8 @@ const styles = theme => ({
     width: '100%',
     padding: theme.spacing(0.5),
     marginBottom: theme.spacing(1),
+    color: '#fff',
+    backgroundColor: '#f96c04'
   },
   statusMenu: {
     '& ul': {

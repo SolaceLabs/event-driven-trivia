@@ -4,6 +4,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import AddIcon from '@material-ui/icons/AddSharp';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import PlaylistAddCheck from '@material-ui/icons/PlaylistAddCheck';
 import RefreshIcon from '@material-ui/icons/RefreshSharp';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -26,7 +27,7 @@ function QuestionsCustomToolbar(props) {
       </Tooltip>
       <Tooltip title={'Set Filter'}>
         <IconButton className={classes.iconButton} onClick={() => { openFilterDialog(); }} >
-          <FilterListIcon className={classes.deleteIcon}/>
+          <PlaylistAddCheck className={classes.deleteIcon}/>
         </IconButton>
       </Tooltip>
       <Tooltip title={'Refresh Questions'}>

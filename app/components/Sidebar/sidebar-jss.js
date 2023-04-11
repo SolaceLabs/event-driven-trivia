@@ -51,6 +51,8 @@ const styles = theme => ({
     '& $bigAvatar': {
       width: 40,
       height: 40,
+      color: '#fff',
+      backgroundColor: '#f96c04'
     },
     '& nav': {
       display: 'none'
@@ -76,7 +78,9 @@ const styles = theme => ({
       }
     },
     '& $avatar': {
-      marginRight: theme.spacing(3)
+      marginRight: theme.spacing(3),
+      color: '#fff',
+      backgroundColor: '#f96c04'
     },
     '& $menuContainer': {
       '&$menuContainer': {
@@ -109,7 +113,9 @@ const styles = theme => ({
   bigAvatar: {
     width: 80,
     height: 80,
-    boxShadow: theme.shadows[2]
+    boxShadow: theme.shadows[2],
+    color: '#fff',
+    backgroundColor: '#f96c04'
   },
   brandBar: {
     transition: theme.transitions.create(['width', 'margin', 'background'], {
@@ -276,7 +282,7 @@ const styles = theme => ({
       textOverflow: 'ellipsis',
       overflow: 'hidden',
       whiteSpace: 'nowrap',
-      width: 110
+      // width: 110
     },
     '& button': {
       fontSize: 12,

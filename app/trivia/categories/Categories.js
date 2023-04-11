@@ -294,7 +294,6 @@ function Categories(props) {
     print: false,
     download: false,
     rowsPerPage: 10,
-    page: 0,
     customToolbar: () => (
       <CategoriesCustomToolbar
         openModal={openModal}

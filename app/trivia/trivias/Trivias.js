@@ -549,7 +549,6 @@ function Trivias(props) {
     print: false,
     download: false,
     rowsPerPage: 10,
-    page: 0,
     customToolbar: () => (
       <TriviasCustomToolbar
         openModal={openModal}
@@ -616,7 +615,7 @@ function Trivias(props) {
       }
 
       <MUIDataTable
-        title="Trivia List"
+        title="Trivias List"
         data={trivias}
         columns={columns}
         options={options}

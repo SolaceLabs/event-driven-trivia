@@ -74,7 +74,7 @@ const styles = theme => ({
   paper: {
     padding: theme.spacing(2),
     textAlign: 'center',
-    color: theme.palette.secondary.dark,
+    color: theme.palette.primary.contrastText,
     backgroundColor: theme.palette.primary.light,
   },
   row: {
@@ -110,6 +110,10 @@ const styles = theme => ({
     color: theme.palette.primary.main,
     fontWeight: 600,
   },
+  button: {
+    margin: 20,
+    padding: 10
+  }
 });
 
 const Transition = React.forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
@@ -291,8 +295,8 @@ function TriviaPreview(props) {
 
                 <Divider/>
                 <Grid item xs={12}>
-                  <Button onClick={startPreview}>
-                    <Paper className={classes.paper}>Start Preview</Paper>
+                  <Button className={classes.button} variant="contained" color="secondary" type="submit" onClick={startPreview}>
+                    Start Preview
                   </Button>
                 </Grid>
               </Grid>

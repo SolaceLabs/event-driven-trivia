@@ -56,22 +56,11 @@ function GuideSlider(props) {
       className={classes.root}
     >
       <DialogContent className={classes.rootContent}>
-        <SwipeableViews
-          className={classes.slider}
-          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-          index={activeStepSwipe}
-          onChangeIndex={handleStepChangeSwipe}
-          enableMouseEvents
-        >
-          {guideData.map((step, index) => (
-            <div className={classes.figure} key={index.toString()}>
-              {/* <img key={step.label} className={classes.img} src={step.imgPath} alt={step.title} /> */}
-            </div>
-          ))}
-        </SwipeableViews>
         <article className={classes.text}>
           <Typography variant="h6">{guideData[activeStepSwipe].title}</Typography>
-          <Typography>{guideData[activeStepSwipe].label}</Typography>
+          <Typography dangerouslySetInnerHTML={{
+            __html: guideData[activeStepSwipe].text
+          }}></Typography>
         </article>
         <MobileStepper
           variant="progress"

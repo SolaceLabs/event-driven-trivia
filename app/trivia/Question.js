@@ -64,9 +64,9 @@ function Question(props) {
       </Helmet>
       <PapperBlock
         whiteBg
-        icon="table_chart"
+        icon="live_help"
         title={title}
-        desc={description}
+        // desc={description}
         showAction={true}
         actionChildren={<QuestionsShowHelp setShow={setShowHelp} />}
       >

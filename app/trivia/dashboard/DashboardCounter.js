@@ -57,9 +57,7 @@ function DashboardCounter(props) {
             start={0}
             end={20}
             duration={3}
-            title={'Monthly'}
-            unitBefore="$ "
-            unitAfter="k"
+            title={'Trivias'}
           >
             <AssignmentReturned className={classes.counterIcon} />
           </TileCounterWidget>
@@ -70,7 +68,7 @@ function DashboardCounter(props) {
             start={0}
             end={20}
             duration={3}
-            title={'Weekly'}
+            title={'Categories'}
           >
             <BarChart width={100} height={40} data={data1}>
               <Bar dataKey="uv" fill={theme.palette.secondary.main} />
@@ -83,7 +81,7 @@ function DashboardCounter(props) {
             start={0}
             end={321}
             duration={3}
-            title={'New Customers'}
+            title={'Questions'}
           >
             <AreaChart width={100} height={60} data={data1}>
               <Area type="monotone" dataKey="uv" stroke={theme.palette.secondary.main} fill={alpha(theme.palette.secondary.main, 0.5)} />
@@ -96,7 +94,7 @@ function DashboardCounter(props) {
             start={0}
             end={82}
             duration={3}
-            title={'Active Users'}
+            title={'Engagement'}
           >
             <LineChart width={100} height={80} data={data1}>
               <Line type="monotone" dataKey="pv" stroke={theme.palette.secondary.main} strokeWidth={2} />

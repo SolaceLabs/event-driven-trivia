@@ -24,8 +24,8 @@
 }
 
 .que_section .option_list .option{
-  background: aliceblue;
-  border: 1px solid #84c5fe;
+  /* background: aliceblue; */
+  border: 1px solid #00838f;
   border-radius: 5px;
   padding: 8px 15px;
   font-size: 17px;
@@ -42,14 +42,14 @@
 }
 
 .que_section .option_list .option:hover{
-  color: #004085;
-  background: #cce5ff;
-  border: 1px solid #b8daff;
+  color: #fff;
+  background: #00838f;
+  border: 1px solid #00838fbb;
 }
 
 .que_section .option_list .option.selected{
   color: #fff;
-  background: #0c46c3;
+  background: #00838f;
   border: 1px solid #c3e6cb;
 }
 
@@ -125,8 +125,8 @@ footer button{
   outline: none;
   color: #fff;
   border-radius: 5px;
-  background: #0c46c3;
-  border: 1px solid #007bff;
+  background: #00838f;
+  border: 1px solid #00838fbb;
   line-height: 10px;
   /* opacity: 0; */
   /* pointer-events: none; */
@@ -135,7 +135,7 @@ footer button{
 }
 
 footer button:hover{
-  background: #0263ca;
+  background: #00838fbb;
 }
 
 footer button.show{
@@ -153,8 +153,8 @@ footer button.show{
 }
 
 .circle {
-  background: #0c46c3;
-  border: 0.1875em solid #0c46c3;
+  background: #00838f;
+  border: 0.1875em solid #00838f;
   border-radius: 50%;
   box-shadow: 0.275em 0.275em 0 0 rgba(42, 80, 185, 0.452);
   height: 64px;

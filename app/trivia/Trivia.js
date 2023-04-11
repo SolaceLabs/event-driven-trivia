@@ -50,8 +50,8 @@ function Trivia(props) {
     setOpen(false);
   };
 
-  const title = 'Trivia';
-  const description = 'Trivia';
+  const title = 'Trivias';
+  const description = 'Trivias';
   return (
     <div>
       <Helmet>
@@ -64,9 +64,9 @@ function Trivia(props) {
       </Helmet>
       <PapperBlock
         whiteBg
-        icon="table_chart"
+        icon="question_answer"
         title={title}
-        desc={description}
+        // desc={description}
         showAction={true}
         actionChildren={<TriviasShowHelp setShow={setShowHelp} />}
       >

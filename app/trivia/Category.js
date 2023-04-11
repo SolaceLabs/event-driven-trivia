@@ -51,7 +51,7 @@ function Category(props) {
   };
 
   const title = 'Categories';
-  const description = 'Trivia Question Categories';
+  const description = 'Question Categories';
   return (
     <div>
       <Helmet>
@@ -64,9 +64,9 @@ function Category(props) {
       </Helmet>
       <PapperBlock
         whiteBg
-        icon="table_chart"
+        icon="category"
         title={title}
-        desc={description}
+        // desc={description}
         showAction={true}
         actionChildren={<CategoriesShowHelp setShow={setShowHelp} />}
       >

@@ -16,18 +16,7 @@ function MenuProfile(props) {
   const [status, setStatus] = useState(dummy.user.status);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const setStatusIntoClass = st => {
-    switch (st) {
-      case 'online':
-        return classes.online;
-      case 'idle':
-        return classes.idle;
-      case 'bussy':
-        return classes.bussy;
-      default:
-        return classes.offline;
-    }
-  };
+  const setStatusIntoClass = st => classes.idle;
 
   const handleOpen = event => {
     setAnchorEl(event.currentTarget);

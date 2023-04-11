@@ -378,7 +378,6 @@ function Questions(props) {
     print: false,
     download: false,
     rowsPerPage: 10,
-    page: 0,
     customToolbar: () => (
       <QuestionsCustomToolbar
         openModal={openModal}
@@ -450,7 +449,7 @@ function Questions(props) {
       }
 
       <MUIDataTable
-        title="Question List"
+        title="Questions List"
         data={questions}
         columns={columns}
         options={options}

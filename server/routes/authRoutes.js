@@ -56,7 +56,7 @@ router.post('/login', (req, res, next) => {
       // generate a signed son web token with the contents of user object and return it in the response
       const token = jwt.sign({ id: user._id }, process.env.TRIVIA_SECRET);
       return res.json({
-        success: true, message: 'Login successful', token
+        success: true, message: 'Login successful', token, name: user.name
       });
     });
   })(req, res);

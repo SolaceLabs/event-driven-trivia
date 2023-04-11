@@ -19,7 +19,6 @@ import Button from '@material-ui/core/Button';
 import link from 'enl-api/ui/link';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import dummy from 'enl-api/fireball/dummyContents';
 import MenuIcon from '@material-ui/icons/Menu';
 import FullscreenOutlined from '@material-ui/icons/FullscreenOutlined';
 import FullscreenExitOutlined from '@material-ui/icons/FullscreenExitOutlined';
@@ -50,8 +49,6 @@ function HeaderMenu(props) { // eslint-disable-line
     loadTransition, logoLink,
   } = props;
   const [fullScreen, setFullScreen] = useState(false);
-  const [status, setStatus] = useState(dummy.user.status);
-  const [anchorEl, setAnchorEl] = useState(null);
   const [fixed, setFixed] = useState(false);
 
   // Initial menu ui
@@ -99,19 +96,6 @@ function HeaderMenu(props) { // eslint-disable-line
     } else {
       changeMode('light');
     }
-  };
-
-  const handleOpen = event => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleChangeStatus = newStatus => {
-    setStatus(newStatus);
-    handleClose();
   };
 
   useEffect(() => {
@@ -186,7 +170,6 @@ function HeaderMenu(props) { // eslint-disable-line
           {/* <SelectLanguage /> */}
           {localStorage.getItem('token') !== null
             ? (
-              // <UserMenu signOut={signOut} avatar={avatar} />
               <Button
                 color="primary"
                 // className={classes.buttonTop}
@@ -231,11 +214,6 @@ function HeaderMenu(props) { // eslint-disable-line
               toggleDrawerOpen={toggleDrawerOpen}
               loadTransition={loadTransition}
               dataMenu={dataMenu}
-              status={status}
-              anchorEl={anchorEl}
-              openMenuStatus={handleOpen}
-              closeMenuStatus={handleClose}
-              changeStatus={handleChangeStatus}
               isLogin={isLogin}
               userAttr={userAttr}
             />

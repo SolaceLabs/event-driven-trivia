@@ -242,7 +242,7 @@ const styles = theme => ({
     padding: 10,
     fontSize: 16,
     margin: 0,
-    fontWeight: 500,
+    fontWeight: 600,
     textDecoration: 'none',
     color: theme.palette.text.primary,
     '& img': {

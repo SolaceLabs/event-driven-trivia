@@ -51,13 +51,13 @@ const styles = theme => ({
     maxWidth: 550,
     fontSize: 20,
     fontWeight: 600,
-    color: '#0c46c3', // theme.palette.primary.main,
+    color: theme.palette.primary.dark, // '#0c46c3', //
   },
   time_line: {
     bottom: 0,
     left: 0,
     height: 3,
-    backgroundColor: '#007bff',
+    backgroundColor: theme.palette.primary.dark, // '#007bff',
   },
   hidden: {
     display: 'none',
@@ -201,7 +201,7 @@ function TriviaQuestion(props) {
             key={questionNumber}
             isPlaying
             duration={timeLeft}
-            colors={['#0c46c3']}
+            colors={['#00838f']}
             size={64}
             // onUpdate={(remaining) => { console.log('Remaining: ' + remaining)}}
             onComplete={onTimerCompleted}

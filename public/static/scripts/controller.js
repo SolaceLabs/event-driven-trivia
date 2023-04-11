@@ -4,17 +4,6 @@
 /* eslint-disable no-return-assign */
 /* eslint-disable no-undef */
 /* eslint-disable no-param-reassign */
-
-const MQTT_HOST = 'mr-connection-jbh9h93b8id.messaging.solace.cloud';
-const MQTT_PORT = 8443;
-const MQTT_USER_NAME = 'solace-cloud-client';
-const MQTT_PASSWORD = 'ucjt83ft2a49r3uqq5oolepqg0';
-
-// const MQTT_HOST = 'localhost';
-// const MQTT_PORT = 8000;
-// const MQTT_USER_NAME = 'admin';
-// const MQTT_PASSWORD = 'admin';
-
 const emojiRegex = /\p{Emoji}/u;
 const INFO = 'info';
 const WARN = 'warning';

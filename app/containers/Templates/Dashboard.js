@@ -35,18 +35,10 @@ function Dashboard(props) {
   const titleException = ['/app', '/app/crm-dashboard', '/app/crypto-dashboard'];
   const parts = history.location.pathname.split('/');
   const place = parts[parts.length - 1].replace('-', ' ');
-  const profile = userProfile => {
-    if (userProfile) {
-      return {
-        avatar: userProfile.photoURL || dummy.user.avatar,
-        name: userProfile.displayName
-      };
-    }
-    return {
-      avatar: dummy.user.avatar,
-      name: dummy.user.name
-    };
-  };
+  const profile = userProfile => ({
+    avatar: dummy.user.avatar,
+    name: localStorage.getItem('name') === null ? dummy.user.name : localStorage.getItem('name')
+  });
 
   const handleOpenGuide = () => {
     setOpenGuide(true);

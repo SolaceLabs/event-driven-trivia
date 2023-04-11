@@ -24,6 +24,8 @@ const TriviaSchema = new Schema(
     players: { type: playerSchema },
     chat: [chatSchema],
     status: { type: String, required: true }, // NEW, READY, SCHEDULED, EXPIRED, COMPLETED, ABORTED
+    owner: { type: 'ObjectId', ref: 'User' },
+    shared: { type: Boolean, default: false },
     hash: { type: String },
     adminHash: { type: String }
   }, {

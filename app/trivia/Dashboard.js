@@ -64,7 +64,7 @@ function Dashboard(props) {
     setOpen(false);
   };
 
-  const title = 'Trivia Dashboard';
+  const title = 'Dashboard';
   const description = brand.desc;
   return (
     <div>
@@ -86,9 +86,9 @@ function Dashboard(props) {
       </Snackbar>
       <PapperBlock
         whiteBg
-        icon="table_chart"
+        icon="dashboard"
         title={title}
-        desc={description}
+        // desc={description}
       >
         <Grid container className={classes.root}>
           < DashboardCounter />

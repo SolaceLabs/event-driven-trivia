@@ -79,9 +79,9 @@ function UserMenu(props) {
         onClose={handleClose}
       >
         <MenuItem onClick={handleClose}>
-          <div className={messageStyles.messageInfo}>
+          <div className={messageStyles.messageAvatar} style={{ background: '#f96c04', color: '#fff' }}>
             <ListItemAvatar>
-              <Avatar alt="User Name" src={avatarApi[0]} />
+              <Avatar alt="User Name" src={avatarApi[0]} style={{ background: '#f96c04', color: '#fff' }} />
             </ListItemAvatar>
             <ListItemText primary={dummy.text.subtitle} secondary={dummy.text.date} />
           </div>
