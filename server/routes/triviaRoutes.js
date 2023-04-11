@@ -200,6 +200,7 @@ router.post('/', async (req, res) => {
   trivia.players = {
     names: [], connected: [], current: 0, high: 0
   };
+  trivia.owner = req.user._id;
 
   Trivia.create(trivia)
     .then(_trivia => {
@@ -229,6 +230,7 @@ router.post('/clone', async (req, res) => {
       trivia.status = trivia.questions.length ? 'READY' : 'NEW';
       trivia.hash = shortHash(trivia.name + '@' + (new Date()).getMilliseconds());
       trivia.adminHash = shortHash(trivia.hash + ' => ' + trivia.name + '@' + (new Date()).getMilliseconds());
+      trivia.owner = req.user._id;
 
       Trivia.create(trivia)
         .then(__trivia => {
@@ -418,8 +420,8 @@ router.post('/delete', async (req, res) => {
     if (_trivia.status !== 'STARTED') {
       await Trivia.findByIdAndRemove(req.body.ids[i])
         // eslint-disable-next-line no-loop-func
-        .then(() => {
-          TriviaStats.deleteOne({ hash: _trivia.hash })
+        .then(async () => {
+          await TriviaStats.deleteOne({ hash: _trivia.hash })
             .then(() => {
               deleted++;
             });

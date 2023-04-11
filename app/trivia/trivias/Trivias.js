@@ -427,6 +427,10 @@ function Trivias(props) {
             <Tooltip title={'Preview Trivia'}>
               <IconButton className={classes.iconButton} variant="outlined" color="secondary"
                 onClick={(e) => {
+                  if (tableMeta.rowData[5] && !tableMeta.rowData[5].length) {
+                    updateResult('warning', 'Missing questions, build questions and try again');
+                    return;
+                  }
                   console.log(tableMeta);
                   setCurrentRow(tableMeta.rowData);
                   setShowTriviaPreview(true);
@@ -437,6 +441,10 @@ function Trivias(props) {
             <Tooltip title={'Player QR Code'}>
               <IconButton className={classes.iconButton} variant="outlined" style={{ color: '#11C7AA' }}
                 onClick={(e) => {
+                  if (tableMeta.rowData[5] && !tableMeta.rowData[5].length) {
+                    updateResult('warning', 'Missing questions, build questions and try again');
+                    return;
+                  }
                   setCurrentRow(tableMeta.rowData);
                   setShowQRCode(true);
                 }}>
@@ -446,6 +454,10 @@ function Trivias(props) {
             <Tooltip title={'Admin QR Code'}>
               <IconButton className={classes.iconButton} variant="outlined" style={{ color: '#785EBA' }}
                 onClick={(e) => {
+                  if (tableMeta.rowData[5] && !tableMeta.rowData[5].length) {
+                    updateResult('warning', 'Missing questions, build questions and try again');
+                    return;
+                  }
                   setCurrentRow(tableMeta.rowData);
                   setAdminShowQRCode(true);
                 }}>
@@ -484,8 +496,8 @@ function Trivias(props) {
                   <EditIcon/>
                 </IconButton> Edit
               </MenuItem>
-              {(tableMeta.rowData[9] === 'COMPLETED' || tableMeta.rowData[9] === 'ABORTED')
-                && <MenuItem key={'Clone' + tableMeta.rowData[0]} onClick={(e) => {
+              {(tableMeta.rowData[9] === 'COMPLETED' || tableMeta.rowData[9] === 'ABORTED' || tableMeta.rowData[9] === 'EXPIRED')
+                && <MenuItem key={'Reopen' + tableMeta.rowData[0]} onClick={(e) => {
                   handleCloseRowMenu();
                   setShowReopenDialog(true);
                 }}>
@@ -494,6 +506,10 @@ function Trivias(props) {
                   </IconButton> Reopen
                 </MenuItem>}
               <MenuItem key={'Clone' + tableMeta.rowData[0]} onClick={(e) => {
+                if (tableMeta.rowData[5] && !tableMeta.rowData[5].length) {
+                  updateResult('warning', 'Missing questions, build questions and try again');
+                  return;
+                }
                 handleCloseRowMenu();
                 setShowCloneDialog(true);
               }}>

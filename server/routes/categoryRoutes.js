@@ -11,10 +11,6 @@ const multer = require('multer');
 const fs = require('fs');
 const Category = require('../models/category');
 
-const isLoggedIn = (req, res, next) => {
-  req.user ? next() : res.sendStatus(401);
-};
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, './public/uploads');
@@ -65,9 +61,9 @@ const handleValidationError = (err) => {
   return message;
 };
 
-router.get('/test', isLoggedIn, async (req, res) => res.send('category route testing!'));
+router.get('/test', async (req, res) => res.send('category route testing!'));
 
-router.get('/', isLoggedIn, async (req, res) => {
+router.get('/', async (req, res) => {
   const as_array = req?.query?.as_array && req?.query?.as_array === 'true';
   Category
     .find()
@@ -88,7 +84,7 @@ router.get('/', isLoggedIn, async (req, res) => {
     });
 });
 
-router.get('/template', isLoggedIn, async (req, res) => {
+router.get('/template', async (req, res) => {
   const fileName = 'categories_tpl.tsv';
   const path = __dirname + '/../../public/downloads/';
   console.log('FILE: ' + path + fileName);
@@ -100,7 +96,7 @@ router.get('/template', isLoggedIn, async (req, res) => {
   });
 });
 
-router.get('/:id', isLoggedIn, async (req, res) => {
+router.get('/:id', async (req, res) => {
   Category.findById(req.params.id)
     .then(category => res.json({ success: true, data: category, message: 'Get category successful' }))
     .catch(err => {
@@ -111,7 +107,8 @@ router.get('/:id', isLoggedIn, async (req, res) => {
     });
 });
 
-router.post('/', isLoggedIn, async (req, res) => {
+router.post('/', async (req, res) => {
+  req.body.owner = req.user._id;
   Category.create(req.body)
     .then(category => res.json({ success: true, data: category, message: 'Create category successful' }))
     .catch(err => {
@@ -123,9 +120,10 @@ router.post('/', isLoggedIn, async (req, res) => {
     });
 });
 
-router.post('/clone', isLoggedIn, async (req, res) => {
+router.post('/clone', async (req, res) => {
   Category.findById(req.body.id)
     .then(category => {
+      category.owner = req.user._id;
       category._id = mongoose.Types.ObjectId();
       category.isNew = true;
       category.name += ' (Clone)';
@@ -150,7 +148,7 @@ router.post('/clone', isLoggedIn, async (req, res) => {
     });
 });
 
-router.put('/:id', isLoggedIn, async (req, res) => {
+router.put('/:id', async (req, res) => {
   Category.findByIdAndUpdate(req.params.id, req.body)
     .then(category => res.json({ success: true, data: category, message: 'Update category successful' }))
     .catch(err => {
@@ -162,7 +160,7 @@ router.put('/:id', isLoggedIn, async (req, res) => {
     });
 });
 
-router.delete('/:id', isLoggedIn, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   Category.findByIdAndRemove(req.params.id, req.body)
     .then(category => res.json({ success: true, message: 'Delete category successful' }))
     .catch(err => {
@@ -174,14 +172,14 @@ router.delete('/:id', isLoggedIn, async (req, res) => {
     });
 });
 
-router.post('/delete', isLoggedIn, async (req, res) => {
+router.post('/delete', async (req, res) => {
   for (let i = 0; i < req.body.ids.length; i++) {
     await Category.findByIdAndRemove(req.body.ids[i]);
   }
   res.json({ success: true, message: 'Delete category(s) successful' });
 });
 
-router.post('/upload', isLoggedIn, upload.single('csvFile'), async (req, res, next) => {
+router.post('/upload', upload.single('csvFile'), async (req, res, next) => {
   const filename = __dirname + '/../../public/uploads/' + req.file.filename;
   const status = validateCategoryTemplate(filename);
   if (!status.valid) {

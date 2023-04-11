@@ -146,6 +146,7 @@ router.get('/:id', isLoggedIn, async (req, res) => {
 });
 
 router.post('/', isLoggedIn, async (req, res) => {
+  req.body.owner = req.user._id;
   Question.create(req.body)
     .then(question => res.json({ success: true, data: question, message: 'Create question successful' }))
     .catch(err => {
@@ -162,7 +163,7 @@ router.post('/clone', isLoggedIn, async (req, res) => {
     .then(question => {
       question._id = mongoose.Types.ObjectId();
       question.isNew = true;
-
+      question.owner = req.user.id;
       Question.create(question)
         .then(__question => {
           res.json({ success: true, data: question, message: 'Clone question successful' });

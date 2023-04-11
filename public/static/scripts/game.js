@@ -70,7 +70,7 @@ function updateHappening(message, type) {
   logContent.insertAdjacentHTML('afterbegin', temp);
   const objDiv = document.getElementById('info-log-modal-content');
   objDiv.scrollTop = objDiv.scrollHeight;
-  console.debug(_time + ': ' + message);
+  console.log(_time + ': ' + message);
 }
 
 function updateCountDown(startAt, down = true) {
@@ -276,9 +276,9 @@ function gameControllerChat(message) {
 
 async function endGame() {
   if (window.gameAborted) {
-    console.debug('Oops, Game Aborted');
+    console.log('Oops, Game Aborted');
   } else if (window.gameEnded) {
-    console.debug('Oops, Game Ended');
+    console.log('Oops, Game Ended');
   }
 
   document.getElementById('trivia-modal').style.display = 'block';
@@ -327,7 +327,7 @@ function showNextQuestion() {
   }
 
   let question = window.questions[window.currentQuestion++];
-  console.debug('Show question', question);
+  console.log('Show question', question);
 
   if (!question.choice_3) {
     document.getElementById('trivia-question-choice-container-3').style.display = 'none';
@@ -355,7 +355,7 @@ function showNextQuestion() {
   document.getElementById('trivia-question-choice-4').innerHTML = question.choice_4;
   question.start = (new Date()).getTime();
   setTimer('.timer', question.time_limit, () => {
-    console.debug('Done current question');
+    console.log('Done current question');
     const question = window.questions[window.currentQuestion - 1];
     const answer = {
       qno: window.currentQuestion,
@@ -369,7 +369,7 @@ function showNextQuestion() {
       sleep(3000);
       client.publish(`trivia/query/getrank/${window.gameCode}/${window.nickName}`);
 
-      console.debug('All questions done');
+      console.log('All questions done');
       document.getElementById('trivia-modal').style.display = 'block';
       document.getElementById('trivia-modal-content').style.display = 'none';
       document.getElementById('trivia-modal-countdown').style.display = 'none';
@@ -427,11 +427,16 @@ async function presentQuestions() {
 
 function gameStart(message = undefined) {
   // `trivia/update/gamestarted/${window.gameCode}`
+  if (window.gameStarted) {
+    console.log('Hmm... duplicate game start, ignored!');
+    return;
+  }
   if (message) {
     const payload = JSON.parse(message.payloadString);
     window.sessionId = payload.sessionId;
     updateHappening('Message received on gameStart' + message.payloadString, INFO);
     updatePregameCountDown(presentQuestions, 10000);
+    window.gameStarted = true;
   } else {
     window.currentQuestion = 0;
     updateHappening('Mock game start', INFO);
@@ -460,7 +465,6 @@ updatePregameCountDown = (callback, ts, midway = false) => {
     document.getElementById('trivia-modal-countdown')
   );
   timer.start(callback);
-  window.gameStarted = true;
 };
 
 function gameEnd(message) {
@@ -738,15 +742,11 @@ function updatePlayerName() {
 }
 
 function randomPlayerName() {
-  const nickName = pickRandomName();
-  if (nickName && nickName.length) {
-    window.nickName = nickName;
-    document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName;
-    document.getElementById('player-id').style.padding = '3px';
-    document.getElementById('player-name-form').style.display = 'none';
-    setup();
-    closeNicknameDialog();
-  }
+  document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName;
+  document.getElementById('player-id').style.padding = '3px';
+  document.getElementById('player-name-form').style.display = 'none';
+  setup();
+  closeNicknameDialog();
 }
 
 function openNicknameDialog() {
@@ -780,7 +780,7 @@ window.addEventListener('load', () => {
       window.questions[qno - 1].end = (new Date()).getTime();
       window.questions[qno - 1].timing = window.questions[qno - 1].end - window.questions[qno - 1].start;
 
-      console.debug('You responded to question #' + qno + ' in ' + window.questions[qno - 1].timing + ' ticks!');
+      console.log('You responded to question #' + qno + ' in ' + window.questions[qno - 1].timing + ' ticks!');
       const speed = Math.floor(
         100 * window.questions[qno - 1].timing / (window.timeLimit * 1000)
       );
