@@ -51,9 +51,16 @@ function CategoriesUpload(props) {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('csvFile', csvFile);
-    axios.post('/api/trivia/categories/upload', formData, {})
+    const config = {
+      headers: {
+        Authorization: `${
+          localStorage.getItem('token')
+        }`
+      },
+      csvFile,
+    };
+
+    axios.post('/api/trivia/categories/upload', config, {})
       .then(res => {
         console.log(res);
         updateResult('success', 'New categories upload successful');

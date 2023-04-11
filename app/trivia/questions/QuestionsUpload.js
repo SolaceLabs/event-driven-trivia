@@ -31,12 +31,20 @@ function QuestionsUpload(props) {
   const { updateResult } = props;
   const classes = useStyles();
   const [csvFile, setCsvFile] = React.useState('');
+  const config = {
+    headers: {
+      Authorization: `${
+        localStorage.getItem('token')
+      }`
+    },
+    csvFile,
+  };
 
   const onSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append('csvFile', csvFile);
-    axios.post('/api/trivia/questions/upload', formData, {})
+    axios.post('/api/trivia/questions/upload', formData, config)
       .then(res => {
         console.log(res);
         updateResult('success', 'New questions upload successful');

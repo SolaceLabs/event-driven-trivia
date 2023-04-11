@@ -10,10 +10,6 @@ const multer = require('multer');
 const fs = require('fs');
 const Question = require('../models/question');
 
-const isLoggedIn = (req, res, next) => {
-  req.user ? next() : res.sendStatus(401);
-};
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, './public/uploads');
@@ -65,9 +61,9 @@ const handleValidationError = (err) => {
   return message;
 };
 
-router.get('/test', isLoggedIn, async (req, res) => res.send('question route testing!'));
+router.get('/test', async (req, res) => res.send('question route testing!'));
 
-router.get('/', isLoggedIn, async (req, res) => {
+router.get('/', async (req, res) => {
   let filter = [];
   if (req.query.category) {
     filter = JSON.parse(req.query.category);
@@ -99,7 +95,7 @@ router.get('/', isLoggedIn, async (req, res) => {
     });
 });
 
-router.get('/template', isLoggedIn, async (req, res) => {
+router.get('/template', async (req, res) => {
   const fileName = 'questions_tpl.tsv';
   const path = __dirname + '/../../public/downloads/';
 
@@ -111,7 +107,7 @@ router.get('/template', isLoggedIn, async (req, res) => {
 });
 
 // eslint-disable-next-line consistent-return
-router.get('/random', isLoggedIn, async (req, res) => {
+router.get('/random', async (req, res) => {
   const category = req?.query?.category;
   const count = req?.query?.count ? parseInt(req?.query?.count, 10) : 10;
 
@@ -134,7 +130,7 @@ router.get('/random', isLoggedIn, async (req, res) => {
     });
 });
 
-router.get('/:id', isLoggedIn, async (req, res) => {
+router.get('/:id', async (req, res) => {
   Question.findById(req.params.id)
     .then(question => res.json({ success: true, data: question, message: 'Add question successful' }))
     .catch(err => {
@@ -145,7 +141,7 @@ router.get('/:id', isLoggedIn, async (req, res) => {
     });
 });
 
-router.post('/', isLoggedIn, async (req, res) => {
+router.post('/', async (req, res) => {
   req.body.owner = req.user._id;
   Question.create(req.body)
     .then(question => res.json({ success: true, data: question, message: 'Create question successful' }))
@@ -158,7 +154,7 @@ router.post('/', isLoggedIn, async (req, res) => {
     });
 });
 
-router.post('/clone', isLoggedIn, async (req, res) => {
+router.post('/clone', async (req, res) => {
   Question.findById(req.body.id)
     .then(question => {
       question._id = mongoose.Types.ObjectId();
@@ -184,7 +180,7 @@ router.post('/clone', isLoggedIn, async (req, res) => {
     });
 });
 
-router.put('/:id', isLoggedIn, async (req, res) => {
+router.put('/:id', async (req, res) => {
   Question.findByIdAndUpdate(req.params.id, req.body)
     .then(question => res.json({ success: true, data: question, message: 'Update question successful' }))
     .catch(err => {
@@ -196,7 +192,7 @@ router.put('/:id', isLoggedIn, async (req, res) => {
     });
 });
 
-router.delete('/:id', isLoggedIn, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   Question.findByIdAndRemove(req.params.id, req.body)
     .then(question => res.json({ success: true, message: 'Delete question successful' }))
     .catch(err => {
@@ -208,7 +204,7 @@ router.delete('/:id', isLoggedIn, async (req, res) => {
     });
 });
 
-router.post('/delete', isLoggedIn, async (req, res) => {
+router.post('/delete', async (req, res) => {
   for (let i = 0; i < req.body.ids.length; i++) {
     await Question.findByIdAndRemove(req.body.ids[i]);
   }
@@ -216,7 +212,7 @@ router.post('/delete', isLoggedIn, async (req, res) => {
 });
 
 // eslint-disable-next-line consistent-return
-router.post('/upload', isLoggedIn, upload.single('csvFile'), async (req, res, next) => {
+router.post('/upload', upload.single('csvFile'), async (req, res, next) => {
   const filename = __dirname + '/../../public/uploads/' + req.file.filename;
   const status = validateQuestionTemplate(filename);
   if (!status.valid) { return res.json({ success: false, message: status.message, }); }

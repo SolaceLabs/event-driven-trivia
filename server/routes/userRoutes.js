@@ -7,10 +7,6 @@
 const express = require('express');
 const router = express.Router();
 
-const isLoggedIn = (req, res, next) => {
-  req.user ? next() : res.sendStatus(401);
-};
-
-router.get('/test', isLoggedIn, async (req, res) => res.send('category route testing!'));
+router.get('/test', async (req, res) => res.send('category route testing!'));
 
 module.exports = router;
