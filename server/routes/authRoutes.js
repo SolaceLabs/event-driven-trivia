@@ -78,7 +78,7 @@ router.post('/register', async (req, res) => {
     res.json({ success: false, message: 'Error creating a new account.' });
   }
 
-  res.json({ success: true, message: 'Account created.' });
+  res.json({ success: true, message: 'Account created, you will receive an email with verification link for account activation.' });
 });
 
 router.post('/verify', async (req, res) => {
@@ -91,6 +91,11 @@ router.post('/verify', async (req, res) => {
       const user = await User.findById(payload.id);
       if (user.email !== payload.email) {
         res.json({ success: false, message: 'Unauthorized access:: Unknown user' });
+        return;
+      }
+
+      if (user.email_is_verified) {
+        res.json({ success: true, message: 'Email already verified' });
         return;
       }
 

@@ -98,7 +98,7 @@ function EmailVerifyTrivia(props) {
       setResult(response.message);
       setTimeout(() => {
         history.push('/login');
-      }, 5000);
+      }, 2000);
     }
   }, []);
 
