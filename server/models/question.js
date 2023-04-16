@@ -12,6 +12,7 @@ const QuestionSchema = new Schema(
     choice_4: { type: String },
     answer: { type: String, required: true },
     owner: { type: 'ObjectId', ref: 'User' },
+    deleted: { type: Boolean, default: false },
   }, {
     virtuals: {
       id: {

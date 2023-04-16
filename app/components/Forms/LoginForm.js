@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
@@ -13,7 +13,7 @@ import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import Paper from '@material-ui/core/Paper';
 import Icon from '@material-ui/core/Icon';
@@ -39,6 +39,8 @@ const LinkBtn = React.forwardRef(function LinkBtn(props, ref) { // eslint-disabl
   return <NavLink to={props.to} {...props} innerRef={ref} />; // eslint-disable-line
 });
 
+const api = new TriviaWrapper();
+
 function LoginForm(props) {
   const {
     classes,
@@ -48,12 +50,25 @@ function LoginForm(props) {
     intl,
     messagesAuth,
     closeMsg,
-    loading
+    loading,
+    errorType,
+    updateResult
   } = props;
+  const [resendConfirmation, setResendConfirmation] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = event => event.preventDefault();
+  const emailInput = useRef();
+
+  const resendVerificationLink = async () => {
+    const response = await api.resendVerification({ email: emailInput.current.value });
+    if (!response.success) {
+      updateResult('error', response.message);
+      return;
+    }
+
+    updateResult('success', 'Email verification is sent to registered email address');
+  };
 
   return (
     <Paper className={classes.sideWrap}>
@@ -92,6 +107,7 @@ function LoginForm(props) {
             <FormControl className={classes.formControl}>
               <Field
                 name="email"
+                ref={emailInput}
                 component={TextFieldRedux}
                 placeholder={intl.formatMessage(messages.loginFieldEmail)}
                 label={intl.formatMessage(messages.loginFieldEmail)}
@@ -128,14 +144,13 @@ function LoginForm(props) {
             </FormControl>
           </div>
           <div className={classes.optArea}>
-            <FormControlLabel
-              className={classes.label}
-              control={<Field name="checkbox" component={CheckboxRedux} />}
-              label={intl.formatMessage(messages.loginRemember)}
-            />
             <Button size="small" component={LinkBtn} to="/reset-password" className={classes.buttonLink}>
               <FormattedMessage {...messages.loginForgotPassword} />
             </Button>
+            {errorType === 'Email not verified'
+            && <Button size="small" color='#ec407a' className={classes.buttonLink} onClick={resendVerificationLink}>
+              <FormattedMessage {...messages.resendVerificationLink} />
+            </Button>}
           </div>
           <div className={classes.btnArea}>
             <Button variant="contained" disabled={loading} fullWidth color="primary" size="large" type="submit">
@@ -144,42 +159,12 @@ function LoginForm(props) {
               {!loading && <ArrowForward className={classNames(classes.rightIcon, classes.iconSmall, classes.signArrow)} disabled={submitting || pristine} />}
             </Button>
           </div>
+          {resendConfirmation
+          && <div className={classes.optArea}>
+            <FormattedMessage {...messages.resentVerificationLink} />
+          </div>}
         </form>
       </section>
-      {/* <h5 className={classes.divider}>
-        <span>
-          <FormattedMessage {...messages.loginOr} />
-        </span>
-      </h5>
-      <section className={classes.socmedSideLogin}>
-        <Button
-          variant="contained"
-          className={classes.redBtn}
-          type="button"
-          size="large"
-        >
-          <i className="ion-logo-google" />
-          Google
-        </Button>
-        <Button
-          variant="contained"
-          className={classes.cyanBtn}
-          type="button"
-          size="large"
-        >
-          <i className="ion-logo-twitter" />
-          Twitter
-        </Button>
-        <Button
-          variant="contained"
-          className={classes.greyBtn}
-          type="button"
-          size="large"
-        >
-          <i className="ion-logo-github" />
-          Github
-        </Button>
-      </section> */}
     </Paper>
   );
 }

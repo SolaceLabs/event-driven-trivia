@@ -65,9 +65,23 @@ function QuestionsHelp(props) {
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            In Trivia, questions are the critical user interaction point.
+            <p>In Trivia, questions are the critical user interaction point.
             This section lists the existing questions and the category it belongs to.
-            It is a best practice to check and make sure that a question does not exist, before creating a new one.
+            It is a best practice to check and make sure that a question does not exist, before creating a new one.</p>
+            <h6>Creating a Question</h6>
+            <p>A Question is the key touch point of interaction when it is played out. A Question consists of a Category that it belongs to (picked from
+              the existing list of Categories), a question text and upto four choices to choose from. It is mandatory that a question must have at
+              least two choices. The correct choice for the question can be earmarked by selecting appropriate choice during question creation
+               - only a single choice is allowed.
+            </p>
+            <p>
+              <h6>Managing Questions</h6>
+              <ol>
+                <li>A Question can be edited anytime with changes to choice text and answer selection as well as moving .</li>
+                <li>When a Question is deleted, it will be marked as deleted (soft-delete).</li>
+              </ol>
+            </p>
+
           </Typography>
         </AccordionDetails>
       </Accordion>
@@ -100,7 +114,7 @@ function QuestionsHelp(props) {
                 <Paper className={classes.paper}>
                   <Typography>
                     <span className={classNames(Type.bold, Type.underline)}>Bulk Import</span><br/><br/>
-                  Import the questions TSV (tab-delimited) file.<br/><br/>
+                    Import the questions TSV (tab-delimited) file.<br/><br/>
                     <QuestionsUpload updateResult={updateResult}/>
                   </Typography>
                 </Paper>
@@ -109,8 +123,8 @@ function QuestionsHelp(props) {
                 <Paper className={classes.paper}>
                   <Typography>
                     <span className={classNames(Type.bold, Type.underline)}>Bulk Delete</span><br/><br/>
-                  Use the checkboxes on the right of each row to select a question, or top-right checkbox to select
-                  all questions and click on the delete button that will appear in the message.
+                    Export the questions presented in the table as TSV (tab-delimited) file.<br/><br/>
+                    <QuestionsUpload updateResult={updateResult}/>
                   </Typography>
                 </Paper>
               </Grid>

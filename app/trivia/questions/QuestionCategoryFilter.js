@@ -10,7 +10,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import Checkbox from '@material-ui/core/Checkbox';
-import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
+import pink from '@material-ui/core/colors/pink';
 
 const styles = theme => ({
   items: {
@@ -21,7 +21,13 @@ const styles = theme => ({
     width: '50%',
     color: '#000000de',
     padding: '5px'
-  }
+  },
+  deleted: {
+    color: pink[400],
+    '& svg': {
+      fill: pink[400],
+    }
+  },
 });
 
 function QuestionCategoryFilter(props) {
@@ -63,6 +69,10 @@ function QuestionCategoryFilter(props) {
     onCancel([]);
   };
 
+  const getCategoryName = (isDeleted, label) => (isDeleted
+    ? <del className={classes.deleted}> {label} </del>
+    : label);
+
   return (
     <div>
       <Dialog
@@ -90,7 +100,7 @@ function QuestionCategoryFilter(props) {
                           value={cat.name}
                         />
                       )}
-                      label={`${cat.name} [${cat.no_of_questions}]`}
+                      label={getCategoryName(cat.deleted, `${cat.name} [${cat.no_of_questions}]`)}
                     />
 
                     // <div id={cat._id} className={classes.item}>

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link, } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import MomentUtils from '@date-io/moment';
@@ -10,12 +9,14 @@ import MUIDataTable from 'mui-datatables';
 import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
+import pink from '@material-ui/core/colors/pink';
 import EditIcon from '@material-ui/icons/EditSharp';
 import CopyIcon from '@material-ui/icons/FileCopySharp';
 import DeleteIcon from '@material-ui/icons/DeleteSharp';
 import LockOpenIcon from '@material-ui/icons/LockOpenSharp';
 import LiveHelpIcon from '@material-ui/icons/LiveHelpSharp';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEyeSharp';
+import ViewCarouselIcon from '@material-ui/icons/ViewCarousel';
 import green from '@material-ui/core/colors/green';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
@@ -74,7 +75,12 @@ const styles = theme => ({
     alignItems: 'center',
     justifyContent: 'space-around',
   },
-
+  deleted: {
+    color: pink[400],
+    '& svg': {
+      fill: pink[400],
+    }
+  },
 });
 
 /*
@@ -88,6 +94,8 @@ function Trivias(props) {
   const [showTriviaQuestions, setShowTriviaQuestions] = useState(false);
   const [showTriviaPreview, setShowTriviaPreview] = useState(false);
   const [trivias, setTrivias] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [deletedCategories, setDeletedCategories] = useState([]);
   const [openStyle, setOpen] = useState(false);
   const [variant, setVariant] = useState('');
   const [message, setMessage] = useState('');
@@ -99,6 +107,10 @@ function Trivias(props) {
   const [showCloneDialog, setShowCloneDialog] = useState(false);
   const [showReopenDialog, setShowReopenDialog] = useState(false);
   const [reopenAllowed, setReopenAllowed] = useState(false);
+  const [editAllowed, setEditAllowed] = useState(false);
+  const [deleteAllowed, setDeleteAllowed] = useState(false);
+  const [cloneAllowed, setCloneAllowed] = useState(false);
+  const [showDeleted, setShowDeleted] = useState(true);
   const { classes } = props;
   const [anchorEl2, setAnchorEl2] = React.useState(null);
   const openRowMenu = Boolean(anchorEl2);
@@ -111,18 +123,27 @@ function Trivias(props) {
   });
 
   useEffect(async () => {
-    console.log('executed only once!');
     const params = new URLSearchParams();
-    params.append('as_array', 'true');
-    const response = await api.getTrivias(params);
+    const response = await api.getCategories(params);
     if (!response.success) {
+      setCategories([]);
       updateResult('error', response.message);
-      setTrivias([]);
-      return;
+    } else {
+      setCategories(response.data);
+      setDeletedCategories(response.data.filter(el => el.deleted).map(el1 => el1.name));
+      const params1 = new URLSearchParams();
+      params1.append('as_array', true);
+      params1.append('show_deleted', showDeleted);
+      const response1 = await api.getTrivias(params1);
+      if (!response1.success) {
+        updateResult('error', response1.message);
+        setTrivias([]);
+        return;
+      }
+      console.log('Trivias', response1.data);
+      setTrivias(response1.data);
     }
-    console.log('Trivias', response.data);
-    setTrivias(response.data);
-  }, []);
+  }, [showDeleted]);
 
   const handleCloseStyle = (event, reason) => {
     if (reason === 'clickaway') {
@@ -170,16 +191,30 @@ function Trivias(props) {
 
   const refreshTrivias = async () => {
     const params = new URLSearchParams();
-    params.append('as_array', 'true');
-    const response = await api.getTrivias(params);
+    const response = await api.getCategories(params);
     if (!response.success) {
+      setCategories([]);
       updateResult('error', response.message);
-      setTrivias([]);
-      return;
+    } else {
+      setCategories(response.data);
+      setDeletedCategories(response.data.filter(el => el.deleted).map(el1 => el1.name));
+      const params1 = new URLSearchParams();
+      params1.append('as_array', true);
+      params1.append('show_deleted', showDeleted);
+      const response1 = await api.getTrivias(params1);
+      if (!response1.success) {
+        updateResult('error', response1.message);
+        setTrivias([]);
+        return;
+      }
+      console.log('Trivias', response1.data);
+      setTrivias(response1.data);
+      setCurrentRow(false);
     }
-    console.log('Trivias', response.data);
-    setTrivias(response.data);
-    setCurrentRow(false);
+  };
+
+  const toggleDeleted = () => {
+    setShowDeleted(!showDeleted);
   };
 
   const saveResults = async (values) => {
@@ -232,9 +267,21 @@ function Trivias(props) {
     </React.Fragment>
   );
 
-  if (props.refresh) {
-    refreshTrivias();
-  }
+  if (props.refresh) refreshTrivias();
+
+  const getCategoryName = (name) => (deletedCategories.includes(name)
+    ? <Typography variant="caption" className={Type.bold}><del className={classes.deleted}><b>{name}</b></del></Typography>
+    : <Typography variant="caption" className={Type.bold}>{name}</Typography>);
+
+  const getTriviaName = (isDeleted, name, description) => (isDeleted
+    ? <div>
+      <Typography variant="caption" className={Type.bold}><del className={classes.deleted}><b>{name}</b></del></Typography><br/>
+      <Typography variant="caption" className={Type.italic}><i>{description}</i></Typography>
+    </div>
+    : <div>
+      <Typography variant="caption" className={Type.bold}><b>{name}</b></Typography><br/>
+      <Typography variant="caption" className={Type.italic}><i>{description}</i></Typography>
+    </div>);
 
   const onRowsDeleteConfirm = async () => {
     let ids = [];
@@ -314,15 +361,8 @@ function Trivias(props) {
       options: {
         filterOptions: { fullWidth: true },
         customBodyRender: (value, tableMeta, updateValue) => (
-          <React.Fragment>
-            <div>
-              <Typography variant="caption" className={Type.bold}>{tableMeta.rowData[1]}</Typography>
-            </div>
-            <div>
-              <Typography variant="caption" className={Type.italic}>
-                {tableMeta.rowData[2]}
-              </Typography>
-            </div>
+          <React.Fragment >
+            {getTriviaName(tableMeta.rowData[14], tableMeta.rowData[1], tableMeta.rowData[2])}
           </React.Fragment>
         )
       }
@@ -347,12 +387,8 @@ function Trivias(props) {
       options: {
         filterOptions: { fullWidth: true },
         customBodyRender: (value, tableMeta, updateValue) => (
-          <React.Fragment>
-            <div>
-              <Typography variant="caption" className={Type.italic}>
-                {tableMeta.rowData[4]}
-              </Typography>
-            </div>
+          <React.Fragment >
+            {getCategoryName(tableMeta.rowData[4])}
           </React.Fragment>
         )
       }
@@ -401,7 +437,7 @@ function Trivias(props) {
         filter: true,
         customBodyRender: (value, tableMeta, updateValue) => (
           <React.Fragment>
-            <Typography variant="body2" className={classes.title} gutterBottom>
+            <Typography variant="caption" className={classes.title} gutterBottom>
               {tableMeta.rowData[9]}
             </Typography>
           </React.Fragment>
@@ -409,15 +445,23 @@ function Trivias(props) {
       }
     },
     {
-      name: '',
+      name: 'Action',
       options: {
         filter: false,
         viewColumns: true,
         customBodyRender: (value, tableMeta, updateValue) => (
           <React.Fragment >
             <Tooltip title={'Build Questions'}>
-              <IconButton className={classes.iconButton} variant="outlined" color="secondary"
+              <IconButton className={classes.iconButton} variant="outlined" color="secondary" disabled={tableMeta.rowData[14]}
                 onClick={(e) => {
+                  if (tableMeta.rowData[14]) {
+                    updateResult('warning', 'Trivia is marked as deleted, not supported');
+                    return;
+                  }
+                  if (tableMeta.rowData[9] === 'STARTED') {
+                    updateResult('warning', 'Trivia in progress, try again later');
+                    return;
+                  }
                   console.log(tableMeta);
                   setCurrentRow(tableMeta.rowData);
                   setShowTriviaQuestions(true);
@@ -426,22 +470,34 @@ function Trivias(props) {
               </IconButton>
             </Tooltip>
             <Tooltip title={'Preview Trivia'}>
-              <IconButton className={classes.iconButton} variant="outlined" color="secondary"
+              <IconButton className={classes.iconButton} variant="outlined" color="secondary" disabled={tableMeta.rowData[14]}
                 onClick={(e) => {
+                  if (tableMeta.rowData[14]) {
+                    updateResult('warning', 'Trivia is marked as deleted, not supported');
+                    return;
+                  }
                   if (tableMeta.rowData[5] && !tableMeta.rowData[5].length) {
                     updateResult('warning', 'Missing questions, build questions and try again');
+                    return;
+                  }
+                  if (tableMeta.rowData[9] === 'STARTED') {
+                    updateResult('warning', 'Trivia in progress, try again later');
                     return;
                   }
                   console.log(tableMeta);
                   setCurrentRow(tableMeta.rowData);
                   setShowTriviaPreview(true);
                 }}>
-                <RemoveRedEyeIcon/>
+                <ViewCarouselIcon/>
               </IconButton>
             </Tooltip>
             <Tooltip title={'Player QR Code'}>
-              <IconButton className={classes.iconButton} variant="outlined" style={{ color: '#11C7AA' }}
+              <IconButton className={classes.iconButton} variant="outlined" style={{ color: '#11C7AA' }} disabled={tableMeta.rowData[14]}
                 onClick={(e) => {
+                  if (tableMeta.rowData[14]) {
+                    updateResult('warning', 'Trivia is marked as deleted, not supported');
+                    return;
+                  }
                   if (tableMeta.rowData[5] && !tableMeta.rowData[5].length) {
                     updateResult('warning', 'Missing questions, build questions and try again');
                     return;
@@ -453,8 +509,12 @@ function Trivias(props) {
               </IconButton>
             </Tooltip>
             <Tooltip title={'Admin QR Code'}>
-              <IconButton className={classes.iconButton} variant="outlined" style={{ color: '#785EBA' }}
+              <IconButton className={classes.iconButton} variant="outlined" style={{ color: '#f96c04' }} disabled={tableMeta.rowData[14]}
                 onClick={(e) => {
+                  if (tableMeta.rowData[14]) {
+                    updateResult('warning', 'Trivia is marked as deleted, not supported');
+                    return;
+                  }
                   if (tableMeta.rowData[5] && !tableMeta.rowData[5].length) {
                     updateResult('warning', 'Missing questions, build questions and try again');
                     return;
@@ -471,9 +531,19 @@ function Trivias(props) {
               aria-haspopup="true"
               onClick={(e) => {
                 setCurrentRow(tableMeta.rowData);
-                if (tableMeta.rowData[9] === 'COMPLETED' || tableMeta.rowData[9] === 'ABORTED'
-                    || tableMeta.rowData[9] === 'EXPIRED') setReopenAllowed(true);
+                if (!tableMeta.rowData[14] && (tableMeta.rowData[9] === 'COMPLETED' || tableMeta.rowData[9] === 'ABORTED'
+                    || tableMeta.rowData[9] === 'EXPIRED')) setReopenAllowed(true);
                 else setReopenAllowed(false);
+
+                if (tableMeta.rowData[14] || tableMeta.rowData[9] === 'COMPLETED' || tableMeta.rowData[9] === 'ABORTED'
+                    || tableMeta.rowData[9] === 'EXPIRED' || tableMeta.rowData[9] === 'STARTED') setEditAllowed(false);
+                else setEditAllowed(true);
+
+                if (tableMeta.rowData[9] === 'STARTED') setDeleteAllowed(false);
+                else setDeleteAllowed(true);
+
+                if (deletedCategories.includes(tableMeta.rowData[4])) setCloneAllowed(false);
+                else setCloneAllowed(true);
 
                 handleClickRowMenu(e);
               }}
@@ -493,14 +563,15 @@ function Trivias(props) {
                 },
               }}
             >
-              <MenuItem key={'Edit' + tableMeta.rowData[0]} onClick={(e) => {
-                handleCloseRowMenu();
-                setShowModal(true);
-              }}>
-                <IconButton className={classes.iconButton} variant="outlined" color="secondary">
-                  <EditIcon/>
-                </IconButton> Edit
-              </MenuItem>
+              {editAllowed
+                && <MenuItem key={'Edit' + tableMeta.rowData[0]} onClick={(e) => {
+                  handleCloseRowMenu();
+                  setShowModal(true);
+                }}>
+                  <IconButton className={classes.iconButton} variant="outlined" color="secondary">
+                    <EditIcon/>
+                  </IconButton> Edit
+                </MenuItem>}
               {reopenAllowed
                 && <MenuItem key={'Reopen' + tableMeta.rowData[0]} onClick={(e) => {
                   handleCloseRowMenu();
@@ -510,32 +581,38 @@ function Trivias(props) {
                     <LockOpenIcon/>
                   </IconButton> Reopen
                 </MenuItem>}
-              <MenuItem key={'Clone' + tableMeta.rowData[0]} onClick={(e) => {
-                if (tableMeta.rowData[5] && !tableMeta.rowData[5].length) {
-                  updateResult('warning', 'Missing questions, build questions and try again');
-                  return;
-                }
-                handleCloseRowMenu();
-                setShowCloneDialog(true);
-              }}>
-                <IconButton className={classes.iconButton} variant="outlined" color="secondary">
-                  <CopyIcon/>
-                </IconButton> Clone
-              </MenuItem>
-              <MenuItem key={'Delete' + tableMeta.rowData[0]} onClick={(e) => {
-                handleCloseRowMenu();
-                setRowsDeleted([]);
-                setShowDeleteDialog(true);
-              }}>
-                <IconButton className={classes.iconButton} variant="outlined" color="secondary">
-                  <DeleteIcon/>
-                </IconButton> Delete
-              </MenuItem>
+              {cloneAllowed
+                && <MenuItem key={'Clone' + tableMeta.rowData[0]} onClick={(e) => {
+                  if (tableMeta.rowData[5] && !tableMeta.rowData[5].length) {
+                    updateResult('warning', 'Missing questions, build questions and try again');
+                    return;
+                  }
+                  handleCloseRowMenu();
+                  setShowCloneDialog(true);
+                }}>
+                  <IconButton className={classes.iconButton} variant="outlined" color="secondary">
+                    <CopyIcon/>
+                  </IconButton> Clone
+                </MenuItem>}
+              {deleteAllowed
+                && <MenuItem key={'Delete' + tableMeta.rowData[0]} onClick={(e) => {
+                  handleCloseRowMenu();
+                  setRowsDeleted([]);
+                  setShowDeleteDialog(true);
+                }}>
+                  <IconButton className={classes.iconButton} variant="outlined" color="secondary">
+                    <DeleteIcon/>
+                  </IconButton> Toggle Delete
+                </MenuItem>}
             </Menu>
           </React.Fragment>
         ),
         setCellProps: () => ({ style: { height: 'auto', overflow: 'unset' } }),
       },
+    },
+    {
+      name: '', // 0
+      options: { display: false, filter: false, viewColumns: false }
     },
     {
       name: '', // 0
@@ -572,6 +649,8 @@ function Trivias(props) {
     rowsPerPage: 10,
     customToolbar: () => (
       <TriviasCustomToolbar
+        showDeleted={showDeleted}
+        toggleDeleted={toggleDeleted}
         openModal={openModal}
         refreshTrivias={refreshTrivias}
       />
@@ -602,10 +681,21 @@ function Trivias(props) {
         />
       </Snackbar>
 
-      {showDeleteDialog
+      {showDeleteDialog && !Object.keys(rowsDeleted).length
         && <AlertDialog
-          title='Delete Trivia(s)'
-          description='Are you sure you want to delete selected Trivia(s)?'
+          title={currentRow[8] === true ? 'Undelete Trivia(s)' : 'Delete Trivia(s)'}
+          description={currentRow[8] === true ? 'Are you sure you want to undelete selected Trivia(s)?' : 'Are you sure you want to delete selected Trivia(s)?'}
+          cancel='Cancel'
+          submit='Confirm'
+          onSubmit={onRowsDeleteConfirm}
+          onCancel={onRowsDeleteCancel}
+        />
+      }
+
+      {showDeleteDialog && Object.keys(rowsDeleted).length
+        && <AlertDialog
+          title={'Toggle Deletion(s)'}
+          description={'Are you sure you want to delete/undelete selected Trivia(s)?'}
           cancel='Cancel'
           submit='Confirm'
           onSubmit={onRowsDeleteConfirm}

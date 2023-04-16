@@ -72,8 +72,10 @@ router.get('/test', async (req, res) => res.send('trivia route testing!'));
 
 router.get('/', async (req, res) => {
   const as_array = req?.query?.as_array && req?.query?.as_array === 'true';
-  Trivia.find()
+  const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
+  Trivia.find(show_deleted ? {} : { deleted: false })
     .populate('questions')
+    .sort({ deleted: 1 })
     .then(trivias => {
       if (trivias.length > 0) {
         trivias.map(trivia => {
@@ -100,7 +102,7 @@ router.get('/', async (req, res) => {
         data: as_array
           ? trivias.map(c => [c._id, c.name, c.description, c.audience, c.category,
             c.questions, c.scheduled, c.start_at, c.close_at, c.status,
-            c.mode, c.no_of_questions, c.time_limit, c.hash])
+            c.mode, c.no_of_questions, c.time_limit, c.hash, c.deleted])
           : trivias
       });
     })
@@ -152,7 +154,7 @@ router.get('/hash/:hash', async (req, res) => {
           data: as_array
             ? trivias.map(c => [c._id, c.name, c.description, c.audience, c.category,
               c.questions, c.scheduled, c.start_at, c.close_at, c.status,
-              c.mode, c.no_of_questions, c.time_limit, c.hash])
+              c.mode, c.no_of_questions, c.time_limit, c.hash, c.deleted])
             : trivias
         });
       } else {
@@ -221,8 +223,8 @@ router.post('/', async (req, res) => {
     });
 });
 
-router.post('/clone', async (req, res) => {
-  Trivia.findById(req.body.id)
+router.post('/clone/:id', async (req, res) => {
+  Trivia.findById(req.params.id)
     .then(trivia => {
       trivia._id = mongoose.Types.ObjectId();
       trivia.isNew = true;
@@ -231,6 +233,7 @@ router.post('/clone', async (req, res) => {
       trivia.hash = shortHash(trivia.name + '@' + (new Date()).getMilliseconds());
       trivia.adminHash = shortHash(trivia.hash + ' => ' + trivia.name + '@' + (new Date()).getMilliseconds());
       trivia.owner = req.user._id;
+      trivia.deleted = false;
 
       Trivia.create(trivia)
         .then(__trivia => {
@@ -252,14 +255,14 @@ router.post('/clone', async (req, res) => {
     });
 });
 
-router.post('/reopen', async (req, res) => {
-  const trivia = await Trivia.findById(req.body.id);
+router.post('/reopen/:id', async (req, res) => {
+  const trivia = await Trivia.findById(req.params.id);
   trivia.status = trivia.questions.length ? 'READY' : 'NEW';
   trivia.players = {
     names: [], connected: [], current: 0, high: 0
   };
   trivia.chat = [];
-  Trivia.findByIdAndUpdate(req.body.id, trivia)
+  Trivia.findByIdAndUpdate(req.params.id, trivia)
     .then(t => {
       TriviaStats.findOneAndUpdate(
         { hash: trivia.hash },
@@ -390,53 +393,20 @@ router.put('/:id', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-  const _trivia = await Trivia.findById(req.params.id);
-  if (_trivia.status === 'STARTED') {
-    res.json({ success: false, data: _trivia, message: 'Could not delete, Trivia is in progress - Try again later!' });
-    return;
-  }
+  const trivia = await Trivia.findById(req.params.id);
+  trivia.deleted = !trivia.deleted;
+  await Trivia.findByIdAndUpdate(req.params.id, trivia);
 
-  Trivia.findByIdAndRemove(req.params.id, req.body)
-    .then(trivia => {
-      TriviaStats.remove({ hash: _trivia.hash })
-        .then(ts => {
-          res.json({ success: true, message: 'Delete trivia successful' });
-        });
-    })
-    .catch(err => {
-      let message = 'Trivia delete failed';
-      if (err.name === 'ValidationError') message = handleValidationError(err);
-      console.log(err);
-      console.log(message);
-      return res.json({ success: false, message, });
-    });
+  res.json({ success: true, message: 'Delete trivia successful' });
 });
 
 router.post('/delete', async (req, res) => {
-  let deleted = 0;
-  let notDeleted = 0;
   for (let i = 0; i < req.body.ids.length; i++) {
-    const _trivia = await Trivia.findById(req.body.ids[i]);
-    if (_trivia.status !== 'STARTED') {
-      await Trivia.findByIdAndRemove(req.body.ids[i])
-        // eslint-disable-next-line no-loop-func
-        .then(async () => {
-          await TriviaStats.deleteOne({ hash: _trivia.hash })
-            .then(() => {
-              deleted++;
-            });
-        });
-    } else {
-      notDeleted++;
-    }
+    const trivia = await Trivia.findById(req.body.ids[i]);
+    trivia.deleted = !trivia.deleted;
+    await Trivia.findByIdAndUpdate(req.body.ids[i], trivia);
   }
-  if (notDeleted === req.body.ids.length) {
-    res.json({ success: false, message: 'Could not delete, Trivia(s) are in progress, try again later!' });
-  } else if (deleted === req.body.ids.length) {
-    res.json({ success: false, message: deleted + ' Trivia(s) successfully deleted!' });
-  } else if (deleted !== 0 && notDeleted !== 0) {
-    res.json({ success: true, message: 'Could not delete ' + notDeleted + ' in progress Trivias, however' + deleted + ' Trivia(s) successfully deleted' });
-  }
+  res.json({ success: true, message: 'Delete trivia(s) successful' });
 });
 
 module.exports = router;

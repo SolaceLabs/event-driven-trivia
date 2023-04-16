@@ -38,13 +38,18 @@ export default function TriviasModal(props) {
     close();
   };
 
+  const handleSubmit = (values) => {
+    console.log(values);
+    saveResults(values);
+  };
+
   return (
     <div>
       <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
         <PapperBlock
           title={'Trivia'}
-          icon="library_books"
-          desc={'Manage Trivia'}
+          icon="question_answer"
+          desc={'Create Trivia'}
           actionChildren={
             <IconButton edge="start" color="inherit" onClick={close} aria-label="close">
               <CloseIcon />
@@ -52,7 +57,7 @@ export default function TriviasModal(props) {
           }
         >
           <div>
-            <TriviasForm data={data} categories={categories} onSubmit={(values) => saveResults(values)} />
+            <TriviasForm data={data} categories={categories} onSubmit={(values) => handleSubmit(values)} />
           </div>
         </PapperBlock>
       </Dialog>

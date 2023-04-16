@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import AddIcon from '@material-ui/icons/AddSharp';
-import FilterListIcon from '@material-ui/icons/FilterList';
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
+import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import PlaylistAddCheck from '@material-ui/icons/PlaylistAddCheck';
 import RefreshIcon from '@material-ui/icons/RefreshSharp';
 import { withStyles } from '@material-ui/core/styles';
@@ -15,7 +16,7 @@ const defaultToolbarStyles = {
 
 function QuestionsCustomToolbar(props) {
   const {
-    classes, openModal, openFilterDialog, refreshQuestions
+    classes, openModal, openFilterDialog, refreshQuestions, showDeleted, toggleDeleted
   } = props;
 
   return (
@@ -28,6 +29,14 @@ function QuestionsCustomToolbar(props) {
       <Tooltip title={'Set Filter'}>
         <IconButton className={classes.iconButton} onClick={() => { openFilterDialog(); }} >
           <PlaylistAddCheck className={classes.deleteIcon}/>
+        </IconButton>
+      </Tooltip>
+      <Tooltip title={ showDeleted ? 'Hide Deleted' : 'Show Deleted'}>
+        <IconButton className={classes.iconButton} onClick={() => { toggleDeleted(); }} >
+          {showDeleted
+            && <VisibilityOffIcon className={classes.deleteIcon}/>}
+          {!showDeleted
+            && <RemoveRedEyeIcon className={classes.deleteIcon}/>}
         </IconButton>
       </Tooltip>
       <Tooltip title={'Refresh Questions'}>

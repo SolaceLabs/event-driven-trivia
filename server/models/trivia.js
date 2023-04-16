@@ -26,6 +26,7 @@ const TriviaSchema = new Schema(
     status: { type: String, required: true }, // NEW, READY, SCHEDULED, EXPIRED, COMPLETED, ABORTED
     owner: { type: 'ObjectId', ref: 'User' },
     shared: { type: Boolean, default: false },
+    deleted: { type: Boolean, default: false },
     hash: { type: String },
     adminHash: { type: String }
   }, {

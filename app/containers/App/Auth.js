@@ -9,6 +9,7 @@ import {
   Maintenance,
   RegisterTrivia,
   ResetPasswordTrivia,
+  EmailVerifyTrivia,
   TriviaDashboard
 } from '../pageListAsync';
 
@@ -21,6 +22,7 @@ function Auth() {
         <Route path="/logout" component={LogoutTrivia} />
         <Route path="/register" component={RegisterTrivia} />
         <Route path="/reset-password" component={ResetPasswordTrivia} />
+        <Route path="/verify" component={EmailVerifyTrivia} />
         <Route path="/maintenance" component={Maintenance} />
         <Route path="/coming-soon" component={ComingSoon} />
         <Route component={NotFound} />

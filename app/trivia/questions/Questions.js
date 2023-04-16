@@ -9,10 +9,11 @@ import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/EditSharp';
 import CopyIcon from '@material-ui/icons/FileCopySharp';
 import DeleteIcon from '@material-ui/icons/DeleteSharp';
+import RestoreFromTrashIcon from '@material-ui/icons/RestoreFromTrash';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import green from '@material-ui/core/colors/green';
+import pink from '@material-ui/core/colors/pink';
 import QuestionsModal from './QuestionsModal';
 import QuestionsCustomToolbar from './QuestionsCustomToolbar';
 import QuestionCategoryFilter from './QuestionCategoryFilter';
@@ -56,7 +57,13 @@ const styles = theme => ({
   },
   choiceNormal: {
     backgroundColor: 'auto'
-  }
+  },
+  deleted: {
+    color: pink[400],
+    '& svg': {
+      fill: pink[400],
+    }
+  },
 });
 
 /*
@@ -70,6 +77,7 @@ function Questions(props) {
   const [questions, setQuestions] = useState([]);
   const [filterList, setFilterList] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [deletedCategories, setDeletedCategories] = useState([]);
   const [openStyle, setOpen] = useState(false);
   const [variant, setVariant] = useState('');
   const [message, setMessage] = useState('');
@@ -78,6 +86,9 @@ function Questions(props) {
   const [showFilterDialog, setShowFilterDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showCloneDialog, setShowCloneDialog] = useState(false);
+  const [editAllowed, setEditAllowed] = useState(false);
+  const [cloneAllowed, setCloneAllowed] = useState(false);
+  const [showDeleted, setShowDeleted] = useState(true);
   const [anchorEl2, setAnchorEl2] = useState(null);
   const openRowMenu = Boolean(anchorEl2);
   const { classes } = props;
@@ -92,28 +103,26 @@ function Questions(props) {
   useEffect(async () => {
     console.log('executed only once!');
     const params = new URLSearchParams();
-    params.append('category', JSON.stringify(filterList));
-
-    const response = await api.getQuestions(params);
+    const response = await api.getCategories(params);
     if (!response.success) {
-      updateResult('error', response.message);
-      setQuestions([]);
-    } else {
-      console.log('Questions', response.data);
-      updateResult('success', 'Questions refreshed successfully');
-      setQuestions(response.data);
-    }
-
-    const response1 = await api.getCategories();
-    if (!response1.success) {
-      updateResult('error', response1.message);
       setCategories([]);
+      updateResult('error', response.message);
     } else {
-      console.log('Categories', response1.data);
-      updateResult('success', 'Catagories refreshed successfully');
-      setCategories(response1.data);
+      setCategories(response.data);
+      setDeletedCategories(response.data.filter(el => el.deleted).map(el1 => el1.name));
+      const params1 = new URLSearchParams();
+      params1.append('category', filterList ? JSON.stringify(filterList) : '');
+      params1.append('show_deleted', showDeleted);
+      const response1 = await api.getQuestions(params1);
+      if (!response1.success) {
+        updateResult('error', response1.message);
+        setQuestions([]);
+      } else {
+        updateResult('success', 'Questions refreshed successfully');
+        setQuestions(response1.data);
+      }
     }
-  }, []);
+  }, [showDeleted]);
 
   const handleCloseStyle = (event, reason) => {
     if (reason === 'clickaway') {
@@ -123,6 +132,10 @@ function Questions(props) {
   };
 
   const openModal = () => {
+    if (!categories.length) {
+      updateResult('error', 'No categories found, create one and try again.');
+      return;
+    }
     setShowModal(true);
   };
 
@@ -140,6 +153,11 @@ function Questions(props) {
   };
 
   const openFilterDialog = () => {
+    if (!categories.length) {
+      updateResult('error', 'No categories found, create one and try again.');
+      return;
+    }
+
     setShowFilterDialog(true);
   };
 
@@ -149,22 +167,23 @@ function Questions(props) {
 
   const refreshQuestions = async (filters = undefined) => {
     const params = new URLSearchParams();
-    params.append('category', JSON.stringify(filterList));
-
-    const response = await api.getQuestions(params);
+    const response = await api.getCategories(params);
     if (!response.success) {
+      setCategories([]);
       updateResult('error', response.message);
-      setQuestions([]);
     } else {
-      setQuestions(response.data);
-
-      const response1 = await api.getCategories();
+      setCategories(response.data);
+      setDeletedCategories(response.data.filter(el => el.deleted).map(el1 => el1.name));
+      const params1 = new URLSearchParams();
+      params1.append('category', filters ? JSON.stringify(filters) : JSON.stringify(filterList));
+      params1.append('show_deleted', showDeleted);
+      const response1 = await api.getQuestions(params1);
       if (!response1.success) {
-        setCategories([]);
-        updateResult('success', 'Questions refreshed successfully');
+        updateResult('error', response1.message);
+        setQuestions([]);
       } else {
         updateResult('success', 'Questions refreshed successfully');
-        setCategories(response1.data);
+        setQuestions(response1.data);
       }
     }
 
@@ -176,6 +195,10 @@ function Questions(props) {
     setFilterList(filters);
     setShowFilterDialog(false);
     await refreshQuestions(filters);
+  };
+
+  const toggleDeleted = () => {
+    setShowDeleted(!showDeleted);
   };
 
   const saveResults = async (values) => {
@@ -198,7 +221,12 @@ function Questions(props) {
     console.log('Questions', response.data);
     updateResult('success', 'Question'
                 + (values.id ? 'updated' : 'added') + ' successfully');
-    refreshQuestions();
+    const filters = filterList;
+    if (!filters.includes(values.category)) {
+      filters.push(values.category);
+      setFilterList(filters);
+    }
+    refreshQuestions(filters);
   };
 
   const onRowsDeleteConfirm = async () => {
@@ -208,7 +236,7 @@ function Questions(props) {
     } else {
       ids = [currentRow[0]];
     }
-    const response = await api.deleteQuestions({ ids });
+    const response = await api.toggleQuestions({ ids });
     if (!response.success) {
       updateResult('error', response.message);
     } else {
@@ -276,6 +304,14 @@ function Questions(props) {
 
   if (props.refresh) { refreshQuestions(); }
 
+  const getCategoryName = (name) => (deletedCategories.includes(name)
+    ? <del className={classes.deleted}>{name}</del>
+    : name);
+
+  const getQuestionName = (isDeleted, name) => (isDeleted
+    ? <del className={classes.deleted}>{name}</del>
+    : name);
+
   const columns = [
     {
       name: 'Id',
@@ -283,15 +319,34 @@ function Questions(props) {
     },
     {
       name: 'Category',
-      options: { display: true, filter: false, viewColumns: false }
+      options: {
+        display: true,
+        filter: false,
+        viewColumns: false,
+        customBodyRender: (value, tableMeta, updateValue) => (
+          <React.Fragment >
+            {getCategoryName(tableMeta.rowData[1])}
+          </React.Fragment>
+        )
+      }
     },
     {
       name: 'Question',
-      options: { filter: false, }
+      options: {
+        display: true,
+        filter: false,
+        filterOptions: { fullWidth: true },
+        customBodyRender: (value, tableMeta, updateValue) => (
+          <React.Fragment >
+            {getQuestionName(tableMeta.rowData[8], tableMeta.rowData[2])}
+          </React.Fragment>
+        )
+      }
     },
     {
       name: 'Choices & Answer',
       options: {
+        display: true,
         filter: false,
         customBodyRender: (value, tableMeta, updateValue) => buildChoicesAndAnswer(tableMeta.rowData)
       }
@@ -313,8 +368,9 @@ function Questions(props) {
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '',
+      name: 'Action',
       options: {
+        display: true,
         filter: false,
         viewColumns: false,
         customBodyRender: (value, tableMeta, updateValue) => (
@@ -325,6 +381,12 @@ function Questions(props) {
               aria-haspopup="true"
               onClick={(e) => {
                 setCurrentRow(tableMeta.rowData);
+                if (tableMeta.rowData[8]) setEditAllowed(false);
+                else setEditAllowed(true);
+
+                if (tableMeta.rowData[8] || deletedCategories.includes(tableMeta.rowData[1])) setCloneAllowed(false);
+                else setCloneAllowed(true);
+
                 handleClickRowMenu(e);
               }}
             >
@@ -343,22 +405,24 @@ function Questions(props) {
                 },
               }}
             >
-              <MenuItem key={'Edit' + tableMeta.rowData[0]} onClick={(e) => {
-                handleCloseRowMenu();
-                setShowModal(true);
-              }}>
-                <IconButton className={classes.iconButton} variant="outlined" color="secondary">
-                  <EditIcon/>
-                </IconButton> Edit
-              </MenuItem>
-              <MenuItem key={'Clone' + tableMeta.rowData[0]} onClick={(e) => {
-                handleCloseRowMenu();
-                setShowCloneDialog(true);
-              }}>
-                <IconButton className={classes.iconButton} variant="outlined" color="secondary">
-                  <CopyIcon/>
-                </IconButton> Clone
-              </MenuItem>
+              {editAllowed
+                && <MenuItem key={'Edit' + tableMeta.rowData[0]} onClick={(e) => {
+                  handleCloseRowMenu();
+                  setShowModal(true);
+                }}>
+                  <IconButton className={classes.iconButton} variant="outlined" color="secondary">
+                    <EditIcon/>
+                  </IconButton> Edit
+                </MenuItem>}
+              {cloneAllowed
+                && <MenuItem key={'Clone' + tableMeta.rowData[0]} onClick={(e) => {
+                  handleCloseRowMenu();
+                  setShowCloneDialog(true);
+                }}>
+                  <IconButton className={classes.iconButton} variant="outlined" color="secondary">
+                    <CopyIcon/>
+                  </IconButton> Clone
+                </MenuItem>}
               <MenuItem key={'Delete' + tableMeta.rowData[0]} onClick={(e) => {
                 handleCloseRowMenu();
                 setRowsDeleted([]);
@@ -366,7 +430,7 @@ function Questions(props) {
               }}>
                 <IconButton className={classes.iconButton} variant="outlined" color="secondary">
                   <DeleteIcon/>
-                </IconButton> Delete
+                </IconButton> Toggle Delete
               </MenuItem>
             </Menu>
           </React.Fragment>
@@ -388,6 +452,9 @@ function Questions(props) {
     rowsPerPage: 10,
     customToolbar: () => (
       <QuestionsCustomToolbar
+        showDeleted={showDeleted}
+        toggleDeleted={toggleDeleted}
+        categoriesCount={categories.length}
         openModal={openModal}
         openFilterDialog={openFilterDialog}
         refreshQuestions={refreshQuestions}
@@ -434,10 +501,21 @@ function Questions(props) {
         />
       }
 
-      {showDeleteDialog
+      {showDeleteDialog && !Object.keys(rowsDeleted).length
         && <AlertDialog
-          title='Delete Question(s)'
-          description='Are you sure you want to delete selected Question(s)?'
+          title={currentRow[8] === true ? 'Undelete Question(s)' : 'Delete Question(s)'}
+          description={currentRow[8] === true ? 'Are you sure you want to undelete selected Question(s)?' : 'Are you sure you want to delete selected Question(s)?'}
+          cancel='Cancel'
+          submit='Confirm'
+          onSubmit={onRowsDeleteConfirm}
+          onCancel={onRowsDeleteCancel}
+        />
+      }
+
+      {showDeleteDialog && Object.keys(rowsDeleted).length
+        && <AlertDialog
+          title={'Toggle Deletion(s)'}
+          description={'Are you sure you want to delete/undelete selected Question(s)?'}
           cancel='Cancel'
           submit='Confirm'
           onSubmit={onRowsDeleteConfirm}

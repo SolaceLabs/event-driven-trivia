@@ -18,13 +18,18 @@ export default function CategoriesModal(props) {
     closeModal();
   };
 
+  const handleSubmit = (values) => {
+    console.log(values);
+    saveResults(values);
+  };
+
   return (
     <div>
       <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
         <PapperBlock
           title={'Category'}
-          icon="library_books"
-          desc={'Manage Category'}
+          icon="category"
+          desc={'Create Category'}
           actionChildren={
             <IconButton edge="start" color="inherit" onClick={closeModal} aria-label="close">
               <CloseIcon />
@@ -32,7 +37,7 @@ export default function CategoriesModal(props) {
           }
         >
           <div>
-            <CategoriesForm data={data} onSubmit={(values) => saveResults(values)} />
+            <CategoriesForm data={data} onSubmit={(values) => handleSubmit(values)} />
           </div>
         </PapperBlock>
       </Dialog>

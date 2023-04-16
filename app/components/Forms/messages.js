@@ -44,6 +44,14 @@ export default defineMessages({
     id: `${scope}.Login.field.forgot`,
     defaultMessage: 'Forgot Password',
   },
+  resendVerificationLink: {
+    id: `${scope}.Login.field.resend`,
+    defaultMessage: 'Resend verification link',
+  },
+  resentVerificationLink: {
+    id: `${scope}.Login.field.resent`,
+    defaultMessage: 'Email verification is sent to registered email address, check your spam folders in case if you did not receive verification email',
+  },
   loginRemember: {
     id: `${scope}.Login.field.remember`,
     defaultMessage: 'Remember',
@@ -75,6 +83,14 @@ export default defineMessages({
   terms: {
     id: `${scope}.Register.terms`,
     defaultMessage: 'Terms & Condition',
+  },
+  emailVerificationTitle: {
+    id: `${scope}.Verify.title`,
+    defaultMessage: 'Email Verification',
+  },
+  emailVerificationSubtitle: {
+    id: `${scope}.Verify.subtitle`,
+    defaultMessage: 'Verifying your email address...',
   },
   resetTitle: {
     id: `${scope}.Reset.title`,

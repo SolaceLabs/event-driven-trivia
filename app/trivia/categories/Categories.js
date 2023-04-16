@@ -12,6 +12,7 @@ import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
 import MUIDataTable from 'mui-datatables';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
+import pink from '@material-ui/core/colors/pink';
 import SnackBarWrapper from '../common/SnackBarWrapper';
 // eslint-disable-next-line import/no-cycle
 import AlertDialog from '../common/AlertDialog';
@@ -47,7 +48,13 @@ const styles = theme => ({
   },
   margin: {
     margin: theme.spacing(1)
-  }
+  },
+  deleted: {
+    color: pink[400],
+    '& svg': {
+      fill: pink[400],
+    }
+  },
 });
 
 /*
@@ -66,6 +73,9 @@ function Categories(props) {
   const [rowsDeleted, setRowsDeleted] = useState([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showCloneDialog, setShowCloneDialog] = useState(false);
+  const [editAllowed, setEditAllowed] = useState(false);
+  const [cloneAllowed, setCloneAllowed] = useState(false);
+  const [showDeleted, setShowDeleted] = useState(true);
   const [anchorEl2, setAnchorEl2] = React.useState(null);
   const openRowMenu = Boolean(anchorEl2);
 
@@ -79,7 +89,8 @@ function Categories(props) {
   useEffect(async () => {
     console.log('executed only once!');
     const params = new URLSearchParams();
-    params.append('as_array', 'true');
+    params.append('as_array', true);
+    params.append('show_deleted', showDeleted);
     const response = await api.getCategories(params);
     if (!response.success) {
       updateResult('error', response.message);
@@ -89,7 +100,7 @@ function Categories(props) {
     console.log('Categories', response.data);
     updateResult('success', 'Categories refreshed successfully');
     setCategories(response.data);
-  }, []);
+  }, [showDeleted]);
 
   const handleCloseStyle = (event, reason) => {
     if (reason === 'clickaway') {
@@ -117,7 +128,8 @@ function Categories(props) {
 
   const refreshCategories = async () => {
     const params = new URLSearchParams();
-    params.append('as_array', 'true');
+    params.append('as_array', true);
+    params.append('show_deleted', showDeleted);
     const response = await api.getCategories(params);
     if (!response.success) {
       updateResult('error', response.message);
@@ -127,6 +139,10 @@ function Categories(props) {
     console.log('Categories', response.data);
     setCategories(response.data);
     setCurrentRow(false);
+  };
+
+  const toggleDeleted = () => {
+    setShowDeleted(!showDeleted);
   };
 
   const saveResults = async (values) => {
@@ -199,6 +215,10 @@ function Categories(props) {
 
   const { classes } = props;
 
+  const getCategoryName = (isDeleted, name) => (isDeleted
+    ? <del className={classes.deleted}>{name}</del>
+    : name);
+
   const columns = [
     {
       name: 'Id',
@@ -206,7 +226,14 @@ function Categories(props) {
     },
     {
       name: 'Name',
-      options: { filterOptions: { fullWidth: true } }
+      options: {
+        filterOptions: { fullWidth: true },
+        customBodyRender: (value, tableMeta, updateValue) => (
+          <React.Fragment >
+            {getCategoryName(tableMeta.rowData[5], tableMeta.rowData[1])}
+          </React.Fragment>
+        )
+      }
     },
     {
       name: 'Description',
@@ -221,7 +248,7 @@ function Categories(props) {
       options: { filter: false, }
     },
     {
-      name: '',
+      name: 'Action',
       options: {
         filter: false,
         viewColumns: false,
@@ -233,6 +260,12 @@ function Categories(props) {
               aria-haspopup="true"
               onClick={(e) => {
                 setCurrentRow(tableMeta.rowData);
+                if (tableMeta.rowData[5]) setEditAllowed(false);
+                else setEditAllowed(true);
+
+                if (tableMeta.rowData[5]) setCloneAllowed(false);
+                else setCloneAllowed(true);
+
                 handleClickRowMenu(e);
               }}
             >
@@ -251,22 +284,24 @@ function Categories(props) {
                 },
               }}
             >
-              <MenuItem key={'Edit' + tableMeta.rowData[0]} onClick={(e) => {
+              {editAllowed
+              && <MenuItem key={'Edit' + tableMeta.rowData[0]} onClick={(e) => {
                 handleCloseRowMenu();
                 setShowModal(true);
               }}>
                 <IconButton className={classes.iconButton} variant="outlined" color="secondary">
                   <EditIcon/>
                 </IconButton> Edit
-              </MenuItem>
-              <MenuItem key={'Clone' + tableMeta.rowData[0]} onClick={(e) => {
+              </MenuItem>}
+              {cloneAllowed
+              && <MenuItem key={'Clone' + tableMeta.rowData[0]} onClick={(e) => {
                 handleCloseRowMenu();
                 setShowCloneDialog(true);
               }}>
                 <IconButton className={classes.iconButton} variant="outlined" color="secondary">
                   <CopyIcon/>
                 </IconButton> Clone
-              </MenuItem>
+              </MenuItem>}
               <MenuItem key={'Delete' + tableMeta.rowData[0]} onClick={(e) => {
                 handleCloseRowMenu();
                 setRowsDeleted([]);
@@ -274,7 +309,7 @@ function Categories(props) {
               }}>
                 <IconButton className={classes.iconButton} variant="outlined" color="secondary">
                   <DeleteIcon/>
-                </IconButton> Delete
+                </IconButton> Toggle Delete
               </MenuItem>
             </Menu>
           </React.Fragment>
@@ -296,6 +331,8 @@ function Categories(props) {
     rowsPerPage: 10,
     customToolbar: () => (
       <CategoriesCustomToolbar
+        showDeleted={showDeleted}
+        toggleDeleted={toggleDeleted}
         openModal={openModal}
         refreshCategories={refreshCategories}
       />
@@ -326,10 +363,21 @@ function Categories(props) {
         />
       </Snackbar>
 
-      {showDeleteDialog
+      {showCloneDialog
         && <AlertDialog
-          title='Delete Category(s)'
-          description='This will also delete questions under this category, Are you sure you want to delete selected Category(s)?'
+          title='Clone Question'
+          description={'Are you sure you want to clone selected Category - "' + currentRow[1] + '"?'}
+          cancel='Cancel'
+          submit='Confirm'
+          onSubmit={onRowCloneConfirm}
+          onCancel={onRowCloneCancel}
+        />
+      }
+
+      {showDeleteDialog && !Object.keys(rowsDeleted).length
+        && <AlertDialog
+          title={currentRow[8] === true ? 'Undelete Category(s)' : 'Delete Category(s)'}
+          description={currentRow[8] === true ? 'Are you sure you want to undelete selected Category(s)?' : 'Are you sure you want to delete selected Category(s)?'}
           cancel='Cancel'
           submit='Confirm'
           onSubmit={onRowsDeleteConfirm}
@@ -337,14 +385,14 @@ function Categories(props) {
         />
       }
 
-      {showCloneDialog
+      {showDeleteDialog && Object.keys(rowsDeleted).length
         && <AlertDialog
-          title='Clone Category'
-          description={'Are you sure you want to clone selected Category - "' + currentRow[2] + '"?'}
+          title={'Toggle Deletion(s)'}
+          description={'Are you sure you want to delete/undelete selected Category(s)?'}
           cancel='Cancel'
           submit='Confirm'
-          onSubmit={onRowCloneConfirm}
-          onCancel={onRowCloneCancel}
+          onSubmit={onRowsDeleteConfirm}
+          onCancel={onRowsDeleteCancel}
         />
       }
 

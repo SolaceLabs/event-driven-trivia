@@ -52,7 +52,8 @@ function RegisterForm(props) {
     intl,
     messagesAuth,
     closeMsg,
-    loading
+    loading,
+    success
   } = props;
 
   return (
@@ -141,12 +142,6 @@ function RegisterForm(props) {
               </FormControl>
             </Grid>
           </Grid>
-          <div>
-            <FormControlLabel control={<Field name="checkbox" required component={CheckboxRedux} className={classes.agree} />} label={intl.formatMessage(messages.aggree)} />
-            <a href="/terms-conditions" target="_blank" className={classes.link}>
-              <FormattedMessage {...messages.terms} />
-            </a>
-          </div>
           <div className={classes.btnArea}>
             <Button variant="contained" fullWidth disabled={loading} color="primary" type="submit">
               {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
@@ -156,40 +151,6 @@ function RegisterForm(props) {
           </div>
         </form>
       </section>
-      {/* <h5 className={classes.divider}>
-        <span>
-          <FormattedMessage {...messages.registerOr} />
-        </span>
-      </h5>
-      <section className={classes.socmedSideLogin}>
-        <Button
-          variant="contained"
-          className={classes.redBtn}
-          type="button"
-          size="large"
-        >
-          <i className="ion-logo-google" />
-          Google
-        </Button>
-        <Button
-          variant="contained"
-          className={classes.cyanBtn}
-          type="button"
-          size="large"
-        >
-          <i className="ion-logo-twitter" />
-          Twitter
-        </Button>
-        <Button
-          variant="contained"
-          className={classes.greyBtn}
-          type="button"
-          size="large"
-        >
-          <i className="ion-logo-github" />
-          Github
-        </Button>
-      </section> */}
     </Paper>
   );
 }

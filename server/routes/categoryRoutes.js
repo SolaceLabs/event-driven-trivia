@@ -11,6 +11,7 @@ const multer = require('multer');
 const fs = require('fs');
 const Category = require('../models/category');
 const Question = require('../models/question');
+const Trivia = require('../models/trivia');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -66,15 +67,16 @@ router.get('/test', async (req, res) => res.send('category route testing!'));
 
 router.get('/', async (req, res) => {
   const as_array = req?.query?.as_array && req?.query?.as_array === 'true';
-  Category
-    .find()
+  const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
+  Category.find(show_deleted ? {} : { deleted: false })
     .populate('no_of_questions')
     .populate('no_of_trivias')
+    .sort({ deleted: 1 })
     .then(categories => res.json({
       success: true,
       message: 'Get categories successful',
       data: as_array
-        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.no_of_trivias])
+        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.no_of_trivias, c.deleted])
         : categories
     }))
     .catch(err => {
@@ -121,13 +123,14 @@ router.post('/', async (req, res) => {
     });
 });
 
-router.post('/clone', async (req, res) => {
-  Category.findById(req.body.id)
+router.post('/clone/:id', async (req, res) => {
+  Category.findById(req.params.id)
     .then(category => {
       category.owner = req.user._id;
       category._id = mongoose.Types.ObjectId();
       category.isNew = true;
       category.name += ' (Clone)';
+      category.deleted = false;
 
       Category.create(category)
         .then(__category => {
@@ -150,8 +153,17 @@ router.post('/clone', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
+  const newCategory = req.body;
+  const currCategory = await Category.findById(req.params.id);
+  const nameChanged = newCategory.name !== currCategory.name;
   Category.findByIdAndUpdate(req.params.id, req.body)
-    .then(category => res.json({ success: true, data: category, message: 'Update category successful' }))
+    .then(async category => {
+      if (nameChanged) {
+        await Question.updateMany({ category: currCategory.name }, { category: newCategory.name });
+        await Trivia.updateMany({ category: currCategory.name }, { category: newCategory.name });
+      }
+      res.json({ success: true, data: category, message: 'Update category successful' });
+    })
     .catch(err => {
       let message = 'Category update failed';
       if (err.name === 'ValidationError') message = handleValidationError(err);
@@ -162,38 +174,20 @@ router.put('/:id', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-  Category.findByIdAndRemove(req.params.id, req.body)
-    .then(category => res.json({ success: true, message: 'Delete category successful' }))
-    .catch(err => {
-      let message = 'Category delete failed';
-      if (err.name === 'ValidationError') message = handleValidationError(err);
-      console.log(err);
-      console.log(message);
-      return res.json({ success: false, message, });
-    });
+  const category = await Category.findById(req.params.id);
+  category.deleted = !category.deleted;
+  await Category.findByIdAndUpdate(req.params.id, category);
+
+  res.json({ success: true, message: 'Delete category successful' });
 });
 
 router.post('/delete', async (req, res) => {
-  let deleted = 0;
-  let notDeleted = 0;
   for (let i = 0; i < req.body.ids.length; i++) {
     const category = await Category.findById(req.body.ids[i]);
-    if (!category) {
-      notDeleted++;
-    } else {
-      await Question.remove({ category: category.name });
-      await Category.findByIdAndRemove(req.body.ids[i]);
-      deleted++;
-    }
+    category.deleted = !category.deleted;
+    await Category.findByIdAndUpdate(req.body.ids[i], category);
   }
-
-  if (notDeleted === req.body.ids.length) {
-    res.json({ success: false, message: 'Could not delete categories, try again later!' });
-  } else if (deleted === req.body.ids.length) {
-    res.json({ success: false, message: deleted + ' Categories successfully deleted!' });
-  } else if (deleted !== 0 && notDeleted !== 0) {
-    res.json({ success: true, message: 'Could not delete ' + notDeleted + ' Categories, however' + deleted + ' Categories successfully deleted' });
-  }
+  res.json({ success: true, message: 'Delete category(s) successful' });
 });
 
 router.post('/upload', upload.single('csvFile'), async (req, res, next) => {

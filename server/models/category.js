@@ -10,6 +10,7 @@ const CategorySchema = new Schema(
     description: { type: String },
     owner: { type: 'ObjectId', ref: 'User' },
     shared: { type: Boolean, default: false },
+    deleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,

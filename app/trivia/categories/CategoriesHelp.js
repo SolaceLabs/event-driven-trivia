@@ -58,18 +58,26 @@ function CategoriesHelp(props) {
         >
           <Typography className={classes.heading}>
             <span className={Type.bold}>
-              About Question Categories
+              About Category
             </span>
           </Typography>
           <Typography className={classes.secondaryHeading}></Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            In Trivia, every question need to be associated with category.
+            <p>In Trivia, every question need to be associated with category.
             This sections lists the existing categories and the number of questions in that category.
-            It is a best practice to check and make sure that a names category does not exist, before creating a new one.
-            It should also be noted that the category names are case-preserved, but new category name checks will be
-            case-insensitive to preserve readability of the names.
+            Categories can be edited and cloned anytime.</p>
+            <h6>Creating a Category</h6>
+            <p>A Category is the logical grouping of questions in one bucket. This helps build trivia focused on specific category.
+            </p>
+            <h6>Managing Categories</h6>
+            <p>
+              <ul>
+                <li>When a Category is renamed via Edit option, all questions and trivia belonging to that category will be updated with the new Category name.</li>
+                <li>When a Category is deleted, the Category will be marked as deleted (soft-delete).</li>
+              </ul>
+            </p>
           </Typography>
         </AccordionDetails>
       </Accordion>
@@ -93,7 +101,7 @@ function CategoriesHelp(props) {
                 <Paper className={classes.paper}>
                   <Typography>
                     <span className={classNames(Type.bold, Type.underline)}>Bulk Import Template</span><br/><br/>
-                  Download the bulk import template, a TSV (tab-delimited) file for bulk import.<br/><br/>
+                    Download the bulk import template, a TSV (tab-delimited) file for bulk import.<br/><br/>
                     <CategoriesTemplateDownload />
                   </Typography>
                 </Paper>
@@ -102,7 +110,7 @@ function CategoriesHelp(props) {
                 <Paper className={classes.paper}>
                   <Typography>
                     <span className={classNames(Type.bold, Type.underline)}>Bulk Import</span><br/><br/>
-                  Import the categories TSV (tab-delimited) file.<br/><br/>
+                    Import the categories TSV (tab-delimited) file.<br/><br/>
                     <CategoriesUpload updateResult={updateResult}/>
                   </Typography>
                 </Paper>
@@ -110,9 +118,9 @@ function CategoriesHelp(props) {
               <Grid item xs={12} sm={4}>
                 <Paper className={classes.paper}>
                   <Typography>
-                    <span className={classNames(Type.bold, Type.underline)}>Bulk Delete</span><br/><br/>
-                  Use the checkboxes on the right of each row to select a category, or top-right checkbox to select
-                  all categories and click on the delete button that will appear in the message.
+                    <span className={classNames(Type.bold, Type.underline)}>Bulk Export</span><br/><br/>
+                    Export the categories presented in the table as TSV (tab-delimited) file.<br/><br/>
+                    <CategoriesUpload updateResult={updateResult}/>
                   </Typography>
                 </Paper>
               </Grid>

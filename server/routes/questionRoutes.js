@@ -65,29 +65,25 @@ const handleValidationError = (err) => {
 router.get('/test', async (req, res) => res.send('question route testing!'));
 
 router.get('/', async (req, res) => {
-  let filter = [];
-  if (req.query.category) {
-    filter = JSON.parse(req.query.category);
-  }
-
+  const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
+  const categories = req?.query?.category;
+  const filter = categories ? JSON.parse(categories) : [];
   if (!filter.length) {
-    res.json({ success: false, message: 'No questions found', });
+    res.json({ success: false, message: 'No questions found, expand the category and refresh', });
     return;
   }
 
-  Question
-    .find({
-      category: {
-        $in: filter
-      }
+  await Question.find(show_deleted ? { category: { $in: filter } } : { deleted: false, category: { $in: filter } })
+    .sort({ deleted: 1 })
+    .then(questions => {
+      res.json({
+        success: true,
+        message: 'Get questions successful',
+        data: questions.map(q => [q._id, q.category, q.question,
+          q.choice_1, q.choice_2, q.choice_3,
+          q.choice_4, q.answer, q.deleted])
+      });
     })
-    .then(questions => res.json({
-      success: true,
-      message: 'Get questions successful',
-      data: questions.map(q => [q._id, q.category, q.question,
-        q.choice_1, q.choice_2, q.choice_3,
-        q.choice_4, q.answer])
-    }))
     .catch(err => {
       const message = 'Questions get failed';
       console.log(err);
@@ -155,12 +151,14 @@ router.post('/', async (req, res) => {
     });
 });
 
-router.post('/clone', async (req, res) => {
-  Question.findById(req.body.id)
+router.post('/clone/:id', async (req, res) => {
+  Question.findById(req.params.id)
     .then(question => {
       question._id = mongoose.Types.ObjectId();
       question.isNew = true;
       question.owner = req.user.id;
+      question.deleted = false;
+
       Question.create(question)
         .then(__question => {
           res.json({ success: true, data: question, message: 'Clone question successful' });
@@ -194,20 +192,18 @@ router.put('/:id', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-  Question.findByIdAndRemove(req.params.id, req.body)
-    .then(question => res.json({ success: true, message: 'Delete question successful' }))
-    .catch(err => {
-      let message = 'Question delete failed';
-      if (err.name === 'ValidationError') message = handleValidationError(err);
-      console.log(err);
-      console.log(message);
-      return res.json({ success: false, message, });
-    });
+  const question = await Question.findById(req.params.id);
+  question.deleted = !question.deleted;
+  await Question.findByIdAndUpdate(req.params.id, question);
+
+  res.json({ success: true, message: 'Delete question successful' });
 });
 
 router.post('/delete', async (req, res) => {
   for (let i = 0; i < req.body.ids.length; i++) {
-    await Question.findByIdAndRemove(req.body.ids[i]);
+    const question = await Question.findById(req.body.ids[i]);
+    question.deleted = !question.deleted;
+    await Question.findByIdAndUpdate(req.body.ids[i], question);
   }
   res.json({ success: true, message: 'Delete question(s) successful' });
 });

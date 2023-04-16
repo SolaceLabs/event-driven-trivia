@@ -47,6 +47,7 @@ function LoginTrivia(props) {
   const [variant, setVariant] = useState('');
   const [message, setMessage] = useState('');
   const [openStyle, setOpen] = useState(false);
+  const [errorType, setErrorType] = useState(false);
 
   const updateResult = React.useCallback((_variant, _message) => {
     console.log('updateResult called');
@@ -59,6 +60,7 @@ function LoginTrivia(props) {
     console.log(`You submitted:\n\n${values.email}`); // eslint-disable-line
     const response = await api.login(values);
     if (!response.success) {
+      setErrorType(response.type);
       updateResult('error', response.message);
       return;
     }
@@ -123,19 +125,10 @@ function LoginTrivia(props) {
                 <FormattedMessage {...messages.welcomeSubtitle} />
               </Typography>
             </div>
-            {/* <div className={classes.openingFooter}>
-              <NavLink to="/" className={classes.back}>
-                <ArrowBack />
-                &nbsp;back to site
-              </NavLink>
-              <div className={classes.lang}>
-                <SelectLanguage />
-              </div>
-            </div> */}
           </div>
         </Hidden>
         <div className={classes.sideFormWrap}>
-          <LoginForm onSubmit={(values) => submitForm(values)} />
+          <LoginForm updateResult={updateResult} errorType={errorType} onSubmit={(values) => submitForm(values)} />
         </div>
       </div>
     </div>

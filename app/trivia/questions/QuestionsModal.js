@@ -38,13 +38,18 @@ export default function QuestionsModal(props) {
     closeModal();
   };
 
+  const handleSubmit = (values) => {
+    console.log('Question Form:', values);
+    saveResults(values);
+  };
+
   return (
     <div>
       <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
         <PapperBlock
           title={'Question'}
-          icon="library_books"
-          desc={'Manage Question'}
+          icon="live_help"
+          desc={'Create Question'}
           actionChildren={
             <IconButton edge="start" color="inherit" onClick={closeModal} aria-label="close">
               <CloseIcon />
@@ -52,7 +57,7 @@ export default function QuestionsModal(props) {
           }
         >
           <div>
-            <QuestionsForm data={data} onSubmit={(values) => saveResults(values)} />
+            <QuestionsForm data={data} onSubmit={(values) => handleSubmit(values)} />
           </div>
         </PapperBlock>
       </Dialog>

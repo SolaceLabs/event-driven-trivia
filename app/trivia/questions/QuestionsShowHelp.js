@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import HelpIcon from '@material-ui/icons/HelpSharp';
 
 const styles = theme => ({
   demo: {
@@ -37,7 +36,6 @@ const QuestionsShowHelp = (props) => {
   return (
     <Button className={classes.button} variant="contained" color="secondary" onClick={() => props.setShow(prev => !prev)}>
       Help
-      <HelpIcon className={classes.rightIcon}/>
     </Button>
   );
 };

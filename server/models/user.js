@@ -10,7 +10,7 @@ const UserSchema = new Schema(
     email: { type: String, unique: true, required: true },
     email_is_verified: { type: Boolean, default: false },
     password: { type: String, required: true },
-    lastVisited: { type: Date, default: new Date() }
+    lastVisited: { type: Date }
   },
   {
     timestamps: true,

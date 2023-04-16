@@ -46,6 +46,7 @@ function RegisterTrivia(props) {
   const [variant, setVariant] = useState('');
   const [message, setMessage] = useState('');
   const [openStyle, setOpen] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const updateResult = React.useCallback((_variant, _message) => {
     console.log('updateResult called');
@@ -63,9 +64,10 @@ function RegisterTrivia(props) {
     }
 
     updateResult('info', response.message);
+    setSuccess(true);
     setTimeout(() => {
       history.push('/login');
-    }, 1000);
+    }, 5000);
   };
 
   const handleCloseStyle = (event, reason) => {
@@ -131,7 +133,7 @@ function RegisterTrivia(props) {
           </div>
         </Hidden>
         <div className={classes.sideFormWrap}>
-          <RegisterForm onSubmit={(values) => submitForm(values)} />
+          <RegisterForm success={success} onSubmit={(values) => submitForm(values)} />
         </div>
       </div>
     </div>

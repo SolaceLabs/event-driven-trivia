@@ -1,8 +1,12 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable camelcase */
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import { Field, reduxForm, change } from 'redux-form';
+import {
+  Field, reduxForm, change, SubmissionError
+} from 'redux-form';
 import Snackbar from '@material-ui/core/Snackbar';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -31,6 +35,13 @@ const styles = theme => ({
     flexGrow: 1,
     padding: 30
   },
+  disabledField: {
+    width: '100%',
+    marginBottom: 20,
+    pointerEvents: 'none',
+    padding: 5,
+    backgroundColor: '#f5f5f5'
+  },
   field: {
     width: '100%',
     marginBottom: 20
@@ -57,11 +68,16 @@ const styles = theme => ({
   margin: {
     margin: theme.spacing(1)
   },
+  error: {
+    color: 'red',
+    fontSize: 'small'
+  }
 });
 
 function QuestionsForm(props) {
   const {
     classes,
+    error,
     handleSubmit,
     pristine,
     reset,
@@ -100,7 +116,9 @@ function QuestionsForm(props) {
   });
 
   useEffect(async () => {
-    const response = await api.getCategories();
+    const params = new URLSearchParams();
+    params.append('show_deleted', false);
+    const response = await api.getCategories(params);
     if (!response.success) {
       updateResult('error', response.message);
       setCategories([]);
@@ -128,6 +146,36 @@ function QuestionsForm(props) {
     setOpen(false);
   };
 
+  const getClassName = (choice) => {
+    if (choice === 'choice_2') {
+      return props.currentValues.choice_1 ? classes.field : classes.disabledField;
+    }
+    if (choice === 'choice_3') {
+      return props.currentValues.choice_1 && props.currentValues.choice_2 ? classes.field : classes.disabledField;
+    }
+    if (choice === 'choice_4') {
+      return props.currentValues.choice_1 && props.currentValues.choice_2 && props.currentValues.choice_3 ? classes.field : classes.disabledField;
+    }
+
+    return classes.disabledField;
+  };
+
+  const validatedSubmit = (values) => {
+    if (!values.selected) {
+      throw new SubmissionError({ _error: { element: 'choice_1', text: 'Select a valid answer choice!' } });
+    }
+    const choices = [values.choice_1, values.choice_2];
+    values.choice_3 ? choices.push(values.choice_3) : '';
+    values.choice_4 ? choices.push(values.choice_4) : '';
+    values.answer = values[values.selected];
+    const dupIndex = choices.findIndex((item, index) => choices.lastIndexOf(item) !== index);
+    if (dupIndex >= 0) {
+      throw new SubmissionError({ _error: { element: 'choice_' + (dupIndex + 1), text: 'Duplicate choices not permitted!' } });
+    }
+
+    props.onSubmit(values);
+  };
+
   return (
     <Grid container spacing={3} alignItems="flex-start" direction="row" justifyContent="center">
       <Snackbar
@@ -138,6 +186,7 @@ function QuestionsForm(props) {
         open={openStyle}
         autoHideDuration={6000}
         onClose={() => handleCloseStyle()}
+        style={{ zIndex: 1400 }}
       >
         <SnackBarWrapper
           onClose={() => handleCloseStyle()}
@@ -148,7 +197,7 @@ function QuestionsForm(props) {
       </Snackbar>
       <Grid item xs={12} md={6}>
         <Paper className={classes.root}>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(validatedSubmit)}>
             <div>
               <Field
                 name="id"
@@ -165,6 +214,8 @@ function QuestionsForm(props) {
                   name="category"
                   component={SelectRedux}
                   placeholder="Category"
+                  validate={required}
+                  required
                   fullWidth={true}
                 >
                   {categories.map((category) => <MenuItem value={category.name}>{category.name}</MenuItem>)}
@@ -203,8 +254,9 @@ function QuestionsForm(props) {
                   className={classes.field}
                 />
               </div>
+              {error && error.element === 'choice_1' && error && <p className={classes.error}> {'⚠ ' + error.text}</p>}
             </div>
-            <div className={classes.field}>
+            <div className={getClassName('choice_2')}>
               <FormLabel component="label">Choice 2</FormLabel>
               <div className={classes.inlineWrap}>
                 <Radio
@@ -223,8 +275,9 @@ function QuestionsForm(props) {
                   className={classes.field}
                 />
               </div>
+              {error && error.element === 'choice_2' && error && <p className={classes.error}> {'⚠ ' + error.text}</p>}
             </div>
-            <div className={classes.field}>
+            <div className={getClassName('choice_3')}>
               <FormLabel component="label">Choice 3</FormLabel>
               <div className={classes.inlineWrap}>
                 <Radio
@@ -241,8 +294,9 @@ function QuestionsForm(props) {
                   className={classes.field}
                 />
               </div>
+              {error && error.element === 'choice_3' && error && <p className={classes.error}> {'⚠ ' + error.text}</p>}
             </div>
-            <div className={classes.field}>
+            <div className={getClassName('choice_4')}>
               <FormLabel component="label">Choice 4</FormLabel>
               <div className={classes.inlineWrap}>
                 <Radio
@@ -259,6 +313,7 @@ function QuestionsForm(props) {
                   className={classes.field}
                 />
               </div>
+              {error && error.element === 'choice_4' && error && <p className={classes.error}> {'⚠ ' + error.text}</p>}
             </div>
             <div>
               <Field

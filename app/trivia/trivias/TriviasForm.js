@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -136,7 +137,9 @@ function TriviasForm(props) {
   });
 
   useEffect(async () => {
-    const response = await api.getCategories();
+    const params = new URLSearchParams();
+    params.append('show_deleted', false);
+    const response = await api.getCategories(params);
     if (!response.success) {
       updateResult('error', response.message);
       setCategories([]);
@@ -191,6 +194,20 @@ function TriviasForm(props) {
     props.dispatch(change('reduxTriviaForm', 'time_limit', newValue));
   };
 
+  const validatedSubmit = (values) => {
+    if (values.no_of_questions !== initData.no_of_questions || values.category !== initData.category) {
+      values.questions = [];
+      values.status = 'NEW';
+    }
+
+    if (!values.scheduled) {
+      values.start_at = null;
+      values.close_at = null;
+    }
+
+    props.onSubmit(values);
+  };
+
   return (
     <Grid container spacing={3} alignItems="flex-start" direction="row" justifyContent="center">
       <Snackbar
@@ -211,7 +228,7 @@ function TriviasForm(props) {
       </Snackbar>
       <Grid item xs={12} md={6}>
         <Paper className={classes.root}>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(validatedSubmit)}>
             <div>
               <Field
                 name="id"
