@@ -20,9 +20,7 @@ const ngrok = (isDev && process.env.ENABLE_TUNNEL) || argv.tunnel
   ? require('ngrok')
   : false;
 const { resolve } = require('path');
-const { verifyToken } = require('./middlewares/verifyTokenMiddleware');
-const jwt = require('jsonwebtoken');
-const User = require('./models/user');
+const { verifyToken, verifyAdmin } = require('./middlewares/verifyTokenMiddleware');
 
 require('./config/passport.config');
 
@@ -98,7 +96,7 @@ app.use('/api/trivia/auth', (req, res, next) => {
 }, authRoutes);
 
 const userRoutes = require('./routes/userRoutes');
-app.use('/api/trivia/users', verifyToken, (req, res, next) => {
+app.use('/api/trivia/users', verifyAdmin, (req, res, next) => {
   next();
 }, userRoutes);
 

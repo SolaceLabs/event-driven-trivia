@@ -2,7 +2,7 @@ import { alpha } from '@material-ui/core/styles';
 import cyan from '@material-ui/core/colors/cyan';
 import grey from '@material-ui/core/colors/blueGrey';
 import red from '@material-ui/core/colors/red';
-import deco from 'enl-images/decoration/hexaMonochrome.svg';
+import deco from 'enl-images/decoration/solaceBg.svg';
 import green from '@material-ui/core/colors/green';
 import amber from '@material-ui/core/colors/amber';
 const rootWraper = {

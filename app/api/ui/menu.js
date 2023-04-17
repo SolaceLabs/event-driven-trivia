@@ -24,6 +24,12 @@ module.exports = [
     linkParent: '/app/trivia/question'
   },
   {
+    key: 'trivia_members_page',
+    name: 'Members',
+    icon: 'supervisor_account',
+    linkParent: '/app/trivia/members',
+  },
+  {
     key: 'trivia_logout_page',
     name: 'Log Out',
     icon: 'exit_to_app',

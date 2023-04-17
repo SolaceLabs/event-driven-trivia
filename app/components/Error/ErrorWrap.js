@@ -6,14 +6,13 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import { Route, Link } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
-import borderHexaGrey from 'enl-images/decoration/hexaGrey.svg';
-import borderHexaWhite from 'enl-images/decoration/hexaWhite.svg';
+import solaceBg from 'enl-images/decoration/solaceBgGrey.svg';
 import messages from './messages';
 
 const styles = theme => ({
   invert: {},
   errorWrap: {
-    background: `url(${theme.palette.type === 'dark' ? borderHexaWhite : borderHexaGrey}) no-repeat`,
+    background: `url( ${solaceBg} ) no-repeat`,
     backgroundSize: '100% 100%',
     backgroundPosition: '-4px center',
     width: 500,

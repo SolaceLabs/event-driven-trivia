@@ -44,13 +44,17 @@ export default defineMessages({
     id: `${scope}.Login.field.forgot`,
     defaultMessage: 'Forgot Password',
   },
-  resendVerificationLink: {
+  resendActivationLink: {
     id: `${scope}.Login.field.resend`,
     defaultMessage: 'Resend verification link',
   },
-  resentVerificationLink: {
+  resentActivationLink: {
     id: `${scope}.Login.field.resent`,
-    defaultMessage: 'Email verification is sent to registered email address, check your spam folders in case if you did not receive verification email',
+    defaultMessage: 'Email verification link is sent to registered email address, check your spam folders in case if you did not receive the email',
+  },
+  sentResetPasswordRequest: {
+    id: `${scope}.Login.field.reset`,
+    defaultMessage: 'Password reset link is sent to registered email address, check your spam folders in case if you did not receive the email',
   },
   loginRemember: {
     id: `${scope}.Login.field.remember`,
@@ -102,7 +106,7 @@ export default defineMessages({
   },
   resetButton: {
     id: `${scope}.Reset.button`,
-    defaultMessage: 'Send Reset Link',
+    defaultMessage: 'Reset Password',
   },
   logoutTitle: {
     id: `${scope}.Logout.title`,

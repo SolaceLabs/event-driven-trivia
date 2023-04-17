@@ -10,6 +10,10 @@ const UserSchema = new Schema(
     email: { type: String, unique: true, required: true },
     email_is_verified: { type: Boolean, default: false },
     password: { type: String, required: true },
+    role: { type: String, default: 'MEMBER' },
+    status: { type: String, default: 'NEW' },
+    deleted: { type: Boolean, default: false },
+    p_hash: { type: String, default: null },
     lastVisited: { type: Date }
   },
   {

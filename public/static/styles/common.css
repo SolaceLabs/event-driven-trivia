@@ -1,3 +1,25 @@
+.image-background {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: auto;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url(../images/fireball-backdrop.png);
+}
+.image-transbox {
+  background-color: #666666;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  padding: 20px;
+  margin: 30px;
+  font-weight: bold;
+}
+
+.image-transbox-title {
+  color: #fff;
+}
+
 .circular-button {
   color: white;
   background-color: #000;

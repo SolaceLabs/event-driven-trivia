@@ -1,7 +1,9 @@
 import { withStyles } from '@material-ui/core/styles';
 import brand from 'enl-api/fireball/brand';
 import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
-import { ResetForm } from 'enl-components';
+import { ResetPasswordForm } from 'enl-components';
+import classNames from 'classnames';
+import Type from 'enl-styles/Typography.scss';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
@@ -13,15 +15,13 @@ const api = new TriviaWrapper();
 
 function ResetPasswordTrivia(props) {
   const { classes, history } = props;
-  useEffect(() => {
-    if (localStorage.getItem('token') !== null) history.push('/app/trivia/dashboard');
-  }, []);
-
   const title = brand.name + ' - Reset Password';
   const description = brand.desc;
   const [variant, setVariant] = useState('');
   const [message, setMessage] = useState('');
   const [openStyle, setOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [token, setToken] = useState('');
 
   const updateResult = React.useCallback((_variant, _message) => {
     console.log('updateResult called');
@@ -30,11 +30,28 @@ function ResetPasswordTrivia(props) {
     setOpen(true);
   });
 
-  const submitForm = async (values) => {
-    console.log(`You submitted:\n\n${values.email}`); // eslint-disable-line
-    const response = await api.reset(values);
+  useEffect(async () => {
+    const searchParams = new URLSearchParams(document.location.search);
+    const _email = searchParams.get('email');
+    setEmail(_email);
+    const _token = searchParams.get('token');
+    setToken(_token);
+    const response = await api.resetPassword({ email: _email, token: _token });
     if (!response.success) {
       updateResult('error', response.message);
+    }
+  }, []);
+
+  const submitForm = async (values) => {
+    console.log(`You submitted:\n\n${email}`); // eslint-disable-line
+    const response = await api.resetPassword({ ...values, email, token });
+    if (!response.success) {
+      updateResult('error', response.message);
+    } else {
+      updateResult('success', response.message);
+      setTimeout(() => {
+        history.push('/login');
+      }, 3000);
     }
   };
 
@@ -73,7 +90,7 @@ function ResetPasswordTrivia(props) {
       </Helmet>
       <div className={classes.container}>
         <div className={classes.userFormWrap}>
-          <ResetForm onSubmit={(values) => submitForm(values)} />
+          <ResetPasswordForm email={email} onSubmit={(values) => submitForm(values)} />
         </div>
       </div>
     </div>

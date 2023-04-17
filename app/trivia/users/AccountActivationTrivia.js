@@ -1,63 +1,3 @@
-// import { withStyles } from '@material-ui/core/styles';
-// import brand from 'enl-api/fireball/brand';
-// import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
-// import { EmailVerifyForm } from 'enl-components';
-// import PropTypes from 'prop-types';
-// import React, { useEffect, useState } from 'react';
-// import { useLocation } from 'react-router-dom';
-// import { Helmet } from 'react-helmet';
-// import styles from '../../components/Forms/user-jss';
-
-// const api = new TriviaWrapper();
-
-// function EmailVerifyTrivia(props) {
-//   const { classes, history, location } = props;
-//   const [message, setMessage] = useState('');
-//   const [messageType, setMessageType] = useState('');
-//   const { search } = useLocation();
-//   const searchParams = new URLSearchParams(search);
-//   const title = brand.name + ' - Verify Email';
-//   const description = brand.desc;
-
-//   useEffect(async () => {
-//     const response = await api.verifyToken({ token: searchParams.get('token') });
-//     if (!response.success) {
-//       setMessageType('error');
-//       setMessage(response.message);
-//     } else {
-//       setMessageType('info');
-//       setMessage(response.message);
-//       setTimeout(() => {
-//         history.push('/login');
-//       }, 5000);
-//     }
-//   }, []);
-
-//   return (
-//     <div className={classes.root}>
-//       <Helmet>
-//         <title>{title}</title>
-//         <meta name="description" content={description} />
-//         <meta property="og:title" content={title} />
-//         <meta property="og:description" content={description} />
-//         <meta property="twitter:title" content={title} />
-//         <meta property="twitter:description" content={description} />
-//       </Helmet>
-//       <div className={classes.container}>
-//         <div className={classes.userFormWrap}>
-//           <EmailVerifyForm message={message} messageType={messageType}/>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// EmailVerifyTrivia.propTypes = {
-//   classes: PropTypes.object.isRequired,
-// };
-
-// export default withStyles(styles)(EmailVerifyTrivia);
-
 import { withStyles } from '@material-ui/core/styles';
 import brand from 'enl-api/fireball/brand';
 import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
@@ -76,12 +16,12 @@ import messages from '../../components/Forms/messages';
 
 const api = new TriviaWrapper();
 
-function EmailVerifyTrivia(props) {
+function AccountActivationTrivia(props) {
   const {
     classes, history, msgType, msg
   } = props;
 
-  const title = brand.name + ' - Reset Password';
+  const title = brand.name + ' - Account Activation';
   const description = brand.desc;
   const [result, setResult] = useState('');
   const [resultType, setResultType] = useState('');
@@ -89,7 +29,7 @@ function EmailVerifyTrivia(props) {
   useEffect(async () => {
     const searchParams = new URLSearchParams(document.location.search);
 
-    const response = await api.verifyToken({ token: searchParams.get('token') });
+    const response = await api.activateAccount({ token: searchParams.get('token') });
     if (!response.success) {
       setResultType('error');
       setResult(response.message);
@@ -142,8 +82,8 @@ function EmailVerifyTrivia(props) {
   );
 }
 
-EmailVerifyTrivia.propTypes = {
+AccountActivationTrivia.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(EmailVerifyTrivia);
+export default withStyles(styles)(AccountActivationTrivia);

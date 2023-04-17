@@ -1,5 +1,5 @@
 import { darken, lighten } from '@material-ui/core/styles/colorManipulator';
-import deco from 'enl-images/decoration/hexaMonochrome.svg';
+import deco from 'enl-images/decoration/solaceBg.svg';
 
 const appFrame = {
   display: 'flex',

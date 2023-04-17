@@ -67,7 +67,7 @@ function RegisterTrivia(props) {
     setSuccess(true);
     setTimeout(() => {
       history.push('/login');
-    }, 5000);
+    }, 3000);
   };
 
   const handleCloseStyle = (event, reason) => {

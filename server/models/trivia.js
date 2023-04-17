@@ -8,6 +8,10 @@ const playerSchema = new Schema({
   names: [String], connected: [String], current: Number, high: Number, timestamp: Date
 });
 
+const winnerSchema = new Schema({
+  nickName: String, name: String, email: String, answered: Boolean, answer: String, correct: Boolean, timing: Number, score: Number, rank: Number
+});
+
 const TriviaSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -28,7 +32,10 @@ const TriviaSchema = new Schema(
     shared: { type: Boolean, default: false },
     deleted: { type: Boolean, default: false },
     hash: { type: String },
-    adminHash: { type: String }
+    adminHash: { type: String },
+    collect_winners: { type: Boolean, required: false },
+    no_of_winners: { type: Number, default: 0 },
+    winners: [winnerSchema],
   }, {
     virtuals: {
       id: {

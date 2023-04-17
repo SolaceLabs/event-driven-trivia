@@ -15,7 +15,7 @@ import CopyIcon from '@material-ui/icons/FileCopySharp';
 import DeleteIcon from '@material-ui/icons/DeleteSharp';
 import LockOpenIcon from '@material-ui/icons/LockOpenSharp';
 import LiveHelpIcon from '@material-ui/icons/LiveHelpSharp';
-import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEyeSharp';
+import EmojiEventsSharpIcon from '@material-ui/icons/EmojiEventsSharp';
 import ViewCarouselIcon from '@material-ui/icons/ViewCarousel';
 import green from '@material-ui/core/colors/green';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -30,6 +30,7 @@ import TriviaPreview from './TriviaPreview';
 import SnackBarWrapper from '../common/SnackBarWrapper';
 import QRCodeIcon from '../styles/qrcodeIcon';
 import AlertDialog from '../common/AlertDialog';
+import ScrollDialog from '../common/ScrollingDialog';
 
 const api = new TriviaWrapper();
 const utils = new MomentUtils();
@@ -100,6 +101,7 @@ function Trivias(props) {
   const [variant, setVariant] = useState('');
   const [message, setMessage] = useState('');
   const [showQRCode, setShowQRCode] = useState(false);
+  const [showWinners, setShowWinners] = useState(false);
   const [showAdminQRCode, setAdminShowQRCode] = useState(false);
   const [rowsSelected, setRowsSelected] = useState([]);
   const [rowsDeleted, setRowsDeleted] = useState([]);
@@ -267,6 +269,23 @@ function Trivias(props) {
     </React.Fragment>
   );
 
+  const buildCollectWinners = (data) => (
+    <React.Fragment>
+      {!data[15]
+        && <div>
+          <Typography variant="caption" className={classes.title} gutterBottom> - </Typography>
+        </div>
+      }
+      {data[16]
+        && <div>
+          <Typography variant="caption" className={classes.desc} gutterBottom>
+            <b>Top ${data[16]}</b>
+          </Typography>
+        </div>
+      }
+    </React.Fragment>
+  );
+
   if (props.refresh) refreshTrivias();
 
   const getCategoryName = (name) => (deletedCategories.includes(name)
@@ -391,6 +410,13 @@ function Trivias(props) {
             {getCategoryName(tableMeta.rowData[4])}
           </React.Fragment>
         )
+      }
+    },
+    {
+      name: 'Collect Winners?', // 15, 16
+      options: {
+        filter: false,
+        customBodyRender: (value, tableMeta, updateValue) => buildCollectWinners(tableMeta.rowData)
       }
     },
     {
@@ -525,6 +551,20 @@ function Trivias(props) {
                 <QRCodeIcon key="adminQR" width="16" height="16"/>
               </IconButton>
             </Tooltip>
+            {currentRow[15] && currentRow[17] && currentRow[17].length
+            && <Tooltip title={'Winners'}>
+              <IconButton className={classes.iconButton} variant="outlined" style={{ color: '#f96c04' }}
+                onClick={(e) => {
+                  if (tableMeta.rowData[14]) {
+                    updateResult('warning', 'Trivia is marked as deleted, not supported');
+                    return;
+                  }
+                  setCurrentRow(tableMeta.rowData);
+                  setShowWinners(true);
+                }}>
+                <EmojiEventsSharpIcon key="showWinners" width="16" height="16"/>
+              </IconButton>
+            </Tooltip>}
             <IconButton
               aria-label="more"
               aria-controls="long-menu"
@@ -744,6 +784,13 @@ function Trivias(props) {
           open={showAdminQRCode}
           close={closeAdminQRCode}
           data={currentRow}
+        />
+      }
+      {showWinners
+        && <ScrollDialog
+          content={'TODO'}
+          cancelNeeded={false}
+          okButtonText={'OK'}
         />
       }
       {showModal

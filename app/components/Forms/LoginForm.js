@@ -55,19 +55,38 @@ function LoginForm(props) {
     updateResult
   } = props;
   const [resendConfirmation, setResendConfirmation] = useState(false);
+  const [resetPasswordRequest, setResetPasswordRequest] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = event => event.preventDefault();
   const emailInput = useRef();
 
-  const resendVerificationLink = async () => {
-    const response = await api.resendVerification({ email: emailInput.current.value });
+  const resendActivationLink = async () => {
+    if (!emailInput.current.value) {
+      updateResult('error', 'Enter a valid email address');
+      return;
+    }
+    const response = await api.resendAccountActivation({ email: emailInput.current.value });
     if (!response.success) {
       updateResult('error', response.message);
       return;
     }
 
-    updateResult('success', 'Email verification is sent to registered email address');
+    updateResult('success', 'Email verification link is sent to registered email address');
+  };
+
+  const resetPasswordLink = async () => {
+    if (!emailInput.current.value) {
+      updateResult('error', 'Enter a valid email address');
+      return;
+    }
+    const response = await api.sendResetPassword({ email: emailInput.current.value });
+    if (!response.success) {
+      updateResult('error', response.message);
+      return;
+    }
+
+    updateResult('success', 'Password reset link is sent to registered email address');
   };
 
   return (
@@ -144,12 +163,12 @@ function LoginForm(props) {
             </FormControl>
           </div>
           <div className={classes.optArea}>
-            <Button size="small" component={LinkBtn} to="/reset-password" className={classes.buttonLink}>
+            <Button size="small" color='#ec407a' className={classes.buttonLink} onClick={resetPasswordLink}>
               <FormattedMessage {...messages.loginForgotPassword} />
             </Button>
             {errorType === 'Email not verified'
-            && <Button size="small" color='#ec407a' className={classes.buttonLink} onClick={resendVerificationLink}>
-              <FormattedMessage {...messages.resendVerificationLink} />
+            && <Button size="small" color='#ec407a' className={classes.buttonLink} onClick={resendActivationLink}>
+              <FormattedMessage {...messages.resendActivationLink} />
             </Button>}
           </div>
           <div className={classes.btnArea}>
@@ -161,7 +180,11 @@ function LoginForm(props) {
           </div>
           {resendConfirmation
           && <div className={classes.optArea}>
-            <FormattedMessage {...messages.resentVerificationLink} />
+            <FormattedMessage {...messages.resentActivationLink} />
+          </div>}
+          {resetPasswordRequest
+          && <div className={classes.optArea}>
+            <FormattedMessage {...messages.sentResetPasswordRequest} />
           </div>}
         </form>
       </section>

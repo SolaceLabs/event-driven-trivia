@@ -17,7 +17,7 @@ passport.use(new LocalStrategy({
   User.findOne({ email })
     .then((user) => {
       if (!user) {
-        return cb(null, false, { message: 'Incorrect email.' });
+        return cb(null, false, { message: 'Incorrect email, could not locate a valid account associated with the email.' });
       }
 
       return bcrypt.compare(password, user.password).then(isMatch => {

@@ -100,9 +100,11 @@ router.get('/', async (req, res) => {
         success: true,
         message: 'Get trivias successful',
         data: as_array
-          ? trivias.map(c => [c._id, c.name, c.description, c.audience, c.category,
-            c.questions, c.scheduled, c.start_at, c.close_at, c.status,
-            c.mode, c.no_of_questions, c.time_limit, c.hash, c.deleted])
+          ? trivias.map(c => [c._id, c.name, c.description, c.audience, c.category, // 0-4
+            c.questions, c.scheduled, c.start_at, c.close_at, c.status, // 5-9
+            c.mode, c.no_of_questions, c.time_limit, c.hash, c.deleted, // 10-14
+            c.collect_winners, c.no_of_winners, c.winners // 15-17
+          ])
           : trivias
       });
     })

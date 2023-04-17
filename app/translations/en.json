@@ -375,7 +375,7 @@
   "boilerplate.components.Forms.Register.terms": "Terms & Condition",
   "boilerplate.components.Forms.Reset.title": "Reset Password",
   "boilerplate.components.Forms.Reset.subtitle": "Send reset password link to Your email",
-  "boilerplate.components.Forms.Reset.button": "Send Reset Link",
+  "boilerplate.components.Forms.Reset.button": "Reset Password",
   "boilerplate.components.Forms.Lock.hint": "Hint: Type anything to unlock!",
   "boilerplate.containers.Forms.Required.text": "Required",
   "boilerplate.containers.Blank.title": "Blank Page",

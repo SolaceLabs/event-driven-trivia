@@ -23,6 +23,7 @@ import {
 } from 'enl-components/Forms/ReduxFormMUI';
 import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
 import { initAction, clearAction } from 'enl-redux/actions/reduxFormActions';
+import { CheckBox } from '@material-ui/icons';
 import SnackBarWrapper from '../common/SnackBarWrapper';
 
 const api = new TriviaWrapper();
@@ -80,6 +81,15 @@ const countNames = {
   10: 'Ten'
 };
 
+const countWinners = {
+  0: '-- Select --',
+  1: 'One',
+  2: 'Two',
+  3: 'Three',
+  4: 'Four',
+  5: 'Five',
+};
+
 function TriviasForm(props) {
   const {
     classes,
@@ -109,6 +119,9 @@ function TriviasForm(props) {
     no_of_questions: data ? data[11] : 0,
     time_limit: data[12] ? data[12] : 30,
     hash: data[13] ? data[13] : '',
+    deleted: data ? (data[14] ? data[14] : false) : false,
+    collect_winners: data ? (data[15] ? data[15] : false) : false,
+    no_of_winners: data ? data[16] : 0,
   };
 
   init(initData);
@@ -119,6 +132,8 @@ function TriviasForm(props) {
   const [scheduled, setScheduled] = useState(initData.scheduled);
   const [startDate, setSelectedStartDate] = useState(initData.start_at ? initData.start_at : new Date());
   const [closeDate, setSelectedCloseDate] = useState(initData.close_at ? initData.close_at : new Date());
+  const [collectWinners, setCollectWinners] = useState(initData.collect_winners);
+  const [collectWinnersCount, setCollectWinnersCount] = useState(initData.no_of_winners ? initData.no_of_winners : 3);
   const [categories, setCategories] = useState([]);
   const [timeLimit, setTimeLimit] = useState(initData.time_limit);
   const [hash, setHash] = useState(initData.hash);
@@ -184,6 +199,16 @@ function TriviasForm(props) {
       props.dispatch(change('reduxTriviaForm', 'start_at', startDate));
       props.dispatch(change('reduxTriviaForm', 'close_at', closeDate));
       props.dispatch(change('reduxTriviaForm', 'status', 'SCHEDULED'));
+    }
+  };
+
+  const handleCollectWinnersChange = () => {
+    // eslint-disable-next-line no-shadow
+    setCollectWinners(collectWinners => !collectWinners);
+    if (collectWinners) {
+      props.dispatch(change('reduxTriviaForm', 'collect_winners', 0));
+    } else {
+      props.dispatch(change('reduxTriviaForm', 'collect_winners', collectWinnersCount));
     }
   };
 
@@ -328,6 +353,26 @@ function TriviasForm(props) {
 
             <div className={classes.fieldBasic}>
               <FormControlLabel
+                control={<Field name="collect_winners" onChange={handleCollectWinnersChange} component={SwitchRedux} />}
+                label="Collect Winner Details" />
+              <div className={classes.inlineWrap}>
+                <FormControl className={classes.field}>
+                  <InputLabel htmlFor="no_of_winners">No. of Winners</InputLabel>
+                  <Field
+                    name="no_of_winners"
+                    component={SelectRedux}
+                    placeholder="No. of Winners"
+                    fullWidth={true}
+                    disabled={!currentValues.collect_winners}
+                  >
+                    {Object.entries(countWinners).map((el) => <MenuItem value={el[0]}>{el[1]}</MenuItem>)}
+                  </Field>
+                </FormControl>
+              </div>
+            </div>
+
+            <div className={classes.fieldBasic}>
+              <FormControlLabel
                 control={<Field name="scheduled" onChange={handleScheduledChange} component={SwitchRedux} />}
                 label="Schedule Trivia" />
               <div className={classes.inlineWrap}>
@@ -421,6 +466,8 @@ const FormInit = connect(
       close_at: state?.form?.reduxTriviaForm?.values?.close_at,
       status: state?.form?.reduxTriviaForm?.values?.status,
       mode: state?.form?.reduxTriviaForm?.values?.mode,
+      collect_winners: state?.form?.reduxTriviaForm?.values?.collect_winners,
+      no_of_winners: state?.form?.reduxTriviaForm?.values?.no_of_winners,
     };
 
     return {

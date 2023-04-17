@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import Dashboard from '../Templates/Dashboard';
 import {
+  Member,
   Category,
   NotFound,
   Question,
@@ -27,6 +28,7 @@ function Application(props) {
         <Route exact path="/app/trivia/trivia" component={Trivia} />
         <Route exact path="/app/trivia/question" component={Question} />
         <Route exact path="/app/trivia/category" component={Category} />
+        <Route exact path="/app/trivia/member" component={Member} />
         <Route component={NotFound} />
       </Switch>
     </Dashboard>

@@ -9,12 +9,6 @@ class TriviaWrapper {
     return response.data;
   }
 
-  async reset(user) {
-    console.log('Reset');
-    const response = await this.api('POST', 'auth/reset', user);
-    return response.data;
-  }
-
   async login(user) {
     console.log('Login');
     const response = await this.api('POST', 'auth/login', user);
@@ -27,15 +21,58 @@ class TriviaWrapper {
     return response.data;
   }
 
-  async resendVerification(user) {
+  async resendAccountActivation(user) {
     console.log('Resend email verification link');
-    const response = await this.api('POST', 'auth/resend', user);
+    const response = await this.api('POST', 'auth/resend-account-activation', user);
     return response.data;
   }
 
-  async verifyToken(user) {
-    console.log('Verify email address');
-    const response = await this.api('POST', 'auth/verify', user);
+  async activateAccount(user) {
+    console.log('Activate account');
+    const response = await this.api('POST', 'auth/account-activation', user);
+    return response.data;
+  }
+
+  async sendResetPassword(user) {
+    console.log('Send reset password link');
+    const response = await this.api('POST', 'auth/send-reset-password', user);
+    return response.data;
+  }
+
+  async resetPassword(user) {
+    console.log('Reset');
+    const response = await this.api('POST', 'auth/reset-password', user);
+    return response.data;
+  }
+
+  // Trivia Members
+  async getMembers(params = null) {
+    console.log('Fetching Members');
+    const response = await this.api('GET', 'users' + (params ? `?${params}` : ''));
+    return response.data;
+  }
+
+  async getMember(member) {
+    console.log('Get Member');
+    const response = await this.api('GET', `users/${member.id}`);
+    return response.data;
+  }
+
+  async updateMember(member) {
+    console.log('Update Member');
+    const response = await this.api('PUT', `users/${member.id}`, member);
+    return response.data;
+  }
+
+  async deleteMembers(members) {
+    console.log('Delete Members');
+    const response = await this.api('POST', 'users/delete', members);
+    return response.data;
+  }
+
+  async deleteMember(member) {
+    console.log('Delete Member');
+    const response = await this.api('DELETE', `users/${member.id}`);
     return response.data;
   }
 

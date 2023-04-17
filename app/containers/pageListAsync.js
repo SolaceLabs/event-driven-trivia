@@ -17,7 +17,7 @@ export const RegisterTrivia = loadable(() => import ('../trivia/users/RegisterTr
 export const ResetPasswordTrivia = loadable(() => import ('../trivia/users/ResetPasswordTrivia'), {
   fallback: <Loading />,
 });
-export const EmailVerifyTrivia = loadable(() => import ('../trivia/users/EmailVerifyTrivia'), {
+export const AccountActivationTrivia = loadable(() => import ('../trivia/users/AccountActivationTrivia'), {
   fallback: <Loading />,
 });
 
@@ -32,6 +32,9 @@ export const Category = loadable(() => import('../trivia/Category'), {
   fallback: <Loading />,
 });
 export const Question = loadable(() => import('../trivia/Question'), {
+  fallback: <Loading />,
+});
+export const Member = loadable(() => import('../trivia/Member'), {
   fallback: <Loading />,
 });
 

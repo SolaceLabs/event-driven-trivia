@@ -14,7 +14,7 @@ export GuideSlider from './GuideSlider';
 export Notification from './Notification/Notification';
 export LoginForm from './Forms/LoginForm';
 export RegisterForm from './Forms/RegisterForm';
-export ResetForm from './Forms/ResetForm';
+export ResetPasswordForm from './Forms/ResetPasswordForm';
 export LogoutForm from './Forms/LogoutForm';
 // export LoginFormFirebase from './Forms/LoginFormFirebase';
 // export RegisterFormFirebase from './Forms/RegisterFormFirebase';
