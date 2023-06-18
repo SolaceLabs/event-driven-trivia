@@ -25,13 +25,6 @@ CategorySchema.virtual('no_of_questions', {
   count: true // Set `count: true` on the virtual
 });
 
-CategorySchema.virtual('no_of_trivias', {
-  ref: 'Trivia',
-  localField: 'name',
-  foreignField: 'category',
-  count: true // Set `count: true` on the virtual
-});
-
 CategorySchema.index({ name: 1 });
 CategorySchema.plugin(UniqueValidator);
 

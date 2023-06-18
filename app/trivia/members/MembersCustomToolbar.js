@@ -4,7 +4,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
-import AddIcon from '@material-ui/icons/AddSharp';
 import RefreshIcon from '@material-ui/icons/RefreshSharp';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -15,16 +14,11 @@ const defaultToolbarStyles = {
 
 function MembersCustomToolbar(props) {
   const {
-    classes, openModal, refreshCategories, showDeleted, toggleDeleted
+    classes, refreshMembers, showDeleted, toggleDeleted
   } = props;
 
   return (
     <React.Fragment>
-      <Tooltip title={'Add Category'}>
-        <IconButton className={classes.iconButton} onClick={() => { openModal(); }} >
-          <AddIcon className={classes.deleteIcon}/>
-        </IconButton>
-      </Tooltip>
       <Tooltip title={ showDeleted ? 'Hide Deleted' : 'Show Deleted'}>
         <IconButton className={classes.iconButton} onClick={() => { toggleDeleted(); }} >
           {showDeleted
@@ -33,8 +27,8 @@ function MembersCustomToolbar(props) {
             && <RemoveRedEyeIcon className={classes.deleteIcon}/>}
         </IconButton>
       </Tooltip>
-      <Tooltip title={'Refresh Categories'}>
-        <IconButton className={classes.iconButton} onClick={() => { refreshCategories(); }} >
+      <Tooltip title={'Refresh Members'}>
+        <IconButton className={classes.iconButton} onClick={() => { refreshMembers(); }} >
           <RefreshIcon className={classes.deleteIcon}/>
         </IconButton>
       </Tooltip>
@@ -43,8 +37,7 @@ function MembersCustomToolbar(props) {
 }
 
 MembersCustomToolbar.propTypes = {
-  openModal: PropTypes.func.isRequired,
-  refreshCategories: PropTypes.func.isRequired,
+  refreshMembers: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired
 };
 

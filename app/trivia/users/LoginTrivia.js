@@ -68,6 +68,8 @@ function LoginTrivia(props) {
     updateResult('info', response.message);
     localStorage.setItem('token', response.token);
     localStorage.setItem('name', response.name);
+    localStorage.setItem('id', response.id);
+    localStorage.setItem('ts', response.ts);
     setTimeout(() => {
       history.push('/app/trivia/dashboard');
     }, 1000);

@@ -42,6 +42,9 @@ function LogoutTrivia(props) {
       updateResult('error', response.message);
     } else {
       localStorage.removeItem('token');
+      localStorage.removeItem('name');
+      localStorage.removeItem('id');
+      localStorage.removeItem('ts');
       history.push('/login');
     }
   };

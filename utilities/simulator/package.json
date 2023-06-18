@@ -1,0 +1,26 @@
+{
+  "name": "trivia-perf",
+  "version": "1.0.0",
+  "description": "A CLI tool to mock trivia participation and engagement",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "MIT"
+  ],
+  "author": "Shahed Nasser",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "commander": "^7.2.0",
+    "conf": "^9.0.2",
+    "dotenv": "^16.0.3",
+    "random-sentence": "^1.0.4",
+    "shorthash2": "^1.0.3",
+    "solclientjs": "^10.12.0"
+  },
+  "bin": {
+    "todos": "index.js"
+  }
+}

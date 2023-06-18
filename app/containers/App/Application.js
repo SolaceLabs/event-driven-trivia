@@ -13,11 +13,11 @@ import {
 } from '../pageListAsync';
 
 import { AppContext } from './ThemeWrapper';
-
 function Application(props) {
   const { history } = props;
   const changeMode = useContext(AppContext);
-
+  const ts = localStorage.getItem('ts') ? localStorage.getItem('ts') : new Date().getTime();
+  const expired = (new Date().getTime()) - ts < 86400000;
   return (
     <Dashboard history={history} changeMode={changeMode}>
       <Switch>

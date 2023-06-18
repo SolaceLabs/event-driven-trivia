@@ -70,13 +70,12 @@ router.get('/', async (req, res) => {
   const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
   Category.find(show_deleted ? {} : { deleted: false })
     .populate('no_of_questions')
-    .populate('no_of_trivias')
     .sort({ deleted: 1 })
     .then(categories => res.json({
       success: true,
       message: 'Get categories successful',
       data: as_array
-        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.no_of_trivias, c.deleted])
+        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.deleted])
         : categories
     }))
     .catch(err => {
@@ -176,7 +175,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   const category = await Category.findById(req.params.id);
   category.deleted = !category.deleted;
-  await Category.findByIdAndUpdate(req.params.id, category);
+  await category.save();
 
   res.json({ success: true, message: 'Delete category successful' });
 });
@@ -185,7 +184,7 @@ router.post('/delete', async (req, res) => {
   for (let i = 0; i < req.body.ids.length; i++) {
     const category = await Category.findById(req.body.ids[i]);
     category.deleted = !category.deleted;
-    await Category.findByIdAndUpdate(req.body.ids[i], category);
+    await category.save();
   }
   res.json({ success: true, message: 'Delete category(s) successful' });
 });

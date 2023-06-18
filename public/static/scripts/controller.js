@@ -264,7 +264,7 @@ function gamePerformanceUpdate(message) {
 }
 
 function gameRestart(message) {
-  // `trivia/${window.gameCode}/broadcast/restart/${window.gameCode}
+  // `trivia/${window.gameCode}/broadcast/restart
   updateHappening('Message received on gameRestart: ' + message.destinationName, INFO);
   location.reload();
 }
@@ -357,7 +357,7 @@ function gameChat(message) {
 }
 
 function gameStart(message) {
-  // `trivia/${window.gameCode}/update/gamestarted`
+  // `trivia/${window.gameCode}/broadcast/gamestarted`
   updateHappening('Message received on gameStart confirmation: ' + message.destinationName, INFO);
   document.getElementById('count-down-tracker').style.display = 'none';
   document.getElementById('count-down-tracker').parentNode.classList.remove('w3-padding-large');
@@ -374,7 +374,7 @@ function gameStart(message) {
 }
 
 function gameEnd(message) {
-  // `trivia/${window.gameCode}/update/gameended`
+  // `trivia/${window.gameCode}/broadcast/gameended`
   updateHappening('Message received on gameEnd' + message.destinationName, INFO);
   const flipDown = document.querySelector('#flipdown');
   if (flipDown) {
@@ -403,7 +403,7 @@ function gameEnd(message) {
 }
 
 function gameAbort(message) {
-  // `trivia/${window.gameCode}/update/gameaborted`
+  // `trivia/${window.gameCode}/broadcast/gameaborted`
   updateHappening('Message received on gameAbort' + message.destinationName, INFO);
   const flipDown = document.querySelector('#flipdown');
   if (flipDown) {
@@ -470,7 +470,7 @@ function gameEventGroups(message) {
 }
 
 function gameQuestion(message) {
-  // `trivia/${window.gameCode}/update/question/#`
+  // `trivia/${window.gameCode}/broadcast/question/#`
   const question = JSON.parse(message.payloadString);
   document.querySelector('#trivia-progress-title').innerHTML = 'Trivia Progress';
   updateHappening('Message received on gameQuestion' + message.destinationName, INFO);
@@ -511,24 +511,22 @@ function solaceClientConnected() {
     document.getElementById('game_content').classList.remove('hide');
     document.getElementById('game_content').classList.add('show');
 
-    client.subscribe(`trivia/${window.gameCode}/activity/user/#`, gameActivityUpdate);
-    client.subscribe(`trivia/${window.gameCode}/activity/broadcast`, gameActivityUpdate);
+    client.subscribe(`trivia/${window.gameCode}/update/activity/#`, gameActivityUpdate);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/activity`, gameActivityUpdate);
     client.subscribe(`trivia/${window.gameCode}/broadcast/usercount/#`, gameUserCountUpdate);
     client.subscribe(`trivia/${window.gameCode}/broadcast/chat`, gameChat);
     client.subscribe(`trivia/${window.gameCode}/broadcast/restart`, gameRestart);
     client.subscribe(`trivia/${window.gameCode}/response/info/${window.nickName}`, gameInfo);
-    client.subscribe(`trivia/${window.gameCode}/response/performance`, gamePerformanceUpdate);
     client.subscribe(`trivia/${window.gameCode}/response/performance/#`, gamePerformanceUpdate);
-    client.subscribe(`trivia/${window.gameCode}/response/leaderboard`, gameLeaderboard);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/leaderboard`, gameLeaderboard);
     client.subscribe(`trivia/${window.gameCode}/response/leaderboard/#`, gameLeaderboard);
-    client.subscribe(`trivia/${window.gameCode}/response/eventgroups`, gameEventGroups);
     client.subscribe(`trivia/${window.gameCode}/response/eventgroups/#`, gameEventGroups);
     client.subscribe(`trivia/${window.gameCode}/response/validation/${window.nickName}`, gameValidation);
     client.subscribe(`trivia/${window.gameCode}/update/error/+/#`, gameError);
-    client.subscribe(`trivia/${window.gameCode}/update/gameaborted`, gameAbort);
-    client.subscribe(`trivia/${window.gameCode}/update/gameended`, gameEnd);
-    client.subscribe(`trivia/${window.gameCode}/update/gamestarted`, gameStart);
-    client.subscribe(`trivia/${window.gameCode}/update/question/#`, gameQuestion);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/gameaborted`, gameAbort);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/gameended`, gameEnd);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/gamestarted`, gameStart);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/question/#`, gameQuestion);
 
     if (client.reconnect) {
       return;

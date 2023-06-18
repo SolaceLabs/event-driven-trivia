@@ -4,12 +4,23 @@ const { Schema } = mongoose;
 const chatSchema = new Schema({
   name: String, message: String, emoji: Boolean, timestamp: Date
 });
+
 const playerSchema = new Schema({
   names: [String], connected: [String], current: Number, high: Number, timestamp: Date
 });
 
 const winnerSchema = new Schema({
-  nickName: String, name: String, email: String, answered: Boolean, answer: String, correct: Boolean, timing: Number, score: Number, rank: Number
+  player: String, corrects: Number, answered: Number, timing: Number, score: Number, rank: Number, name: String, email: String
+});
+const questionSchema = new Schema({
+  qid: String, category: String, question: String, choice_1: String, choice_2: String, choice_3: String, choice_4: String, answer: String
+});
+
+const answerSchema = new Schema({
+  player: String, qno: Number, qid: String, answered: Boolean, answer: String, correct: Boolean, timing: Number, score: Number
+});
+const scoreSchema = new Schema({
+  player: String, corrects: Number, answered: Number, timing: Number, score: Number, rank: Number
 });
 
 const TriviaSchema = new Schema(
@@ -18,7 +29,7 @@ const TriviaSchema = new Schema(
     description: { type: String, required: true },
     audience: { type: String, required: true },
     category: { type: String, required: true },
-    questions: [{ type: 'ObjectId', ref: 'Question' }],
+    questions: [questionSchema],
     no_of_questions: { type: Number, required: true },
     time_limit: { type: Number, required: true },
     scheduled: { type: Boolean, required: false },
@@ -36,6 +47,8 @@ const TriviaSchema = new Schema(
     collect_winners: { type: Boolean, required: false },
     no_of_winners: { type: Number, default: 0 },
     winners: [winnerSchema],
+    answers: [answerSchema],
+    score: [scoreSchema]
   }, {
     virtuals: {
       id: {
@@ -53,6 +66,7 @@ const TriviaSchema = new Schema(
 TriviaSchema.index({
   name: 1, category: 1, status: 1, audience: 1
 });
+
 TriviaSchema.set('toObject', { virtuals: true });
 TriviaSchema.set('toJSON', { virtuals: true });
 

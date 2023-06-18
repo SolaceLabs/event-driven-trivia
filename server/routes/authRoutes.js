@@ -263,13 +263,31 @@ router.post('/login', (req, res, next) => {
         });
       } else {
         // generate a signed son web token with the contents of user object and return it in the response
-        const token = jwt.sign({ id: user._id }, process.env.TRIVIA_SECRET);
+        const token = jwt.sign({ id: user._id, }, process.env.TRIVIA_SECRET);
         return res.json({
-          success: true, message: 'Login successful', token, name: user.name
+          success: true, message: 'Login successful', token, name: user.name, id: user._id, ts: new Date().getTime()
         });
       }
     });
   })(req, res);
+});
+
+router.post('/is-admin', (req, res, next) => {
+  const { token } = req.body;
+
+  jwt.verify(token, process.env.TRIVIA_SECRET, async (err, payload) => {
+    if (err) {
+      res.json({ success: false, message: 'Unauthorized access: Invalid token' });
+    } else {
+      const user = await User.findById(payload.id);
+
+      if (user.role !== 'ADMIN') {
+        res.json({ success: false, message: 'Unauthorized access: Not an Administrator' });
+      } else {
+        res.json({ success: true, message: 'Validated Admin user' });
+      }
+    }
+  });
 });
 
 module.exports = router;

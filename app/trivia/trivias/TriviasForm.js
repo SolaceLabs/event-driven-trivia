@@ -23,7 +23,6 @@ import {
 } from 'enl-components/Forms/ReduxFormMUI';
 import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
 import { initAction, clearAction } from 'enl-redux/actions/reduxFormActions';
-import { CheckBox } from '@material-ui/icons';
 import SnackBarWrapper from '../common/SnackBarWrapper';
 
 const api = new TriviaWrapper();
@@ -38,12 +37,20 @@ const styles = theme => ({
   },
   field: {
     width: '100%',
-    marginBottom: 20
+    // marginBottom: 20
   },
   fieldBasic: {
     width: '100%',
-    marginBottom: 20,
+    marginTop: 10,
+    marginBottom: 10
+  },
+  buttonBasic: {
+    // marginBottom: 20,
     marginTop: 10
+  },
+  stepperBasic: {
+    marginBottom: 20,
+    marginTop: 40
   },
   inlineWrap: {
     display: 'flex',
@@ -67,29 +74,27 @@ const styles = theme => ({
   },
 });
 
-const countNames = {
-  0: '-- Select --',
-  1: 'One',
-  2: 'Two',
-  3: 'Three',
-  4: 'Four',
-  5: 'Five',
-  6: 'Six',
-  7: 'Seven',
-  8: 'Eight',
-  9: 'Nine',
-  10: 'Ten'
-};
-
-const countWinners = {
-  0: '-- Select --',
-  1: 'One',
-  2: 'Two',
-  3: 'Three',
-  4: 'Four',
-  5: 'Five',
-};
-
+const itemQuestions = [
+  { _id: 1, name: 'One' },
+  { _id: 2, name: 'Two' },
+  { _id: 3, name: 'Three' },
+  { _id: 4, name: 'Four' },
+  { _id: 5, name: 'Five' },
+  { _id: 6, name: 'Six' },
+  { _id: 7, name: 'Seven' },
+  { _id: 8, name: 'Eight' },
+  { _id: 9, name: 'Nine' },
+  { _id: 10, name: 'Ten' },
+  { _id: 11, name: 'Eleven' },
+  { _id: 12, name: 'Twelve' },
+];
+const itemWinners = [
+  { _id: 1, name: 'One' },
+  { _id: 2, name: 'Two' },
+  { _id: 3, name: 'Three' },
+  { _id: 4, name: 'Four' },
+  { _id: 5, name: 'Five' }
+];
 function TriviasForm(props) {
   const {
     classes,
@@ -116,12 +121,12 @@ function TriviasForm(props) {
     close_at: data ? data[8] : '',
     status: data ? data[9] : 'NEW',
     mode: data ? data[10] : 'RANDOM',
-    no_of_questions: data ? data[11] : 0,
-    time_limit: data[12] ? data[12] : 30,
+    no_of_questions: data ? data[11] : '',
+    time_limit: data[12] ? data[12] : 15,
     hash: data[13] ? data[13] : '',
     deleted: data ? (data[14] ? data[14] : false) : false,
     collect_winners: data ? (data[15] ? data[15] : false) : false,
-    no_of_winners: data ? data[16] : 0,
+    no_of_winners: data ? data[16] : '',
   };
 
   init(initData);
@@ -134,6 +139,8 @@ function TriviasForm(props) {
   const [closeDate, setSelectedCloseDate] = useState(initData.close_at ? initData.close_at : new Date());
   const [collectWinners, setCollectWinners] = useState(initData.collect_winners);
   const [collectWinnersCount, setCollectWinnersCount] = useState(initData.no_of_winners ? initData.no_of_winners : 3);
+  const [countQuestions, setCountQuestions] = useState([]);
+  const [countWinners, setCountWinners] = useState([]);
   const [categories, setCategories] = useState([]);
   const [timeLimit, setTimeLimit] = useState(initData.time_limit);
   const [hash, setHash] = useState(initData.hash);
@@ -161,6 +168,8 @@ function TriviasForm(props) {
       return;
     }
     setCategories(response.data);
+    setCountWinners(itemWinners);
+    setCountWinners(itemQuestions);
     console.log('Categories', response.data);
     props.dispatch(change('reduxTriviaForm', 'hash', hash));
   }, []);
@@ -174,7 +183,6 @@ function TriviasForm(props) {
 
   const setScheduledStart = (date) => {
     const utils = new MomentUtils();
-
     setSelectedStartDate(date);
     const closeAt = utils.addDays(date, 1);
     setSelectedCloseDate(closeAt);
@@ -194,7 +202,7 @@ function TriviasForm(props) {
     if (scheduled) {
       props.dispatch(change('reduxTriviaForm', 'start_at', ''));
       props.dispatch(change('reduxTriviaForm', 'close_at', ''));
-      props.dispatch(change('reduxTriviaForm', 'status', 'NEW'));
+      props.dispatch(change('reduxTriviaForm', 'status', 'SUBMITTED'));
     } else {
       props.dispatch(change('reduxTriviaForm', 'start_at', startDate));
       props.dispatch(change('reduxTriviaForm', 'close_at', closeDate));
@@ -207,8 +215,10 @@ function TriviasForm(props) {
     setCollectWinners(collectWinners => !collectWinners);
     if (collectWinners) {
       props.dispatch(change('reduxTriviaForm', 'collect_winners', 0));
+      props.dispatch(change('reduxTriviaForm', 'no_of_winners', ''));
     } else {
       props.dispatch(change('reduxTriviaForm', 'collect_winners', collectWinnersCount));
+      props.dispatch(change('reduxTriviaForm', 'no_of_winners', '3'));
     }
   };
 
@@ -295,6 +305,7 @@ function TriviasForm(props) {
                   component={SelectRedux}
                   placeholder="Audience"
                   label="Audience"
+                  required
                   validate={required}
                   fullWidth={true}
                 >
@@ -306,7 +317,7 @@ function TriviasForm(props) {
                 </Field>
               </FormControl>
             </div>
-            <div>
+            <div className={classes.stepperBasic}>
               <FormControl className={classes.field}>
                 <InputLabel htmlFor="time_limit">Time Limit</InputLabel>
                 <Slider
@@ -315,6 +326,7 @@ function TriviasForm(props) {
                   getAriaValueText={valueText}
                   aria-labelledby="discrete-slider"
                   valueLabelDisplay="on"
+                  required
                   step={5}
                   min={5}
                   max={90}
@@ -327,9 +339,11 @@ function TriviasForm(props) {
               <FormControl className={classes.field}>
                 <InputLabel htmlFor="category">Category</InputLabel>
                 <Field
+                  id="category"
                   name="category"
                   component={SelectRedux}
                   placeholder="Category"
+                  required
                   fullWidth={true}
                 >
                   {categories.map((category) => <MenuItem key={category._id} value={category.name}>{category.name}</MenuItem>)}
@@ -341,12 +355,14 @@ function TriviasForm(props) {
               <FormControl className={classes.field}>
                 <InputLabel htmlFor="no_of_questions">No. of Questions</InputLabel>
                 <Field
+                  id="no_of_questions"
                   name="no_of_questions"
                   component={SelectRedux}
                   placeholder="No. of Questions"
+                  required
                   fullWidth={true}
                 >
-                  {Object.entries(countNames).map((el) => <MenuItem value={el[0]}>{el[1]}</MenuItem>)}
+                  {itemQuestions.map((count) => <MenuItem key={count._id} value={count._id}>{count.name}</MenuItem>)}
                 </Field>
               </FormControl>
             </div>
@@ -359,13 +375,14 @@ function TriviasForm(props) {
                 <FormControl className={classes.field}>
                   <InputLabel htmlFor="no_of_winners">No. of Winners</InputLabel>
                   <Field
+                    id="no_of_winners"
                     name="no_of_winners"
                     component={SelectRedux}
                     placeholder="No. of Winners"
                     fullWidth={true}
                     disabled={!currentValues.collect_winners}
                   >
-                    {Object.entries(countWinners).map((el) => <MenuItem value={el[0]}>{el[1]}</MenuItem>)}
+                    {itemWinners.map((count) => <MenuItem key={count._id} value={count._id}>{count.name}</MenuItem>)}
                   </Field>
                 </FormControl>
               </div>
@@ -384,6 +401,8 @@ function TriviasForm(props) {
                     onChange={setScheduledStart}
                     label="Start at"
                     style={{ width: '50%', paddingRight: 10 }}
+                    validate={required}
+                    required
                     disabled={!currentValues.scheduled}
                   />
                 </MuiPickersUtilsProvider>
@@ -395,13 +414,15 @@ function TriviasForm(props) {
                     onChange={setScheduledClose}
                     label="Close at"
                     style={{ width: '50%' }}
+                    validate={required}
+                    required
                     disabled={!currentValues.scheduled}
                   />
                 </MuiPickersUtilsProvider>
               </div>
             </div>
 
-            <div>
+            <div className={classes.buttonBasic}>
               <Field
                 name="status"
                 component={TextFieldRedux}

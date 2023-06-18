@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 import React, { useEffect, useState } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
@@ -269,22 +270,44 @@ function Trivias(props) {
     </React.Fragment>
   );
 
-  const buildCollectWinners = (data) => (
-    <React.Fragment>
-      {!data[15]
-        && <div>
-          <Typography variant="caption" className={classes.title} gutterBottom> - </Typography>
-        </div>
+  const buildCollectWinners = (data) => {
+    let result = <div>Hmm..</div>;
+    if (data[15] && data[9] === 'COMPLETED' && data[16] && data[17].length) {
+      let names = '';
+      const winners = [];
+      for (let i = 1; i <= data[16]; i++) {
+        const w = data[17].find(d => d.rank === i);
+        if (w) {
+          names += 'Rank: ' + w.rank + ' ' + w.name + '\n';
+          winners.push(<div>
+            <div><b>Rank: {w.rank}:</b></div>
+            <div>{w.name}</div>
+            <div>{w.email}</div>
+          </div>);
+        }
       }
-      {data[16]
-        && <div>
-          <Typography variant="caption" className={classes.desc} gutterBottom>
-            <b>Top ${data[16]}</b>
-          </Typography>
-        </div>
-      }
-    </React.Fragment>
-  );
+      result = <div>
+        <Typography variant="caption" className={classes.title} gutterBottom>
+          {winners}
+        </Typography>
+      </div>;
+    }
+    if (!data[15]) {
+      result = <div>
+        <Typography variant="caption" className={classes.title} gutterBottom> Not Required </Typography>
+      </div>;
+    }
+
+    if (data[15] && data[9] !== 'COMPLETED') {
+      result = <div>
+        <Typography variant="caption" className={classes.desc} gutterBottom>
+          Top <b>{data[16]}</b>
+        </Typography>
+      </div>;
+    }
+
+    return result;
+  };
 
   if (props.refresh) refreshTrivias();
 
@@ -413,10 +436,14 @@ function Trivias(props) {
       }
     },
     {
-      name: 'Collect Winners?', // 15, 16
+      name: 'Top Performers', // 15, 16
       options: {
         filter: false,
-        customBodyRender: (value, tableMeta, updateValue) => buildCollectWinners(tableMeta.rowData)
+        customBodyRender: (value, tableMeta, updateValue) => (
+          <React.Fragment>
+            {buildCollectWinners(tableMeta.rowData)}
+          </React.Fragment>
+        )
       }
     },
     {
@@ -451,7 +478,7 @@ function Trivias(props) {
       }
     },
     {
-      name: 'Scheduled?', // 6, 7, 8
+      name: 'Scheduled', // 6, 7, 8
       options: {
         filter: false,
         customBodyRender: (value, tableMeta, updateValue) => buildSchedule(tableMeta.rowData)
@@ -649,6 +676,14 @@ function Trivias(props) {
         ),
         setCellProps: () => ({ style: { height: 'auto', overflow: 'unset' } }),
       },
+    },
+    {
+      name: '', // 0
+      options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: '', // 0
+      options: { display: false, filter: false, viewColumns: false }
     },
     {
       name: '', // 0

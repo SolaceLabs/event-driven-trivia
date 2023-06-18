@@ -129,7 +129,7 @@ function sendChatMessage(message) {
 }
 
 function gameError(message) {
-  // `trivia/${window.gameCode}/update/error/${window.nickName}`
+  // `trivia/${window.gameCode}/update/error/+/${window.nickName}`
   updateHappening('Message received on gameError: ' + message.payloadString, ERROR);
   const trivia = JSON.parse(message.payloadString);
   const snackbar = document.getElementById('snackbar');
@@ -170,7 +170,7 @@ function gameActivityUpdate(message) {
 }
 
 function gameRestart(message) {
-  // `trivia/${window.gameCode}/broadcast/restart/${window.gameCode}
+  // `trivia/${window.gameCode}/broadcast/restart
   updateHappening('Message received on gameRestart: ' + message.destinationName, INFO);
   location.reload();
 }
@@ -426,7 +426,7 @@ async function presentQuestions() {
 }
 
 function gameStart(message = undefined) {
-  // `trivia/${window.gameCode}/update/gamestarted`
+  // `trivia/${window.gameCode}/broadcast/gamestarted`
   if (window.gameStarted) {
     console.log('Hmm... duplicate game start, ignored!');
     return;
@@ -442,6 +442,40 @@ function gameStart(message = undefined) {
     updateHappening('Mock game start', INFO);
     showNextQuestion();
   }
+}
+
+function submitForm() {
+  const name = document.getElementById('winner-name').value;
+  if (name.length === 0) {
+    document.getElementById('form-error').innerHTML = 'Enter a valid name';
+    document.getElementById('winner-name').focus();
+    return;
+  }
+  const email = document.getElementById('winner-email').value;
+  const filter = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  if (!filter.test(email)) {
+    document.getElementById('form-error').innerHTML = 'Enter a valid email';
+    document.getElementById('winner-email').focus();
+    return;
+  }
+
+  document.getElementById('ranktile').classList.remove('blink');
+  document.getElementById('ranktilespan').classList.remove('blinkspan');
+  document.getElementById('winnerForm').style.display = 'none';
+  window.collected = true;
+  client.publish(`trivia/${window.gameCode}/update/winner/${window.nickName}`, { name, email, ...window.score });
+}
+
+function closeForm() {
+  document.getElementById('winnerForm').style.display = 'none';
+}
+
+function collectInfo() {
+  if (!window.collect || window.collected) {
+    return;
+  }
+
+  document.getElementById('winnerForm').style.display = 'block';
 }
 
 updatePregameCountDown = (callback, ts, midway = false) => {
@@ -468,7 +502,7 @@ updatePregameCountDown = (callback, ts, midway = false) => {
 };
 
 function gameEnd(message) {
-  // `trivia/${window.gameCode}/update/gameended`
+  // `trivia/${window.gameCode}/broadcast/gameended`
   const question = JSON.parse(message.payloadString);
 
   if (window.gameStarted && question.sessionId === window.sessionId) {
@@ -478,7 +512,7 @@ function gameEnd(message) {
 }
 
 function gameAbort(message) {
-  // `trivia/${window.gameCode}/update/gameaborted`
+  // `trivia/${window.gameCode}/broadcast/gameaborted`
   const question = JSON.parse(message.payloadString);
 
   if (window.gameStarted && question.sessionId === window.sessionId) {
@@ -520,7 +554,7 @@ function gameScorecard(message) {
 }
 
 function gameQuestion(message) {
-  // `trivia/${window.gameCode}/update/question/#`
+  // `trivia/${window.gameCode}/broadcast/question/#`
 
   const question = JSON.parse(message.payloadString);
 
@@ -532,6 +566,8 @@ function gameQuestion(message) {
 }
 
 function exitTrivia() {
+  if (window.exited) return;
+
   document.getElementById('count-down-tracker').style.display = 'none';
   document.getElementById('count-down-tracker').parentNode.classList.remove('w3-padding-large');
 
@@ -545,6 +581,9 @@ function exitTrivia() {
   document.getElementById('game_content').style.display = 'block';
   client.publish(`trivia/${window.gameCode}/query/leaderboard/${window.nickName}`);
   client.publish(`trivia/${window.gameCode}/query/scorecard/${window.nickName}`);
+  if (window.gameEnded) {
+    client.publish(`trivia/${window.gameCode}/query/winner/${window.nickName}`);
+  }
 
   window.gameEnded = false;
   window.gameAborted = false;
@@ -552,6 +591,7 @@ function exitTrivia() {
   window.currentQuestion = 0;
   window.questions = [];
   window.sessionId = false;
+  window.exited = true;
 
   if (window.gameAborted) {
     location.reload();
@@ -586,7 +626,25 @@ function gameYourRank(message) {
         : score.rank
     );
 
-  setTimeout(exitTrivia, 30000);
+  setTimeout(exitTrivia, 15000);
+}
+
+function gameWinner(message) {
+  // `trivia/${window.gameCode}/response/winner/${window.nickName}`
+  if (window.collected) return;
+
+  updateHappening('Message received on winner' + message.payloadString, INFO);
+  const score = JSON.parse(message.payloadString);
+
+  document.getElementById('ranktile').classList.add('blink');
+  document.getElementById('ranktilespan').classList.add('blinkspan');
+  document.querySelector('#refresh-warning-footer').style.display = 'block';
+  document.querySelector('#refresh-warning-footer').innerHTML = 'Congratulations, you made it to Top ' + score.rank + ' - Click on 🏆 to claim your prize!';
+  window.collect = true;
+  window.score = score;
+  setTimeout(() => {
+    document.querySelector('#refresh-warning-footer').style.display = 'none';
+  }, 5000);
 }
 
 function gameLeaderboard(message) {
@@ -646,20 +704,21 @@ function solaceClientConnected() {
     document.getElementById('game_content').classList.remove('hide');
     document.getElementById('game_content').classList.add('show');
 
-    client.subscribe(`trivia/${window.gameCode}/activity/user/${window.nickName}`, gameActivityUpdate);
-    client.subscribe(`trivia/${window.gameCode}/activity/broadcast`, gameActivityUpdate);
+    client.subscribe(`trivia/${window.gameCode}/update/activity/${window.nickName}`, gameActivityUpdate);
+    // client.subscribe(`trivia/${window.gameCode}/broadcast/activity`, gameActivityUpdate);
     client.subscribe(`trivia/${window.gameCode}/broadcast/usercount/#`, gameUserCountUpdate);
     client.subscribe(`trivia/${window.gameCode}/broadcast/chat`, gameChat);
     client.subscribe(`trivia/${window.gameCode}/broadcast/restart`, gameRestart);
     client.subscribe(`trivia/${window.gameCode}/response/info/${window.nickName}`, gameInfo);
     client.subscribe(`trivia/${window.gameCode}/response/scorecard/${window.nickName}`, gameScorecard);
-    client.subscribe(`trivia/${window.gameCode}/response/leaderboard/#`, gameLeaderboard);
+    client.subscribe(`trivia/${window.gameCode}/response/leaderboard/${window.nickName}`, gameLeaderboard);
     client.subscribe(`trivia/${window.gameCode}/response/getrank/${window.nickName}`, gameYourRank);
+    client.subscribe(`trivia/${window.gameCode}/response/winner/${window.nickName}`, gameWinner);
     client.subscribe(`trivia/${window.gameCode}/update/error/+/${window.nickName}`, gameError);
-    client.subscribe(`trivia/${window.gameCode}/update/gamestarted`, gameStart);
-    client.subscribe(`trivia/${window.gameCode}/update/gameaborted`, gameAbort);
-    client.subscribe(`trivia/${window.gameCode}/update/gameended`, gameEnd);
-    client.subscribe(`trivia/${window.gameCode}/update/question/#`, gameQuestion);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/gamestarted`, gameStart);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/gameaborted`, gameAbort);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/gameended`, gameEnd);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/question/#`, gameQuestion);
 
     client.publish(`trivia/${window.gameCode}/update/user/${window.nickName}/CONNECTED`);
 
@@ -736,7 +795,7 @@ function updatePlayerName() {
     document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName;
     document.getElementById('player-id').style.padding = '3px';
     document.getElementById('player-name-form').style.display = 'none';
-    setup();
+    // setup();
     closeNicknameDialog();
   }
 }
@@ -754,9 +813,10 @@ function openNicknameDialog() {
 }
 
 window.addEventListener('beforeunload', (e) => {
-  client.publish(`trivia/${window.gameCode}/update/user/${window.nickName}/DISCONNECTED`);
   let confirmationMessage = '\o/';
   (e || window.event).returnValue = confirmationMessage; // Gecko + IE, Webkit, Safari, Chrome
+  console.log('before unload', confirmationMessage);
+  client.publish(`trivia/${window.gameCode}/update/user/${window.nickName}/DISCONNECTED`);
   return confirmationMessage;
 });
 

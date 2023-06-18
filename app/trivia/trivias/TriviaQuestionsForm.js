@@ -107,8 +107,8 @@ function TriviaQuestionsForm(props) {
 
   const countNames = {
     0: '-- Select --',
-    1: 'One',
-    2: 'Two',
+    // 1: 'One',
+    // 2: 'Two',
     3: 'Three',
     4: 'Four',
     5: 'Five',
@@ -277,8 +277,8 @@ function TriviaQuestionsForm(props) {
                     }}
                   >
                     <MenuItem value={0}>{countNames[0]}</MenuItem>
-                    <MenuItem value={1}>{countNames[1]}</MenuItem>
-                    <MenuItem value={2}>{countNames[2]}</MenuItem>
+                    {/* <MenuItem value={1}>{countNames[1]}</MenuItem>
+                    <MenuItem value={2}>{countNames[2]}</MenuItem> */}
                     <MenuItem value={3}>{countNames[3]}</MenuItem>
                     <MenuItem value={4}>{countNames[4]}</MenuItem>
                     <MenuItem value={5}>{countNames[5]}</MenuItem>
@@ -317,11 +317,11 @@ function TriviaQuestionsForm(props) {
                 <ListItemText className={classes.left} primary="Mode of Generation" secondary="Choose how you want to build questions?" />
               </Grid>
               <Grid className={classes.middle} item sm={6} xs={8}>
-                <ToggleButtonGroup value={dataState.mode} exclusive onChange={handleQuestionsMode}>
+                <ToggleButtonGroup value={dataState.mode} exclusive disabled onChange={handleQuestionsMode}>
                   <ToggleButton value="RANDOM">
                     RANDOM
                   </ToggleButton>
-                  <ToggleButton value="SELECTIVE">
+                  <ToggleButton value="SELECTIVE" disabled>
                     SELECTIVE
                   </ToggleButton>
                 </ToggleButtonGroup>

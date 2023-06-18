@@ -21,6 +21,12 @@ class TriviaWrapper {
     return response.data;
   }
 
+  async isAdmin(user) {
+    console.log('Check if Administrator');
+    const response = await this.api('POST', 'auth/is-admin', user);
+    return response.data;
+  }
+
   async resendAccountActivation(user) {
     console.log('Resend email verification link');
     const response = await this.api('POST', 'auth/resend-account-activation', user);
@@ -48,31 +54,31 @@ class TriviaWrapper {
   // Trivia Members
   async getMembers(params = null) {
     console.log('Fetching Members');
-    const response = await this.api('GET', 'users' + (params ? `?${params}` : ''));
+    const response = await this.api('GET', 'members' + (params ? `?${params}` : ''));
     return response.data;
   }
 
   async getMember(member) {
     console.log('Get Member');
-    const response = await this.api('GET', `users/${member.id}`);
+    const response = await this.api('GET', `members/${member.id}`);
     return response.data;
   }
 
   async updateMember(member) {
     console.log('Update Member');
-    const response = await this.api('PUT', `users/${member.id}`, member);
+    const response = await this.api('PUT', `members/${member.id}`, member);
     return response.data;
   }
 
   async deleteMembers(members) {
     console.log('Delete Members');
-    const response = await this.api('POST', 'users/delete', members);
+    const response = await this.api('POST', 'members/delete', members);
     return response.data;
   }
 
   async deleteMember(member) {
     console.log('Delete Member');
-    const response = await this.api('DELETE', `users/${member.id}`);
+    const response = await this.api('DELETE', `members/${member.id}`);
     return response.data;
   }
 

@@ -8,7 +8,7 @@ const guideSteps = [
     text:
     `<b>Question</b>: A quiz style question with multiple answers (a minimum of 2 and upto 4) prompting the player to choose the right one <br/>
     <b>Category</b>: A label for identifying a group of questions on a shared context/theme<br/>
-    <b>Trivia</b>: A Trivia is a collection of questions from a category that can be presented as a sequence of questions to the participants.<br/>`
+    <b>Trivia</b>: A Trivia is a collection of questions that can be presented as a sequence of questions to the participants.<br/>`
   },
   {
     title: 'Trivia Manager',

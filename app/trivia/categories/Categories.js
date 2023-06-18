@@ -244,10 +244,6 @@ function Categories(props) {
       options: { filter: false, }
     },
     {
-      name: 'No. of Trivias',
-      options: { filter: false, }
-    },
-    {
       name: 'Action',
       options: {
         filter: false,

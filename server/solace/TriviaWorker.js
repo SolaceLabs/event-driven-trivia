@@ -38,22 +38,22 @@ const startTriviaRun = async (trivia, questions) => {
 
   try {
     const sessionHash = shortHash(trivia.name + '@' + (new Date()).getMilliseconds());
-    console.log(getTime(), `Publish trivia/${game_code}/update/gamestarted with game session id ${sessionHash}`);
-    client.publish(`trivia/${game_code}/update/gamestarted`, { sessionId: sessionHash, startAt: new Date().getTime() });
+    console.log(getTime(), `Publish trivia/${game_code}/broadcast/gamestarted with game session id ${sessionHash}`);
+    client.publish(`trivia/${game_code}/broadcast/gamestarted`, { sessionId: sessionHash, startAt: new Date().getTime() });
 
     await snooze(8000);
 
     const question = questions[qCounter++];
-    console.log(getTime(), `Publish trivia//${game_code}update/question/${qCounter}`);
+    console.log(getTime(), `Publish trivia//${game_code}broadcast/question/${qCounter}`);
 
-    client.publish(`trivia/${game_code}/update/question/${qCounter}`, {
+    client.publish(`trivia/${game_code}/broadcast/question/${qCounter}`, {
       question: question.question,
       choice_1: question.choice_1,
       choice_2: question.choice_2,
       choice_3: question.choice_3,
       choice_4: question.choice_4,
       qno: qCounter,
-      qid: question.id,
+      qid: question._id,
       total: no_of_questions,
       time_limit: trivia.time_limit,
       last_question: (qCounter === no_of_questions),
@@ -64,14 +64,14 @@ const startTriviaRun = async (trivia, questions) => {
       // eslint-disable-next-line no-await-in-loop
       await snooze(interval * 1000);
       const _question = questions[qCounter++];
-      client.publish(`trivia/${game_code}/update/question/${qCounter}`, {
+      client.publish(`trivia/${game_code}/broadcast/question/${qCounter}`, {
         question: _question.question,
         choice_1: _question.choice_1,
         choice_2: _question.choice_2,
         choice_3: _question.choice_3,
         choice_4: _question.choice_4,
         qno: qCounter,
-        qid: _question.id,
+        qid: _question._id,
         total: no_of_questions,
         time_limit: trivia.time_limit,
         last_question: (qCounter === no_of_questions),
@@ -79,14 +79,14 @@ const startTriviaRun = async (trivia, questions) => {
       });
       // eslint-disable-next-line no-await-in-loop
       await snooze(interval * 1000);
-      console.log(getTime(), `Publish trivia/update/question/${game_code}/${qCounter}`);
+      console.log(getTime(), `Publish trivia/broadcast/question/${game_code}/${qCounter}`);
     }
 
     // await snooze(interval * 1000);
     await snooze(trivia.time_limit * 1000);
 
-    console.log(getTime(), `Publish trivia/update/gameended/${game_code}`, { sessionId: sessionHash });
-    client.publish(`trivia/${game_code}/update/gameended`, { sessionId: sessionHash });
+    console.log(getTime(), `Publish trivia/${game_code}/broadcast/gameended`, { sessionId: sessionHash });
+    client.publish(`trivia/${game_code}/broadcast/gameended`, { sessionId: sessionHash });
 
     await snooze(8000);
 
@@ -138,7 +138,7 @@ process.on('message', async (data) => {
     console.log('Processing game connection request');
     initSession(data.hash);
   } else if (data.type === TriviaConstants.GAME_START_REQUEST) {
-    console.log('Processing game start', data.hash);
+    console.log('Processing game start', data._trivia);
     startTriviaRun(data.trivia, data.questions);
   } else if (data.type === TriviaConstants.GAME_END_REQUEST) {
     console.log('Processing game end', data.hash);

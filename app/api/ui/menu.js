@@ -27,7 +27,7 @@ module.exports = [
     key: 'trivia_members_page',
     name: 'Members',
     icon: 'supervisor_account',
-    linkParent: '/app/trivia/members',
+    linkParent: '/app/trivia/member',
   },
   {
     key: 'trivia_logout_page',

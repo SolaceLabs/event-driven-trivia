@@ -49,6 +49,8 @@ function Dashboard(props) {
   };
 
   useEffect(() => {
+    if (localStorage.getItem('token') === null) history.push('/login');
+
     // Adjust min height
     setAppHeight(window.innerHeight + 112);
 

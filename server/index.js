@@ -70,11 +70,13 @@ consoleClient.subscribe('trivia/*/query/leaderboard/>', consoleCallbacks.onLeade
 consoleClient.subscribe('trivia/*/query/eventgroups/>', consoleCallbacks.onEventGroupsCallback);
 consoleClient.subscribe('trivia/*/query/getrank/>', consoleCallbacks.onGetRankCallback);
 consoleClient.subscribe('trivia/*/query/validation/>', consoleCallbacks.onValidateCallback);
+consoleClient.subscribe('trivia/*/query/winner/>', consoleCallbacks.onWinnerCheckCallback);
 consoleClient.subscribe('trivia/*/update/start/>', consoleCallbacks.onStartCallback);
 consoleClient.subscribe('trivia/*/update/chat/>', consoleCallbacks.onChatCallback);
 consoleClient.subscribe('trivia/*/update/answer/>', consoleCallbacks.onAnswerCallback);
 consoleClient.subscribe('trivia/*/update/user/>', consoleCallbacks.onUserUpdateCallback);
-consoleClient.subscribe('trivia/*/update/gameended/>', consoleCallbacks.onGameEndedCallback);
+consoleClient.subscribe('trivia/*/update/winner/>', consoleCallbacks.onWinnerUpdateCallback);
+consoleClient.subscribe('trivia/*/broadcast/gameended/>', consoleCallbacks.onGameEndedCallback);
 consoleClient.subscribe('trivia/*/broadcast/restart/>', consoleCallbacks.onGameRestartCallback);
 consoleCallbacks.setupPlayerSynch();
 
@@ -95,10 +97,10 @@ app.use('/api/trivia/auth', (req, res, next) => {
   next();
 }, authRoutes);
 
-const userRoutes = require('./routes/userRoutes');
-app.use('/api/trivia/users', verifyAdmin, (req, res, next) => {
+const memberRoutes = require('./routes/memberRoutes');
+app.use('/api/trivia/members', verifyAdmin, (req, res, next) => {
   next();
-}, userRoutes);
+}, memberRoutes);
 
 const categoryRoutes = require('./routes/categoryRoutes');
 app.use('/api/trivia/categories', verifyToken, (req, res, next) => {

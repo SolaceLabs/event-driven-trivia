@@ -52,8 +52,6 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
           <img height="42" src="images/solace.png" style="margin-top:-12px;margin-right:10px;"/>
         </span>
         <span id="contextLinks">
-          <a href="#dashboard" onclick="openDashboard()">Dashboard</a>
-          <a href="#trivia" onclick="openTrivia()">Trivia</a>
           <a href="#logs" onclick="openLogs()">Logs</a>
         </span>
       </span>
@@ -121,13 +119,15 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
           </div>
         </div>
         <div class="w3-half">
-          <div class="w3-container sol-accent-5 w3-padding-large">
-            <div class="w3-left"><i class="fa fa-trophy w3-xxxlarge"></i></div>
-            <div class="w3-right">
-              <h3 id="trivia-your-rank">-</h3>
-            </div>
-            <div class="w3-clear"></div>
-            <h4>Rank</h4>
+          <div id="ranktile" class="w3-container sol-accent-5 w3-padding-large blink" onclick="collectInfo()">
+            <span id="ranktilespan" class="blinkspan">
+              <div class="w3-left"><i class="fa fa-trophy w3-xxxlarge"></i></div>
+              <div class="w3-right">
+                <h3 id="trivia-your-rank">-</h3>
+              </div>
+              <div class="w3-clear"></div>
+              <h4>Rank</h4>
+            </span>            
           </div>
         </div>
       </div>
@@ -225,6 +225,40 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
     <div id="refresh-warning-footer" class="refresh-footer"></div>
     <div id="snackbar"></div>
     
+    <div class="form-popup" id="winnerForm" name="winnerForm">
+      <div class="form-container">
+        <h4 class="w3-center">Join the Winners Circle</h4>
+    
+        <label for="name"><b>Name</b></label>
+        <input id='winner-name' type="text" placeholder="Enter Name" name="name" required>
+    
+        <label for="email"><b>Email</b></label>
+        <input id='winner-email' type="text" pattern="[^@\s]+@[^@\s]+" placeholder="Enter Email" name="email" required>
+        
+
+        <div class="form-buttons">
+          <button type="button" class="w3-button trivia-subdued-button btn cancel" onclick="closeForm()">Close</button>
+          <button type="submit" class="w3-button trivia-button btn" onclick="submitForm()">Submit</button>
+        </div>
+        <div id="form-error"></div>
+      </div>
+    </div>
+    
+    <!-- <div class="form-popup" id="myForm">
+      <form class="form-container">
+        <h4 class="w3-center">Join the Winners Circle</h4>
+    
+        <label for="name"><b>Name</b></label>
+        <input type="text" placeholder="Enter Name" name="name" required>
+    
+        <label for="email"><b>Email</b></label>
+        <input type="text" placeholder="Enter Email" name="email" required>
+        <div class="form-buttons">
+          <button onclick="closeForm()" type="button" class="btn cancel">Close</button>
+          <button onclick="submitForm()" type="submit" class="btn">Submit</button>
+        </div>
+      </form>
+    </div>     -->
     <!-- Footer -->
     <!-- <footer class="w3-container w3-padding-16 w3-light-grey">
       <h4>FOOTER</h4>
@@ -355,6 +389,9 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
     window.questions = [];
     window.currentQuestion = 0;
     window.timeLimit = 0;
+    window.collect = false;
+    document.getElementById('ranktile').classList.remove('blink');
+    document.getElementById('ranktilespan').classList.remove('blinkspan');
 
     document.getElementById("game_content").style.display = 'block';
     document.getElementById("trivia-modal").style.display = 'none';

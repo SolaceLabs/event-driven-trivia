@@ -13,7 +13,6 @@ const MomentUtils = require('@date-io/moment');
 const shortHash = require('shorthash2');
 const qr = require('qrcode');
 const Trivia = require('../models/trivia');
-const TriviaStats = require('../models/triviastats');
 
 const utils = new MomentUtils();
 
@@ -82,13 +81,13 @@ router.get('/', async (req, res) => {
           if (trivia.status === 'SCHEDULED'
               && utils.moment().diff(utils.moment(trivia.start_at)) > 0) {
             trivia.status = 'EXPIRED';
-            Trivia.findByIdAndUpdate(trivia.id, trivia)
+            Trivia.findByIdAndUpdate(trivia.id, trivia, { new: true })
               .then(console.log('Update trivia successful'))
               .catch(err => console.log('Update trivia failed', err));
           }
           if (trivia.status === 'NEW' && trivia.questions.length) {
             trivia.status = 'READY';
-            Trivia.findByIdAndUpdate(trivia.id, trivia)
+            Trivia.findByIdAndUpdate(trivia.id, trivia, { new: true })
               .then(console.log('Update trivia successful'))
               .catch(err => console.log('Update trivia failed', err));
           }
@@ -137,13 +136,13 @@ router.get('/hash/:hash', async (req, res) => {
           if (trivia.status === 'SCHEDULED'
               && utils.moment().diff(utils.moment(trivia.start_at)) > 0) {
             trivia.status = 'EXPIRED';
-            Trivia.findByIdAndUpdate(trivia.id, trivia)
+            Trivia.findByIdAndUpdate(trivia.id, trivia, { new: true })
               .then(console.log('Update trivia successful'))
               .catch(err => console.log('Update trivia failed', err));
           }
           if (trivia.status === 'NEW' && trivia.questions.length) {
             trivia.status = 'READY';
-            Trivia.findByIdAndUpdate(trivia.id, trivia)
+            Trivia.findByIdAndUpdate(trivia.id, trivia, { new: true })
               .then(console.log('Update trivia successful'))
               .catch(err => console.log('Update trivia failed', err));
           }
@@ -177,14 +176,14 @@ router.get('/:id', async (req, res) => {
       if (trivia.status === 'SCHEDULED'
           && utils.moment().diff(utils.moment(trivia.start_at)) > 0) {
         trivia.status = 'EXPIRED';
-        Trivia.findByIdAndUpdate(trivia.id, trivia)
+        Trivia.findByIdAndUpdate(trivia.id, trivia, { new: true })
           .then(console.log('Update trivia successful'))
           .catch(err => console.log('Update trivia failed', err));
         res.json({ success: true, data: trivia, message: 'Get trivia successful' });
       }
       if (trivia.status === 'NEW' && trivia.questions.length) {
         trivia.status = 'READY';
-        Trivia.findByIdAndUpdate(trivia.id, trivia)
+        Trivia.findByIdAndUpdate(trivia.id, trivia, { new: true })
           .then(console.log('Update trivia successful'))
           .catch(err => console.log('Update trivia failed', err));
       }
@@ -208,13 +207,7 @@ router.post('/', async (req, res) => {
 
   Trivia.create(trivia)
     .then(_trivia => {
-      TriviaStats.findOneAndUpdate(
-        { hash: trivia.hash },
-        { $push: { questions: _trivia.questions, score: [], answers: [] } },
-        { upsert: true, new: true })
-        .then(ts => {
-          res.json({ success: true, data: _trivia, message: 'Create trivia successful' });
-        });
+      res.json({ success: true, data: _trivia, message: 'Create trivia successful' });
     })
     .catch(err => {
       let message = 'Trivia add failed';
@@ -258,24 +251,22 @@ router.post('/clone/:id', async (req, res) => {
 });
 
 router.post('/reopen/:id', async (req, res) => {
-  const trivia = await Trivia.findById(req.params.id);
-  trivia.status = trivia.questions.length ? 'READY' : 'NEW';
-  trivia.players = {
-    names: [], connected: [], current: 0, high: 0
-  };
-  trivia.chat = [];
-  Trivia.findByIdAndUpdate(req.params.id, trivia)
-    .then(t => {
-      TriviaStats.findOneAndUpdate(
-        { hash: trivia.hash },
-        { $set: { answers: [], score: [] } },
-        { upsert: true, new: true })
-        .then(ts => {
-          if (req.client) {
-            req.client.publish(`trivia/broadcast/restart/${trivia.hash}`, trivia);
-          }
-          res.json({ success: true, data: trivia, message: 'Reopen trivia successful' });
-        });
+  Trivia.findByIdAndUpdate(req.params.id, {
+    players: {
+      names: [], connected: [], current: 0, high: 0
+    },
+    chat: [],
+    winners: [],
+    answers: [],
+    score: []
+  }, { new: true })
+    .then(trivia => {
+      trivia.status = trivia.questions.length ? 'READY' : 'NEW';
+      trivia.save();
+      if (req.client) {
+        req.client.publish(`trivia/${trivia.hash}/broadcast/restart`, trivia);
+      }
+      res.json({ success: true, data: trivia, message: 'Reopen trivia successful' });
     });
 });
 
@@ -360,30 +351,19 @@ router.put('/:id', async (req, res) => {
   if (!questionsUpdated) {
     _trivia.questions.forEach((q, index) => {
       const found = (q._id.toString() !== _trivia.questions[index]._id.toString());
-      // const found = trivia.questions.find(a => {
-      //   return a._id.toString() === q._id.toString();
-      // });
       questionsUpdated = !questionsUpdated && !found;
     });
   }
+  if (questionsUpdated) {
+    trivia.score = [];
+    trivia.answers = [];
+  }
+
   trivia.hash = _trivia.hash ? _trivia.hash : shortHash(trivia.name + '@' + (new Date()).getMilliseconds());
   trivia.adminHash = _trivia.adminHash ? _trivia.adminHash : shortHash(trivia.hash + ' => ' + trivia.name + '@' + (new Date()).getMilliseconds());
-  Trivia.findByIdAndUpdate(req.params.id, trivia)
-    .then(__trivia => {
-      if (questionsUpdated) {
-        TriviaStats.findOneAndUpdate(
-          { hash: trivia.hash },
-          {
-            $set: { questions: trivia.questions },
-            $push: { score: [], answers: [] }
-          },
-          { upsert: true, new: true })
-          .then(ts => {
-            res.json({ success: true, data: trivia, message: 'Update trivia successful' });
-          });
-      } else {
-        res.json({ success: true, data: trivia, message: 'Update trivia successful' });
-      }
+  Trivia.findByIdAndUpdate(req.body.id, trivia, { new: true })
+    .then(() => {
+      res.json({ success: true, data: trivia, message: 'Update trivia successful' });
     })
     .catch(err => {
       let message = 'Trivia update failed';
@@ -397,7 +377,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   const trivia = await Trivia.findById(req.params.id);
   trivia.deleted = !trivia.deleted;
-  await Trivia.findByIdAndUpdate(req.params.id, trivia);
+  await Trivia.findByIdAndUpdate(req.params.id, trivia, { new: true });
 
   res.json({ success: true, message: 'Delete trivia successful' });
 });
@@ -406,7 +386,7 @@ router.post('/delete', async (req, res) => {
   for (let i = 0; i < req.body.ids.length; i++) {
     const trivia = await Trivia.findById(req.body.ids[i]);
     trivia.deleted = !trivia.deleted;
-    await Trivia.findByIdAndUpdate(req.body.ids[i], trivia);
+    await Trivia.findByIdAndUpdate(req.body.ids[i], trivia, { new: true });
   }
   res.json({ success: true, message: 'Delete trivia(s) successful' });
 });

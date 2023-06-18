@@ -294,19 +294,6 @@ openLogs = () => {
   infoLogModal.style.display = 'block';
 };
 
-openTrivia = () => {
-  document.getElementById('contextLinks').style.display = 'none';
-  document.getElementById('trivia-modal').style.display = 'block';
-  document.getElementById('trivia-pane').style.display = 'none';
-  gameStart();
-};
-
-openDashboard = () => {
-  document.getElementById('contextLinks').style.display = 'none';
-  const infoLogModal = document.getElementById('info-log-modal');
-  infoLogModal.style.display = 'block';
-};
-
 generateRandomInteger = (min, max) => Math.floor(
   min + Math.random() * (max - min + 1)
 );

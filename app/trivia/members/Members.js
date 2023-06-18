@@ -13,6 +13,7 @@ import MUIDataTable from 'mui-datatables';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import pink from '@material-ui/core/colors/pink';
+import Chip from '@material-ui/core/Chip';
 import SnackBarWrapper from '../common/SnackBarWrapper';
 // eslint-disable-next-line import/no-cycle
 import AlertDialog from '../common/AlertDialog';
@@ -63,7 +64,6 @@ const styles = theme => ({
 */
 function Members(props) {
   const [currentRow, setCurrentRow] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [members, setMembers] = useState([]);
   const [openStyle, setOpen] = useState(false);
   const [variant, setVariant] = useState('');
@@ -71,9 +71,6 @@ function Members(props) {
   const [rowsSelected, setRowsSelected] = useState([]);
   const [rowsDeleted, setRowsDeleted] = useState([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showCloneDialog, setShowCloneDialog] = useState(false);
-  const [editAllowed, setEditAllowed] = useState(false);
-  const [cloneAllowed, setCloneAllowed] = useState(false);
   const [showDeleted, setShowDeleted] = useState(true);
   const [anchorEl2, setAnchorEl2] = React.useState(null);
   const openRowMenu = Boolean(anchorEl2);
@@ -108,15 +105,6 @@ function Members(props) {
     setOpen(false);
   };
 
-  const openModal = () => {
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setCurrentRow(false);
-  };
-
   const handleCloseRowMenu = () => {
     setAnchorEl2(null);
   };
@@ -145,7 +133,6 @@ function Members(props) {
   };
 
   const saveResults = async (values) => {
-    setShowModal(false);
     console.log(values);
 
     const response = values.id
@@ -197,6 +184,12 @@ function Members(props) {
     ? <del className={classes.deleted}>{name}</del>
     : name);
 
+  const getMemberStatus = (status, isDeleted, emailVerified) => (isDeleted
+    ? <Chip label="DELETED" style={{ backgroundColor: '#ec407a' }} />
+    : (emailVerified
+      ? <Chip label={status} style={{ backgroundColor: '#03ac94' }} />
+      : <Chip label={status} style={{ backgroundColor: '#d3d3d3' }} />));
+
   const columns = [
     {
       name: 'Id',
@@ -205,7 +198,7 @@ function Members(props) {
     {
       name: 'Name',
       options: {
-        filterOptions: { fullWidth: true },
+        filter: false,
         customBodyRender: (value, tableMeta, updateValue) => (
           <React.Fragment >
             {getMemberName(tableMeta.rowData[5], tableMeta.rowData[1])}
@@ -219,11 +212,22 @@ function Members(props) {
     },
     {
       name: 'Role',
-      options: { filter: true, }
+      options: {
+        filterOptions: { fullWidth: true },
+      }
     },
     {
       name: 'Status',
-      options: { filter: true, }
+      options: {
+        filterOptions: { fullWidth: true },
+        customBodyRender: (value, tableMeta, updateValue) => (
+          <React.Fragment >
+            {console.log('status, isDeleted, emailVerified')}
+            {console.log(tableMeta.rowData[4], tableMeta.rowData[5], tableMeta.rowData[6])}
+            {getMemberStatus(tableMeta.rowData[4], tableMeta.rowData[5], tableMeta.rowData[6])}
+          </React.Fragment>
+        )
+      }
     },
     {
       name: 'Action',
@@ -238,12 +242,6 @@ function Members(props) {
               aria-haspopup="true"
               onClick={(e) => {
                 setCurrentRow(tableMeta.rowData);
-                if (tableMeta.rowData[5]) setEditAllowed(false);
-                else setEditAllowed(true);
-
-                if (tableMeta.rowData[5]) setCloneAllowed(false);
-                else setCloneAllowed(true);
-
                 handleClickRowMenu(e);
               }}
             >
@@ -262,24 +260,6 @@ function Members(props) {
                 },
               }}
             >
-              {editAllowed
-              && <MenuItem key={'Edit' + tableMeta.rowData[0]} onClick={(e) => {
-                handleCloseRowMenu();
-                setShowModal(true);
-              }}>
-                <IconButton className={classes.iconButton} variant="outlined" color="secondary">
-                  <EditIcon/>
-                </IconButton> Edit
-              </MenuItem>}
-              {cloneAllowed
-              && <MenuItem key={'Clone' + tableMeta.rowData[0]} onClick={(e) => {
-                handleCloseRowMenu();
-                setShowCloneDialog(true);
-              }}>
-                <IconButton className={classes.iconButton} variant="outlined" color="secondary">
-                  <CopyIcon/>
-                </IconButton> Clone
-              </MenuItem>}
               <MenuItem key={'Delete' + tableMeta.rowData[0]} onClick={(e) => {
                 handleCloseRowMenu();
                 setRowsDeleted([]);
@@ -294,8 +274,11 @@ function Members(props) {
         ),
         // setCellProps: () => ({ style: { maxWidth: "100px" }}),
       }
-    }
-
+    },
+    {
+      name: '', // 0
+      options: { display: false, filter: false, viewColumns: false }
+    },
   ];
 
   const options = {
@@ -311,7 +294,6 @@ function Members(props) {
       <MembersCustomToolbar
         showDeleted={showDeleted}
         toggleDeleted={toggleDeleted}
-        openModal={openModal}
         refreshMembers={refreshMembers}
       />
     ),

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { PropTypes } from 'prop-types';
 import classNames from 'classnames';
 import Fade from '@material-ui/core/Fade';
@@ -12,8 +12,10 @@ import {
 import dataMenu from 'enl-api/ui/menu';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import messages from 'enl-api/ui/menuMessages';
+import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
 import styles from '../appStyles-jss';
 
+const api = new TriviaWrapper();
 function LeftSidebarBigLayout(props) {
   const {
     classes,
@@ -33,6 +35,16 @@ function LeftSidebarBigLayout(props) {
     isLogin
   } = props;
 
+  const [updatedMenu, setUpdatedMenu] = useState(dataMenu);
+
+  useEffect(async () => {
+    if (localStorage.getItem('token') === null) history.push('/login');
+    const response = await api.isAdmin({ token: localStorage.getItem('token') });
+    if (!response.success) {
+      setUpdatedMenu(dataMenu.filter(el => el.key !== 'trivia_members_page'));
+    }
+  }, []);
+
   return (
     <Fragment>
       <Header
@@ -49,7 +61,7 @@ function LeftSidebarBigLayout(props) {
         avatar={userAttr.avatar}
       />
       <SidebarBig
-        dataMenu={dataMenu}
+        dataMenu={updatedMenu}
         loadTransition={loadTransition}
         open={sidebarOpen}
         userAttr={userAttr}

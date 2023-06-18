@@ -49,12 +49,6 @@ function UpcomingTrivias(props) {
       }
     },
     {
-      name: 'Category',
-      options: {
-        filter: true,
-      }
-    },
-    {
       name: 'Questions',
       options: {
         filter: false,
