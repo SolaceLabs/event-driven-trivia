@@ -14,6 +14,8 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import pink from '@material-ui/core/colors/pink';
 import Chip from '@material-ui/core/Chip';
+import Typography from '@material-ui/core/Typography';
+import Type from 'enl-styles/Typography.scss';
 import SnackBarWrapper from '../common/SnackBarWrapper';
 // eslint-disable-next-line import/no-cycle
 import AlertDialog from '../common/AlertDialog';
@@ -181,7 +183,7 @@ function Members(props) {
   const { classes } = props;
 
   const getMemberName = (isDeleted, name) => (isDeleted
-    ? <del className={classes.deleted}>{name}</del>
+    ? <Typography variant="caption" className={Type.bold}><del className={classes.deleted}><b>{name}</b></del></Typography>
     : name);
 
   const getMemberStatus = (status, isDeleted, emailVerified) => (isDeleted
@@ -267,7 +269,7 @@ function Members(props) {
               }}>
                 <IconButton className={classes.iconButton} variant="outlined" color="secondary">
                   <DeleteIcon/>
-                </IconButton> Toggle Delete
+                </IconButton> { tableMeta.rowData[5] ? 'Undelete' : 'Delete' }
               </MenuItem>
             </Menu>
           </React.Fragment>

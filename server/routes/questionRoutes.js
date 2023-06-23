@@ -179,6 +179,17 @@ router.post('/clone/:id', async (req, res) => {
     });
 });
 
+router.post('/search', async (req, res) => {
+  Question.find({ $text: { $search: req.body.phrase } })
+    .then(questions => res.json({ success: true, questions }))
+    .catch(err => {
+      const message = 'No Question found';
+      console.log(err);
+      console.log(message);
+      return res.json({ success: false, message, });
+    });
+});
+
 router.put('/:id', async (req, res) => {
   Question.findByIdAndUpdate(req.params.id, req.body)
     .then(question => res.json({ success: true, data: question, message: 'Update question successful' }))
@@ -226,14 +237,15 @@ router.post('/upload', upload.single('csvFile'), async (req, res, next) => {
       choice_2: fields[3],
       choice_3: fields[4],
       choice_4: fields[5],
-      answer: fields[6]
+      answer: fields[6],
+      owner: req.user._id,
     });
   }
 
   const categories = questions.map((item) => item.category).filter((value, index, self) => self.indexOf(value) === index);
   for (let i = 0; i < categories.length; i++) {
     const category = await Category.find({ name: categories[i] });
-    if (!category.length) await Category.insertMany([{ name: categories[i] }]);
+    if (!category.length) await Category.insertMany([{ name: categories[i], owner: req.user._id }]);
   }
 
   try {

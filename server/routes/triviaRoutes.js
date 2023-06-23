@@ -13,6 +13,7 @@ const MomentUtils = require('@date-io/moment');
 const shortHash = require('shorthash2');
 const qr = require('qrcode');
 const Trivia = require('../models/trivia');
+const TriviaStats = require('../models/triviastats');
 
 const utils = new MomentUtils();
 
@@ -72,7 +73,7 @@ router.get('/test', async (req, res) => res.send('trivia route testing!'));
 router.get('/', async (req, res) => {
   const as_array = req?.query?.as_array && req?.query?.as_array === 'true';
   const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
-  Trivia.find(show_deleted ? {} : { deleted: false })
+  Trivia.find(show_deleted ? { owner: { $eq: req.user._id } } : { owner: { $eq: req.user._id }, deleted: false })
     .populate('questions')
     .sort({ deleted: 1 })
     .then(trivias => {
@@ -99,16 +100,87 @@ router.get('/', async (req, res) => {
         success: true,
         message: 'Get trivias successful',
         data: as_array
-          ? trivias.map(c => [c._id, c.name, c.description, c.audience, c.category, // 0-4
-            c.questions, c.scheduled, c.start_at, c.close_at, c.status, // 5-9
-            c.mode, c.no_of_questions, c.time_limit, c.hash, c.deleted, // 10-14
-            c.collect_winners, c.no_of_winners, c.winners // 15-17
+          ? trivias.map(c => [
+            c._id, // 0
+            c.name, // 1
+            c.description, // 2
+            c.audience, // 3
+            c.category, // 4
+            c.questions, // 5
+            c.scheduled, // 6
+            c.start_at, // 7
+            c.close_at, // 8
+            c.status, // 9
+            c.mode, // 10
+            c.no_of_questions, // 11
+            c.time_limit, // 12
+            c.hash, // 13
+            c.deleted, // 14
+            c.collect_winners, // 15
+            c.no_of_winners, // 16
+            c.winners, // 17
+            c.shared // 18
           ])
           : trivias
       });
     })
     .catch(err => {
       const message = 'Trivias get failed';
+      console.log(err);
+      console.log(message);
+      return res.json({ success: false, message, });
+    });
+});
+
+router.get('/upcoming', async (req, res) => {
+  const as_array = req?.query?.as_array && req?.query?.as_array === 'true';
+  const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
+  Trivia.find({ deleted: false, status: { $in: ['READY', 'SCHEDULED'] } })
+    .populate('questions')
+    .populate('owner')
+    .sort({ start_at: 1 })
+    .then(trivias => {
+      res.json({
+        success: true,
+        message: 'Get upcoming trivias successful',
+        data: as_array
+          ? trivias.map(c => [c._id, c.name, c.description, c.audience, c.category, // 0-4
+            c.questions, c.scheduled, c.start_at, c.close_at, c.status, // 5-9
+            c.mode, c.no_of_questions, c.time_limit, c.hash, c.deleted, // 10-14
+            c.collect_winners, c.no_of_winners, c.winners, c.owner.name // 15-18
+          ])
+          : trivias
+      });
+    })
+    .catch(err => {
+      const message = 'Upcoming Trivias get failed';
+      console.log(err);
+      console.log(message);
+      return res.json({ success: false, message, });
+    });
+});
+
+router.get('/shared', async (req, res) => {
+  const as_array = req?.query?.as_array && req?.query?.as_array === 'true';
+  const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
+  Trivia.find({ deleted: false, shared: true })
+    .populate('questions')
+    .populate('owner')
+    .then(trivias => {
+      res.json({
+        success: true,
+        message: 'Get shared trivias successful',
+        data: as_array
+          ? trivias.map(c => [c._id, c.name, c.description, c.audience, c.category, // 0-4
+            c.questions, c.scheduled, c.start_at, c.close_at, c.status, // 5-9
+            c.mode, c.no_of_questions, c.time_limit, c.hash, c.deleted, // 10-14
+            c.collect_winners, c.no_of_winners, c.winners, c.owner.name // 15-18
+          ])
+          : trivias
+      });
+    })
+    .catch(err => {
+      const message = 'Shared Trivias get failed';
       console.log(err);
       console.log(message);
       return res.json({ success: false, message, });
@@ -207,6 +279,10 @@ router.post('/', async (req, res) => {
 
   Trivia.create(trivia)
     .then(_trivia => {
+      const triviaStats = {
+        hash: trivia.hash, trivia: _trivia._id, chat: [], events: []
+      };
+      TriviaStats.create(triviaStats);
       res.json({ success: true, data: _trivia, message: 'Create trivia successful' });
     })
     .catch(err => {
@@ -229,6 +305,7 @@ router.post('/clone/:id', async (req, res) => {
       trivia.adminHash = shortHash(trivia.hash + ' => ' + trivia.name + '@' + (new Date()).getMilliseconds());
       trivia.owner = req.user._id;
       trivia.deleted = false;
+      trivia.shared = false;
 
       Trivia.create(trivia)
         .then(__trivia => {
@@ -250,19 +327,47 @@ router.post('/clone/:id', async (req, res) => {
     });
 });
 
+router.post('/toggleshare/:id', async (req, res) => {
+  Trivia.findById({ _id: req.params.id })
+    .then(trivia => {
+      trivia.shared = !trivia.shared;
+      trivia.save();
+      res.json({ success: true, data: trivia, message: 'Toggle share trivia successful' });
+    });
+});
+
 router.post('/reopen/:id', async (req, res) => {
-  Trivia.findByIdAndUpdate(req.params.id, {
-    players: {
-      names: [], connected: [], current: 0, high: 0
+  Trivia.findByIdAndUpdate(
+    { _id: req.params.id },
+    {
+      $set: {
+        players: {
+          names: [], connected: [], current: 0, high: 0
+        },
+        chat: [],
+        winners: [],
+        answers: [],
+        score: []
+      }
     },
-    chat: [],
-    winners: [],
-    answers: [],
-    score: []
-  }, { new: true })
+    { new: true })
     .then(trivia => {
       trivia.status = trivia.questions.length ? 'READY' : 'NEW';
       trivia.save();
+
+      TriviaStats.findOneAndUpdate(
+        { hash: trivia.hash },
+        {
+          $set: {
+            events: [],
+            chat: []
+          }
+        },
+        { new: true })
+        .then(triviaStats => {
+          triviaStats.save();
+        });
+
       if (req.client) {
         req.client.publish(`trivia/${trivia.hash}/broadcast/restart`, trivia);
       }
@@ -322,7 +427,8 @@ router.post('/upload', upload.single('csvFile'), async (req, res, next) => {
           choice_2: fields[3],
           choice_3: fields[4],
           choice_4: fields[5],
-          answer: fields[6]
+          answer: fields[6],
+          owner: req.user._id,
         });
         console.log('after save');
         console.log('Trivia created: ', trivia);
@@ -386,6 +492,7 @@ router.post('/delete', async (req, res) => {
   for (let i = 0; i < req.body.ids.length; i++) {
     const trivia = await Trivia.findById(req.body.ids[i]);
     trivia.deleted = !trivia.deleted;
+    trivia.shared = (trivia.deleted ? false : trivia.shared);
     await Trivia.findByIdAndUpdate(req.body.ids[i], trivia, { new: true });
   }
   res.json({ success: true, message: 'Delete trivia(s) successful' });

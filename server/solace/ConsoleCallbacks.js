@@ -4,6 +4,7 @@ const MomentUtils = require('@date-io/moment');
 const { fork } = require('child_process');
 const { Worker } = require('worker_threads');
 const Trivia = require('../models/trivia');
+const TriviaStats = require('../models/triviastats');
 const utils = new MomentUtils();
 const TriviaConstants = require('./TriviaConstants');
 const activities = {
@@ -19,6 +20,7 @@ const activities = {
   'query/eventgroups': { category: 'Trivia Info', background: '#E0FFFF', action: 'send' },
   'query/getrank': { category: 'Member Rank', background: '#8B0000', action: 'send' },
   'query/info': { category: 'Trivia Info', background: '#FFA07A', action: 'send' },
+  'query/stats': { category: 'Trivia Stats', background: '#FFA07A', action: 'send' },
   'query/leaderboard': { category: 'Trivia Leaderboard', background: '#FFDAB9', action: 'send' },
   'query/performance': { category: 'Member Performance', background: '#808080', action: 'send' },
   'query/scorecard': { category: 'Trivia Scorecard', background: '#E6E6FA', action: 'send' },
@@ -27,6 +29,7 @@ const activities = {
   'response/eventgroups': { category: 'Trivia Info', background: '#FAF0E6', action: 'receive' },
   'response/getrank': { category: 'Member Rank', background: '#DCDCDC', action: 'receive' },
   'response/info': { category: 'Trivia Info', background: '#8A2BE2', action: 'receive' },
+  'response/stats': { category: 'Trivia Stats', background: '#8A2BE2', action: 'receive' },
   'response/leaderboard': { category: 'Trivia Leaderboard', background: '#8B008B', action: 'receive' },
   'response/performance': { category: 'Member Performance', background: '#DAA520', action: 'receive' },
   'response/scorecard': { category: 'Trivia Scorecard', background: '#008B8B', action: 'receive' },
@@ -39,7 +42,7 @@ const activities = {
   'update/error': { category: 'Trivia Error', background: '#F5DEB3', action: 'send' },
   'update/start': { category: 'Trivia Status', background: '#FF1493', action: 'send' },
   'update/winner': { category: 'Trivia Winner', background: '#FF1493', action: 'send' },
-  'update/user': { category: 'Activity Trails', background: 'ffff00', action: 'send' }
+  'update/user': { category: 'Activity Trails', background: '#ffff00', action: 'send' }
 };
 const activityTopics = Object.keys(activities);
 const activitySetting = Object.values(activities);
@@ -68,7 +71,7 @@ class ConsoleCallbacks {
           (err, result) => {
             if (err) {
               console.log(`Update player stats failed for ${code}: `, err);
-              throw new Error('No Trivia found');
+              // throw new Error('No Trivia found');
             }
           });
       });
@@ -131,6 +134,16 @@ class ConsoleCallbacks {
       ts: new Date().toISOString()
     };
 
+    TriviaStats.updateOne(
+      { hash: game_code },
+      { $push: { events: payload } },
+      (err, result) => {
+        if (err) {
+          console.log('Update events failed: ', err);
+          throw new Error('No Trivia found');
+        }
+      });
+
     reply_to
       ? this.consoleClient.publish(`trivia/${game_code}/update/activity/${reply_to}`, payload)
       : this.consoleClient.publish(`trivia/${game_code}/broadcast/activity`, payload);
@@ -155,7 +168,7 @@ class ConsoleCallbacks {
     const reply_to = parts[4];
     console.log(this.getTime(), '=== Trivia Console query on game code: ' + game_code + ' from ' + reply_to + '===');
 
-    Trivia.find({ hash: game_code }, { chat: 0, questions: 0, adminHash: 0 })
+    Trivia.find({ hash: game_code }, { questions: 0, adminHash: 0 })
       .then(trivias => {
         const trivia = trivias[0];
         if (!trivia) { throw new Error('No Trivia found'); }
@@ -179,6 +192,31 @@ class ConsoleCallbacks {
         const error = 'No Trivia found';
         console.log(this.getTime(), err);
         this.consoleClient.publish(`trivia/${game_code}/update/error/info/${reply_to}`, { message: error });
+      });
+
+    // TriviaStats.find({ hash: game_code })
+    //   .then(trivias => {
+    //     const trivia = trivias[0];
+    //     if (trivia) {
+    //       this.consoleClient.publish(`trivia/${game_code}/response/stats/${reply_to}`, trivia);
+    //     }
+    //   });
+  }
+
+  onGameStatsCallback = (message) => {
+    // 'trivia/${game_code}/query/stats/${window.nickName}'
+    const topic = message.getDestination();
+    const parts = topic.getName().split('/');
+    const game_code = parts[1];
+    const reply_to = parts[4];
+    console.log(this.getTime(), '=== Trivia Console query on game code: ' + game_code + ' from ' + reply_to + '===');
+
+    TriviaStats.find({ hash: game_code })
+      .then(trivias => {
+        const trivia = trivias[0];
+        if (trivia) {
+          this.consoleClient.publish(`trivia/${game_code}/response/stats/${reply_to}`, trivia);
+        }
       });
   }
 
@@ -266,25 +304,17 @@ class ConsoleCallbacks {
     const parts = topic.getName().split('/');
     const game_code = parts[1];
     const reply_to = parts[4];
-    const chat = JSON.parse(message.getBinaryAttachment());
+    const newChat = JSON.parse(message.getBinaryAttachment());
 
-    this.consoleClient.publish(`trivia/${game_code}/broadcast/chat`, chat);
-    Trivia.findOne({ hash: game_code })
-      .then(t => {
-        if (!t) { throw new Error('No Trivia found'); }
-
-        const trivia = t.toObject();
-        trivia.chat = trivia.chat ? trivia.chat : [];
-        trivia.chat.push(chat);
-        Trivia.findOneAndUpdate(
-          { hash: game_code },
-          { $set: { chat: trivia.chat } },
-          (err, result) => {
-            if (err) {
-              console.log('Update player chat failed: ', err);
-              throw new Error('No Trivia found');
-            }
-          });
+    this.consoleClient.publish(`trivia/${game_code}/broadcast/chat`, newChat);
+    TriviaStats.updateOne(
+      { hash: game_code },
+      { $push: { chat: newChat } },
+      (err, result) => {
+        if (err) {
+          console.log('Update chat failed: ', err);
+          throw new Error('No Trivia found');
+        }
       });
 
     console.log(this.getTime(), '=== Trivia Console chat response on game code: ' + game_code + ' from session: ' + reply_to + ' ===');

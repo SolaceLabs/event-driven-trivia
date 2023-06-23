@@ -20,6 +20,7 @@ const isMobile = () => (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Oper
 
 let flipdown;
 let eventCount = 0;
+let sliderPos = 0;
 let ctxLive;
 let gameActivityChart;
 
@@ -115,6 +116,13 @@ function updateGameChat(message, controller = false) {
   gameChatArea.forEach(el => el.scrollTop = el.scrollHeight);
 }
 
+function emptyGameChat() {
+  const gameChatList = document.querySelectorAll('.trivia-chat-list');
+  for (let i = 0; i < gameChatList.childNodes.length; i++) {
+    gameChatList.removeChild(gameChatList.childNodes[1]);
+  }
+}
+
 function sendChatMessage(message) {
   const emoji = emojiRegex.test(message);
 
@@ -146,26 +154,71 @@ function gameError(message) {
   }
 }
 
+const slider = document.getElementById('myRange');
+const sliderStart = document.getElementById('slider-start');
+const sliderEnd = document.getElementById('slider-end');
+
 function gameActivityUpdate(message) {
   const payload = JSON.parse(message.payloadString);
-  gameActivityChart.data.topics.push(payload.topic);
-  gameActivityChart.data.categories.push(payload.category);
+  gameActivityChart.data.payloads.push(payload);
 
   gameActivityChart.data.labels.push('');
+  gameActivityChart.data.topics.push(payload.topic);
+  gameActivityChart.data.categories.push(payload.category);
   gameActivityChart.data.datasets[0].data.push(payload.axis);
   gameActivityChart.data.datasets[0].pointBackgroundColor.push(payload.background);
   gameActivityChart.data.datasets[0].pointBorderColor.push('#00cc91');
 
   // re-render the chart
-  if (++eventCount > 100) {
-    gameActivityChart.data.labels.shift();
-    gameActivityChart.data.topics.shift();
-    gameActivityChart.data.categories.shift();
-    gameActivityChart.data.datasets[0].pointBackgroundColor.shift();
-    gameActivityChart.data.datasets[0].pointBorderColor.shift();
-    gameActivityChart.data.datasets[0].data.shift();
+  if (++eventCount > 20) {
+    gameActivityChart.data.labels = [];
+    gameActivityChart.data.topics = [];
+    gameActivityChart.data.categories = [];
+    gameActivityChart.data.datasets[0].pointBackgroundColor = [];
+    gameActivityChart.data.datasets[0].pointBorderColor = [];
+    gameActivityChart.data.datasets[0].data = [];
+    for (let i = eventCount - 20; i < eventCount; i++) {
+      let pl = gameActivityChart.data.payloads[i];
+      gameActivityChart.data.labels.push('');
+      gameActivityChart.data.topics.push(pl.topic);
+      gameActivityChart.data.categories.push(pl.category);
+      gameActivityChart.data.datasets[0].data.push(pl.axis);
+      gameActivityChart.data.datasets[0].pointBackgroundColor.push(pl.background);
+      gameActivityChart.data.datasets[0].pointBorderColor.push('#00cc91');
+    }
   }
+  sliderPos = eventCount - 20;
+  if (sliderPos < 0) sliderPos = 1;
+  slider.setAttribute('value', sliderPos);
+  slider.setAttribute('max', eventCount);
+  sliderStart.innerHTML = 1;
+  sliderEnd.innerHTML = eventCount;
+  slider.style.display = 'none';
+  slider.style.display = 'block';
+
   gameActivityChart.update();
+
+  // update table
+  const date = new Date(payload.ts);
+  const timestamp = date.toLocaleString('en-US', {
+    weekday: 'short', // long, short, narrow
+    day: 'numeric', // numeric, 2-digit
+    year: 'numeric', // numeric, 2-digit
+    month: 'short', // numeric, 2-digit, long, short, narrow
+    hour: 'numeric', // numeric, 2-digit
+    minute: 'numeric', // numeric, 2-digit
+    second: 'numeric', // numeric, 2-digit
+    fractionalSecondDigits: 3 // numeric, 3-digit
+  });
+
+  const table = document.getElementById('trivia-activity-table-body');
+  const item = `<tr>
+                <td><span class="w3-medium fa-stack fa-lg"><i style="color: ${payload.background};" class="fa fa-square-o fa-stack-2x"></i><i class=${payload.action === 'send' ? "'fa fa-arrow-up fa-stack-1x'" : "'fa fa-arrow-down fa-stack-1x'"}"></i></span></td>
+                <td><span class="w3-medium">${timestamp}</span></td>
+                <td><span class="w3-padding-small">${payload.topic}</span></td>
+              </tr>`;
+  table.insertAdjacentHTML('afterbegin', item);
+
   updateHappening('Activity: [ ' + payload.topic + ', ' + payload.category + ' ]', INFO);
 }
 
@@ -203,13 +256,6 @@ function gameInfo(message) {
   const titles = document.querySelectorAll('.trivia-title');
   for (let i = 0; i < titles.length; i++) {
     titles[i].innerHTML = trivia.name;
-  }
-
-  // load chat
-  if (trivia.chat && trivia.chat.length) {
-    trivia.chat.forEach(c => {
-      updateGameChat(c);
-    });
   }
 
   if (trivia.score) {
@@ -259,6 +305,22 @@ function gameInfo(message) {
   } else {
     updateCountDown(trivia.start_at);
   }
+}
+
+function gameStats(message) {
+  // `trivia/${window.gameCode}/response/stats/${window.nickName}`
+  updateHappening('Message received on gameStats: ' + message.payloadString, INFO);
+  const trivia = JSON.parse(message.payloadString);
+
+  // load chat
+  emptyGameChat();
+  if (trivia.chat && trivia.chat.length) {
+    trivia.chat.forEach(c => {
+      updateGameChat(c);
+    });
+  }
+
+  // load events
 }
 
 function gameChat(message) {
@@ -321,10 +383,10 @@ function showNextQuestion() {
     return;
   }
 
-  if (window.currentQuestion === 0 && window.questions.length > 1) {
-    window.missed = window.questions.length - 1;
-    window.currentQuestion = window.questions.length - 1;
-  }
+  // if (window.currentQuestion === 0 && window.questions.length > 1) {
+  //   window.missed = window.questions.length - 1;
+  //   window.currentQuestion = window.questions.length - 1;
+  // }
 
   let question = window.questions[window.currentQuestion++];
   console.log('Show question', question);
@@ -421,7 +483,7 @@ async function presentQuestions() {
 
   document.getElementById('trivia-modal-content').style.display = 'block';
   document.getElementById('trivia-modal-countdown').style.display = 'none';
-
+  if (window.questions.length > 1) window.currentQuestion = window.questions.length - 1;
   showNextQuestion();
 }
 
@@ -710,6 +772,7 @@ function solaceClientConnected() {
     client.subscribe(`trivia/${window.gameCode}/broadcast/chat`, gameChat);
     client.subscribe(`trivia/${window.gameCode}/broadcast/restart`, gameRestart);
     client.subscribe(`trivia/${window.gameCode}/response/info/${window.nickName}`, gameInfo);
+    // client.subscribe(`trivia/${window.gameCode}/response/stats/${window.nickName}`, gameStats);
     client.subscribe(`trivia/${window.gameCode}/response/scorecard/${window.nickName}`, gameScorecard);
     client.subscribe(`trivia/${window.gameCode}/response/leaderboard/${window.nickName}`, gameLeaderboard);
     client.subscribe(`trivia/${window.gameCode}/response/getrank/${window.nickName}`, gameYourRank);
@@ -812,6 +875,38 @@ function openNicknameDialog() {
   document.getElementById('player-name-form').style.display = 'block';
 }
 
+slider.oninput = (event) => {
+  sliderPos = parseInt(event.currentTarget.value, 10);
+  console.log('Slider: ', sliderPos);
+
+  gameActivityChart.data.labels = [];
+  gameActivityChart.data.topics = [];
+  gameActivityChart.data.categories = [];
+  gameActivityChart.data.datasets[0].pointBackgroundColor = [];
+  gameActivityChart.data.datasets[0].pointBorderColor = [];
+  gameActivityChart.data.datasets[0].data = [];
+  const start = sliderPos;
+  let end = start + 20;
+  if (end > eventCount) end = eventCount;
+  for (let i = start; i < end; i++) {
+    const payload = gameActivityChart.data.payloads[i];
+    gameActivityChart.data.labels.push('');
+    gameActivityChart.data.topics.push(payload.topic);
+    gameActivityChart.data.categories.push(payload.category);
+    gameActivityChart.data.datasets[0].data.push(payload.axis);
+    gameActivityChart.data.datasets[0].pointBackgroundColor.push(payload.background);
+    gameActivityChart.data.datasets[0].pointBorderColor.push('#00cc91');
+  }
+  sliderPos = start;
+  slider.setAttribute('value', sliderPos);
+  slider.setAttribute('min', 1);
+  slider.setAttribute('max', eventCount);
+  slider.style.display = 'none';
+  slider.style.display = 'block';
+
+  gameActivityChart.update();
+};
+
 window.addEventListener('beforeunload', (e) => {
   let confirmationMessage = '\o/';
   (e || window.event).returnValue = confirmationMessage; // Gecko + IE, Webkit, Safari, Chrome
@@ -863,13 +958,18 @@ window.addEventListener('load', () => {
     });
   });
 
+  // document.querySelector('#trivia-chat-load').addEventListener('click', () => {
+  //   client.publish(`trivia/${window.gameCode}/query/stats/${window.nickName}`);
+  // });
   document.querySelector('#trivia-leaderboard-load').addEventListener('click', () => {
     client.publish(`trivia/${window.gameCode}/query/leaderboard/${window.nickName}`);
   });
-
   document.querySelector('#trivia-scorecard-load').addEventListener('click', () => {
     client.publish(`trivia/${window.gameCode}/query/scorecard/${window.nickName}`);
   });
+  // document.querySelector('#trivia-activity-load').addEventListener('click', () => {
+  //   client.publish(`trivia/${window.gameCode}/query/stats/${window.nickName}`);
+  // });
 
   triviaGameChatEmojiBtn.addEventListener('click', () => {
     gamePicker.togglePicker(triviaGameChatEmojiBtn);
@@ -879,6 +979,7 @@ window.addEventListener('load', () => {
   gameActivityChart = new Chart(ctxLive, {
     type: 'line',
     data: {
+      payloads: [],
       topics: [],
       categories: [],
       labels: [],
@@ -916,11 +1017,27 @@ window.addEventListener('load', () => {
         }]
       },
       tooltips: {
+        displayColors: false,
         callbacks: {
           title(t, d) { return 'Event: ' + d.topics[t[0].index]; },
-          label(t, d) { return 'Category: ' + d.categories[t.index]; }
+          label(t, d) { return null; },
+          footer(t, d) {
+            const date = new Date(d.payloads[t[0].index].ts);
+            const timestamp = date.toLocaleString('en-US', {
+              weekday: 'short', // long, short, narrow
+              day: 'numeric', // numeric, 2-digit
+              year: 'numeric', // numeric, 2-digit
+              month: 'short', // numeric, 2-digit, long, short, narrow
+              hour: 'numeric', // numeric, 2-digit
+              minute: 'numeric', // numeric, 2-digit
+              second: 'numeric', // numeric, 2-digit
+              fractionalSecondDigits: 3 // numeric, 3-digit
+            });
+
+            return timestamp;
+          }
         }
-      }
+      },
     }
   });
 });

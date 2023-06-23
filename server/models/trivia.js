@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
-const chatSchema = new Schema({
-  name: String, message: String, emoji: Boolean, timestamp: Date
-});
-
 const playerSchema = new Schema({
   names: [String], connected: [String], current: Number, high: Number, timestamp: Date
 });
@@ -37,7 +33,6 @@ const TriviaSchema = new Schema(
     close_at: { type: Date, required: false },
     mode: { type: String, default: 'RANDOM', required: false },
     players: { type: playerSchema },
-    chat: [chatSchema],
     status: { type: String, required: true }, // NEW, READY, SCHEDULED, EXPIRED, COMPLETED, ABORTED
     owner: { type: 'ObjectId', ref: 'User' },
     shared: { type: Boolean, default: false },

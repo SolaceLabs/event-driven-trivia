@@ -207,31 +207,17 @@ function Header(props) {
         </Hidden>
         <div className={classes.userToolbar}>
           {/* <SelectLanguage /> */}
-          {localStorage.getItem('token') !== null
-            ? (
-              // <UserMenu signOut={signOut} avatar={avatar} />
-              <Button
-                color="primary"
-                // className={classes.buttonTop}
-                component={Link}
-                to={link.logout}
-                variant="contained"
-              >
-                <FormattedMessage {...messages.logout} />
-              </Button>
-            )
-            : (
-              <Button
-                color="primary"
-                // className={classes.buttonTop}
-                component={Link}
-                to={link.login}
-                variant="contained"
-              >
-                <AccountCircle />
-                <FormattedMessage {...messages.login} />
-              </Button>
-            )
+          {localStorage.getItem('token') === null
+            && <Button
+              color="primary"
+              // className={classes.buttonTop}
+              component={Link}
+              to={link.login}
+              variant="contained"
+            >
+              <AccountCircle />
+              <FormattedMessage {...messages.login} />
+            </Button>
           }
         </div>
       </Toolbar>

@@ -9,11 +9,13 @@ import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/EditSharp';
 import CopyIcon from '@material-ui/icons/FileCopySharp';
 import DeleteIcon from '@material-ui/icons/DeleteSharp';
-import RestoreFromTrashIcon from '@material-ui/icons/RestoreFromTrash';
+import DeletedIcon from '@material-ui/icons/DeleteSweepSharp';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import pink from '@material-ui/core/colors/pink';
+import Typography from '@material-ui/core/Typography';
+import Type from 'enl-styles/Typography.scss';
 import QuestionsModal from './QuestionsModal';
 import QuestionsCustomToolbar from './QuestionsCustomToolbar';
 import QuestionCategoryFilter from './QuestionCategoryFilter';
@@ -21,7 +23,6 @@ import SnackBarWrapper from '../common/SnackBarWrapper';
 import AlertDialog from '../common/AlertDialog';
 
 const api = new TriviaWrapper();
-const ITEM_HEIGHT = 48;
 
 const styles = theme => ({
   table: {
@@ -90,6 +91,9 @@ function Questions(props) {
   const [cloneAllowed, setCloneAllowed] = useState(false);
   const [showDeleted, setShowDeleted] = useState(true);
   const [anchorEl2, setAnchorEl2] = useState(null);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [count, setCount] = useState(10);
+  const [page, setPage] = useState(0);
   const openRowMenu = Boolean(anchorEl2);
   const { classes } = props;
 
@@ -120,6 +124,7 @@ function Questions(props) {
       } else {
         updateResult('success', 'Questions refreshed successfully');
         setQuestions(response1.data);
+        setCount(response1.data.length);
       }
     }
   }, [showDeleted]);
@@ -184,6 +189,7 @@ function Questions(props) {
       } else {
         updateResult('success', 'Questions refreshed successfully');
         setQuestions(response1.data);
+        setCount(response1.data.length);
       }
     }
 
@@ -309,8 +315,13 @@ function Questions(props) {
     : name);
 
   const getQuestionName = (isDeleted, name) => (isDeleted
-    ? <del className={classes.deleted}>{name}</del>
-    : name);
+    ? <div className={classes.deleted}>
+      <DeleteIcon className={classes.deleted}/>
+      <Typography variant="caption" className={Type.bold}>&nbsp;<b>{name}</b></Typography><br/>
+    </div>
+    : <div>
+      <Typography variant="caption" className={Type.bold}>&nbsp;<b>{name}</b></Typography><br/>
+    </div>);
 
   const columns = [
     {
@@ -400,7 +411,7 @@ function Questions(props) {
               onClose={handleCloseRowMenu}
               PaperProps={{
                 style: {
-                  maxHeight: ITEM_HEIGHT * 4.5,
+                  maxHeight: 256,
                   width: '20ch',
                 },
               }}
@@ -430,7 +441,7 @@ function Questions(props) {
               }}>
                 <IconButton className={classes.iconButton} variant="outlined" color="secondary">
                   <DeleteIcon/>
-                </IconButton> Toggle Delete
+                </IconButton> { tableMeta.rowData[8] ? 'Undelete' : 'Delete' }
               </MenuItem>
             </Menu>
           </React.Fragment>
@@ -449,7 +460,20 @@ function Questions(props) {
     responsive: 'vertical',
     print: false,
     download: false,
-    rowsPerPage: 10,
+    rowsPerPage,
+    rowsPerPageOptions: [5, 10, 25, 50],
+    count,
+    page,
+    jumpToPage: true,
+    onChangePage: currentPage => {
+      console.log('currentPage: ' + currentPage);
+      setPage(currentPage);
+    },
+    onChangeRowsPerPage: numberOfRows => {
+      console.log('numberOfRows: ' + numberOfRows);
+      setRowsPerPage(numberOfRows);
+      setPage(0);
+    },
     customToolbar: () => (
       <QuestionsCustomToolbar
         showDeleted={showDeleted}
@@ -503,8 +527,8 @@ function Questions(props) {
 
       {showDeleteDialog && !Object.keys(rowsDeleted).length
         && <AlertDialog
-          title={currentRow[8] === true ? 'Undelete Question(s)' : 'Delete Question(s)'}
-          description={currentRow[8] === true ? 'Are you sure you want to undelete selected Question(s)?' : 'Are you sure you want to delete selected Question(s)?'}
+          title={currentRow[8] === true ? 'Undelete Question' : 'Delete Question'}
+          description={currentRow[8] === true ? 'Are you sure you want to undelete selected Question?' : 'Are you sure you want to delete selected Question?'}
           cancel='Cancel'
           submit='Confirm'
           onSubmit={onRowsDeleteConfirm}
@@ -515,7 +539,7 @@ function Questions(props) {
       {showDeleteDialog && Object.keys(rowsDeleted).length
         && <AlertDialog
           title={'Toggle Deletion(s)'}
-          description={'Are you sure you want to delete/undelete selected Question(s)?'}
+          description={'Are you sure you want to delete selected Question(s)?'}
           cancel='Cancel'
           submit='Confirm'
           onSubmit={onRowsDeleteConfirm}

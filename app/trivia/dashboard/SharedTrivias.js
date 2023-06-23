@@ -9,8 +9,14 @@ import Type from 'enl-styles/Typography.scss';
 import MUIDataTable from 'mui-datatables';
 import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
 import pink from '@material-ui/core/colors/pink';
+import CopyIcon from '@material-ui/icons/FileCopySharp';
+import ViewCarouselIcon from '@material-ui/icons/ViewCarousel';
 import green from '@material-ui/core/colors/green';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
 import SnackBarWrapper from '../common/SnackBarWrapper';
+import TriviaPreview from '../trivias/TriviaPreview';
+import AlertDialog from '../common/AlertDialog';
 
 const api = new TriviaWrapper();
 const utils = new MomentUtils();
@@ -68,7 +74,7 @@ const styles = theme => ({
   Checkout full documentation here :
   https://github.com/gregnb/mui-datatables/blob/master/README.md
 */
-function UpcomingTrivias(props) {
+function SharedTrivias(props) {
   const [currentRow, setCurrentRow] = useState(false);
   const [trivias, setTrivias] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -76,6 +82,8 @@ function UpcomingTrivias(props) {
   const [openStyle, setOpen] = useState(false);
   const [variant, setVariant] = useState('');
   const [message, setMessage] = useState('');
+  const [showCloneDialog, setShowCloneDialog] = useState(false);
+  const [showTriviaPreview, setShowTriviaPreview] = useState(false);
   const [rowsSelected, setRowsSelected] = useState([]);
   const [rowsDeleted, setRowsDeleted] = useState([]);
   const [showDeleted, setShowDeleted] = useState(false);
@@ -103,22 +111,47 @@ function UpcomingTrivias(props) {
       const params1 = new URLSearchParams();
       params1.append('as_array', true);
       params1.append('show_deleted', showDeleted);
-      const response1 = await api.getUpcomingTrivias(params1);
+      const response1 = await api.getSharedTrivias(params1);
       if (!response1.success) {
         updateResult('error', response1.message);
         setTrivias([]);
         return;
       }
-      console.log('UpcomingTrivias', response1.data);
+      console.log('SharedTrivias', response1.data);
       setTrivias(response1.data);
     }
   }, [showDeleted]);
+
+  const onRowCloneConfirm = async () => {
+    const id = currentRow[0];
+    const response = await api.cloneTrivia({ id });
+    if (!response.success) {
+      updateResult('error', response.message);
+    } else {
+      updateResult('success', response.message);
+    }
+    setCurrentRow(false);
+    setRowsSelected([]);
+    setShowCloneDialog(false);
+  };
+
+  const onRowCloneCancel = () => {
+    console.log('Trivia Clone cancelled');
+    setCurrentRow(false);
+    setRowsSelected([]);
+    setShowCloneDialog(false);
+  };
 
   const handleCloseStyle = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
     setOpen(false);
+  };
+
+  const closeTriviaPreview = () => {
+    setShowTriviaPreview(false);
+    setCurrentRow(false);
   };
 
   const refreshTrivias = async () => {
@@ -139,7 +172,7 @@ function UpcomingTrivias(props) {
         setTrivias([]);
         return;
       }
-      console.log('UpcomingTrivias', response1.data);
+      console.log('SharedTrivias', response1.data);
       setTrivias(response1.data);
       setCurrentRow(false);
     }
@@ -289,6 +322,38 @@ function UpcomingTrivias(props) {
       }
     },
     {
+      name: 'Action',
+      options: {
+        filter: false,
+        viewColumns: true,
+        customBodyRender: (value, tableMeta, updateValue) => (
+          <React.Fragment >
+            <Tooltip title={'Preview Trivia'}>
+              <IconButton className={classes.iconButton} variant="outlined" color="secondary" disabled={tableMeta.rowData[14]}
+                onClick={(e) => {
+                  console.log(tableMeta);
+                  setCurrentRow(tableMeta.rowData);
+                  setShowTriviaPreview(true);
+                }}>
+                <ViewCarouselIcon/>
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={'Import Trivia'}>
+              <IconButton className={classes.iconButton} variant="outlined" color="secondary"
+                onClick={(e) => {
+                  console.log(tableMeta);
+                  setCurrentRow(tableMeta.rowData);
+                  setShowCloneDialog(true);
+                }}>
+                <CopyIcon/>
+              </IconButton>
+            </Tooltip>
+          </React.Fragment>
+        ),
+        setCellProps: () => ({ style: { height: 'auto', overflow: 'unset' } }),
+      },
+    },
+    {
       name: '', // 0
       options: { display: false, filter: false, viewColumns: false }
     },
@@ -376,18 +441,37 @@ function UpcomingTrivias(props) {
       </Snackbar>
 
       <MUIDataTable
-        title="Upcoming Trivias"
+        title="Shared Trivias"
         data={trivias}
         columns={columns}
         options={options}
       />
+
+      {showCloneDialog
+        && <AlertDialog
+          title='Clone Trivia'
+          description={'Are you sure you want to clone selected Trivia - "' + currentRow[1] + '"?'}
+          cancel='Cancel'
+          submit='Confirm'
+          onSubmit={onRowCloneConfirm}
+          onCancel={onRowCloneCancel}
+        />
+      }
+
+      {showTriviaPreview
+        && <TriviaPreview
+          open={showTriviaPreview}
+          data={currentRow}
+          closeModal={closeTriviaPreview}
+        />
+      }
     </div>
   );
 }
 
-UpcomingTrivias.propTypes = {
+SharedTrivias.propTypes = {
   classes: PropTypes.object.isRequired,
   refresh: PropTypes.bool
 };
 
-export default withStyles(styles)(UpcomingTrivias);
+export default withStyles(styles)(SharedTrivias);

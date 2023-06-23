@@ -93,7 +93,7 @@ export default function TriviaAdminQR(props) {
         <DialogContent dividers={scroll === 'paper'}>
           <Grid container alignItems="center" display="flex" justifyContent="center" direction="column" spacing={4}>
             <Grid item xs={12} sm={12}>
-              <a href={controllerUrl}>{controllerUrl}</a>
+              <a target="_blank" href={controllerUrl}>{controllerUrl}</a>
             </Grid>
             <Grid item xs={12} sm={12}>
               <Typography className={classes.title}>

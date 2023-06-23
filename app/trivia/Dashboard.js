@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import brand from 'enl-api/fireball/brand';
-import { Helmet } from 'react-helmet';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import Divider from '@material-ui/core/Divider';
 import { PapperBlock } from 'enl-components';
-import Snackbar from '@material-ui/core/Snackbar';
 import DashboardCounter from './dashboard/DashboardCounter';
 import UpcomingTrivias from './dashboard/UpcomingTrivias';
-import SnackBarWrapper from './common/SnackBarWrapper';
+import SharedTrivias from './dashboard/SharedTrivias';
+import SharedCategories from './dashboard/SharedCategories';
 
 const styles = theme => ({
   root: {
@@ -44,46 +42,12 @@ function Dashboard(props) {
   const { classes, history } = props;
   useEffect(() => {
     if (localStorage.getItem('token') === null) history.push('/login');
-  }, []);
-
-  const [openStyle, setOpen] = useState(false);
-  const [variant, setVariant] = useState('');
-  const [message, setMessage] = useState('');
-
-  const updateResult = React.useCallback((_variant, _message) => {
-    console.log('updateResult called');
-    setVariant(_variant);
-    setMessage(_message);
-    setOpen(true);
   });
-
-  const handleCloseStyle = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setOpen(false);
-  };
 
   const title = 'Dashboard';
   const description = brand.desc;
   return (
     <div>
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        open={openStyle}
-        autoHideDuration={6000}
-        onClose={() => handleCloseStyle()}
-      >
-        <SnackBarWrapper
-          onClose={() => handleCloseStyle()}
-          variant={variant}
-          message={message}
-          className={classes.margin}
-        />
-      </Snackbar>
       <PapperBlock
         whiteBg
         icon="dashboard"
@@ -91,11 +55,23 @@ function Dashboard(props) {
         // desc={description}
       >
         <Grid container className={classes.root}>
-          < DashboardCounter />
+          <DashboardCounter />
         </Grid>
       </PapperBlock>
       <PapperBlock>
-        <UpcomingTrivias />
+        <Grid className={classes.root}>
+          <UpcomingTrivias />
+        </Grid>
+      </PapperBlock>
+      <PapperBlock>
+        <Grid className={classes.root}>
+          <SharedTrivias />
+        </Grid>
+      </PapperBlock>
+      <PapperBlock>
+        <Grid className={classes.root}>
+          <SharedCategories />
+        </Grid>
       </PapperBlock>
     </div>
   );

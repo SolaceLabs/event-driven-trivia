@@ -75,11 +75,32 @@ router.get('/', async (req, res) => {
       success: true,
       message: 'Get categories successful',
       data: as_array
-        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.deleted])
+        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.deleted, c.shared])
         : categories
     }))
     .catch(err => {
       const message = 'Categories get failed';
+      console.log(err);
+      console.log(message);
+      return res.json({ success: false, message, });
+    });
+});
+
+router.get('/shared', async (req, res) => {
+  const as_array = req?.query?.as_array && req?.query?.as_array === 'true';
+  const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
+  Category.find(show_deleted ? { shared: true } : { shared: true, deleted: false })
+    .populate('owner')
+    .populate('no_of_questions')
+    .then(categories => res.json({
+      success: true,
+      message: 'Get shared categories successful',
+      data: as_array
+        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.deleted, c.shared, c.owner.name])
+        : categories
+    }))
+    .catch(err => {
+      const message = 'Shared Categories get failed';
       console.log(err);
       console.log(message);
       return res.json({ success: false, message, });
@@ -151,6 +172,15 @@ router.post('/clone/:id', async (req, res) => {
     });
 });
 
+router.post('/toggleshare/:id', async (req, res) => {
+  Category.findById({ _id: req.params.id })
+    .then(category => {
+      category.shared = !category.shared;
+      category.save();
+      res.json({ success: true, data: category, message: 'Toggle share category successful' });
+    });
+});
+
 router.put('/:id', async (req, res) => {
   const newCategory = req.body;
   const currCategory = await Category.findById(req.params.id);
@@ -184,6 +214,7 @@ router.post('/delete', async (req, res) => {
   for (let i = 0; i < req.body.ids.length; i++) {
     const category = await Category.findById(req.body.ids[i]);
     category.deleted = !category.deleted;
+    category.shared = (category.deleted ? false : category.shared);
     await category.save();
   }
   res.json({ success: true, message: 'Delete category(s) successful' });
@@ -203,7 +234,7 @@ router.post('/upload', upload.single('csvFile'), async (req, res, next) => {
       if (allLines[i].length) {
         console.log('before save');
         const fields = allLines[i].split('\t');
-        const category = await Category.create({ name: fields[0], description: fields[1] });
+        const category = await Category.create({ name: fields[0], description: fields[1], owner: req.user._id });
         console.log('after save');
         console.log('Category created: ', category);
       }

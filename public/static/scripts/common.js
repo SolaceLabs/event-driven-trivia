@@ -12,21 +12,12 @@ const triviaGameChatInputElm = document.querySelector('#trivia-chat-input');
 const triviaGameChatEmojiBtn = document.querySelector('.trivia-chat-emoji-button');
 const triviaGameChatArea = document.querySelector('.trivia-chat-area');
 
-const triviaLoadScoreCard = document.getElementById('trivia-scorecard-load');
 const triviaResizeScoreCard = document.getElementById('trivia-scorecard-resize');
-
-const triviaLoadPerformanceCard = document.getElementById('trivia-performance-load');
 const triviaResizePerformanceCard = document.getElementById('trivia-performance-resize');
-
-const triviaLoadLeaderBoard = document.getElementById('trivia-leaderboard-load');
 const triviaResizeLeaderBoard = document.getElementById('trivia-leaderboard-resize');
-
-const triviaResizeReceiveBoard = document.getElementById('trivia-stats-received-resize');
-const triviaResizeSendBoard = document.getElementById('trivia-stats-sent-resize');
-
 const triviaResizeActivity = document.getElementById('trivia-activity-resize');
-
 const triviaResizeChat = document.getElementById('trivia-chat-resize');
+const triviaSwitchViewActivity = document.getElementById('trivia-activity-view-toggle');
 
 const fullscreen = {
   config: {
@@ -132,36 +123,6 @@ triviaResizePerformanceCard.addEventListener('webkitfullscreenchange', fullScree
 triviaResizePerformanceCard.addEventListener('mozfullscreenchange', fullScreenChangeHandler);
 triviaResizePerformanceCard.addEventListener('MSFullscreenChange', fullScreenChangeHandler);
 
-triviaResizeScoreCard.addEventListener('fullscreenchange', fullScreenChangeHandler);
-triviaResizeScoreCard.addEventListener('webkitfullscreenchange', fullScreenChangeHandler);
-triviaResizeScoreCard.addEventListener('mozfullscreenchange', fullScreenChangeHandler);
-triviaResizeScoreCard.addEventListener('MSFullscreenChange', fullScreenChangeHandler);
-
-triviaResizeLeaderBoard.addEventListener('fullscreenchange', fullScreenChangeHandler);
-triviaResizeLeaderBoard.addEventListener('webkitfullscreenchange', fullScreenChangeHandler);
-triviaResizeLeaderBoard.addEventListener('mozfullscreenchange', fullScreenChangeHandler);
-triviaResizeLeaderBoard.addEventListener('MSFullscreenChange', fullScreenChangeHandler);
-
-triviaResizeReceiveBoard.addEventListener('fullscreenchange', fullScreenChangeHandler);
-triviaResizeReceiveBoard.addEventListener('webkitfullscreenchange', fullScreenChangeHandler);
-triviaResizeReceiveBoard.addEventListener('mozfullscreenchange', fullScreenChangeHandler);
-triviaResizeReceiveBoard.addEventListener('MSFullscreenChange', fullScreenChangeHandler);
-
-triviaResizeSendBoard.addEventListener('fullscreenchange', fullScreenChangeHandler);
-triviaResizeSendBoard.addEventListener('webkitfullscreenchange', fullScreenChangeHandler);
-triviaResizeSendBoard.addEventListener('mozfullscreenchange', fullScreenChangeHandler);
-triviaResizeSendBoard.addEventListener('MSFullscreenChange', fullScreenChangeHandler);
-
-triviaResizeActivity.addEventListener('fullscreenchange', fullScreenChangeHandler);
-triviaResizeActivity.addEventListener('webkitfullscreenchange', fullScreenChangeHandler);
-triviaResizeActivity.addEventListener('mozfullscreenchange', fullScreenChangeHandler);
-triviaResizeActivity.addEventListener('MSFullscreenChange', fullScreenChangeHandler);
-
-triviaResizeChat.addEventListener('fullscreenchange', fullScreenChangeHandler);
-triviaResizeChat.addEventListener('webkitfullscreenchange', fullScreenChangeHandler);
-triviaResizeChat.addEventListener('mozfullscreenchange', fullScreenChangeHandler);
-triviaResizeChat.addEventListener('MSFullscreenChange', fullScreenChangeHandler);
-
 triviaResizePerformanceCard.addEventListener('click', () => {
   fullScreenChangeHandler(
     document.getElementById('trivia-performance'),
@@ -170,12 +131,22 @@ triviaResizePerformanceCard.addEventListener('click', () => {
   );
 });
 
+triviaResizeScoreCard.addEventListener('fullscreenchange', fullScreenChangeHandler);
+triviaResizeScoreCard.addEventListener('webkitfullscreenchange', fullScreenChangeHandler);
+triviaResizeScoreCard.addEventListener('mozfullscreenchange', fullScreenChangeHandler);
+triviaResizeScoreCard.addEventListener('MSFullscreenChange', fullScreenChangeHandler);
+
 triviaResizeScoreCard.addEventListener('click', () => {
   fullScreenChangeHandler(
     document.getElementById('trivia-score-card'),
     document.getElementById('trivia-score-card-table-container')
   );
 });
+
+triviaResizeLeaderBoard.addEventListener('fullscreenchange', fullScreenChangeHandler);
+triviaResizeLeaderBoard.addEventListener('webkitfullscreenchange', fullScreenChangeHandler);
+triviaResizeLeaderBoard.addEventListener('mozfullscreenchange', fullScreenChangeHandler);
+triviaResizeLeaderBoard.addEventListener('MSFullscreenChange', fullScreenChangeHandler);
 
 triviaResizeLeaderBoard.addEventListener('click', () => {
   fullScreenChangeHandler(
@@ -184,32 +155,41 @@ triviaResizeLeaderBoard.addEventListener('click', () => {
   );
 });
 
-triviaResizeReceiveBoard.addEventListener('click', () => {
-  fullScreenChangeHandler(
-    document.getElementById('trivia-stats-received'),
-    document.getElementById('trivia-stats-received-table-container')
-  );
-});
-
-triviaResizeSendBoard.addEventListener('click', () => {
-  fullScreenChangeHandler(
-    document.getElementById('trivia-stats-sent'),
-    document.getElementById('trivia-stats-sent-table-container')
-  );
-});
+triviaResizeActivity.addEventListener('fullscreenchange', fullScreenChangeHandler);
+triviaResizeActivity.addEventListener('webkitfullscreenchange', fullScreenChangeHandler);
+triviaResizeActivity.addEventListener('mozfullscreenchange', fullScreenChangeHandler);
+triviaResizeActivity.addEventListener('MSFullscreenChange', fullScreenChangeHandler);
 
 triviaResizeActivity.addEventListener('click', () => {
   fullScreenChangeHandler(
     document.getElementById('trivia-activity'),
-    document.getElementById('trivia-activity-canvas')
+    document.getElementById('trivia-activity-canvas'),
+    document.getElementById('trivia-activity-table-container')
   );
 });
+
+triviaResizeChat.addEventListener('fullscreenchange', fullScreenChangeHandler);
+triviaResizeChat.addEventListener('webkitfullscreenchange', fullScreenChangeHandler);
+triviaResizeChat.addEventListener('mozfullscreenchange', fullScreenChangeHandler);
+triviaResizeChat.addEventListener('MSFullscreenChange', fullScreenChangeHandler);
 
 triviaResizeChat.addEventListener('click', () => {
   fullScreenChangeHandler(
     document.getElementById('trivia-chat'),
     document.getElementById('trivia-chat-container')
   );
+});
+
+triviaSwitchViewActivity.addEventListener('click', () => {
+  const graph = document.getElementById('trivia-activity-graph');
+  const table = document.getElementById('trivia-activity-table');
+  if (graph.style.display === 'none') {
+    graph.style.display = 'inline-block';
+    table.style.display = 'none';
+  } else {
+    graph.style.display = 'none';
+    table.style.display = 'inline-block';
+  }
 });
 
 document.addEventListener('keydown', (event) => {

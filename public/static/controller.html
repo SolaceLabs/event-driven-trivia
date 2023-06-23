@@ -194,53 +194,36 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
     <div class="w3-panel">
       <div class="w3-row-padding" style="margin:0 -16px">
         <!-- game ACTIVITY -->
-        <div id="trivia-activity" class="w3-half">
+        <div id="trivia-activity">
           <div style="height:48px;">
             <h5 class="w3-left">Activity</h5>
             <button id="trivia-activity-resize" class="w3-right circular-button not-for-mobile" style="display:block; margin:10px 0; border-radius: 25px; "><i class="fas fa-expand"></i></button>
-            <button id="trivia-activity-filter" class="w3-right circular-button" style="display:block; margin:10px 0; border-radius: 25px; "><i class="fas fa-filter"></i></button>
+            <button id="trivia-activity-view-toggle" class="w3-right circular-button" style="margin:10px 0; border-radius: 25px; "><i class="fa fa-modx"></i></button>
           </div>
-          <div class="w3-card-4 w3-white" style="min-height:320px;width: 100%;height: 100%;display:flex;justify-content:center;align-items:center; ">
-            <div style="display: inline-block;position: relative;height:100%; width: 100%;">
-              <div id="trivia-activity-container" class="w3-light-grey" style="display: flex;align-items: center;height:100%; width: 100%;">
+          <div id="trivia-activity-chart" class="w3-card-4 w3-white" style="min-height:320px;width: 100%;height: 100%;display:flex;justify-content:center;align-items:center; ">
+            <div id="trivia-activity-graph" style="display: none;position: relative;height:100%; width: 100%;">
+              <div id="trivia-activity-container" class="w3-light-grey" style="display: flex;align-items: center; min-height: 295px; height:100%; width: 100%;">
                 <canvas id="trivia-activity-canvas" class="trivia-leader-board-table w3-card-4 w3-white" style="height:320px;overflow: scroll;"></canvas>
               </div>
+              <div class="slidecontainer">
+                <span class="slidecounter" id="slider-start"></span>
+                <input type="range" min="1" value="1" class="slider" id="myRange">
+                <span class="slidecounter"  id="slider-end"></span>
+              </div>            
             </div>
-          </div>
-        </div>
-        <!-- game STATS -->
-        <div id="trivia-stats-sent" class="w3-quarter">
-          <div style="height:48px;">
-            <h5 class="w3-left">Events Published</h5>
-            <button id="trivia-stats-sent-resize" class="w3-right circular-button not-for-mobile" style="display:block; margin:10px 0; border-radius: 25px; "><i class="fas fa-expand"></i></button>
-          </div>
-          <div class="w3-card-4 w3-white" style="min-height:320px;width: 100%;display:flex;justify-content:center;align-items:center; ">
-            <div style="display: inline-block;position: relative;height:100%; width: 100%;">
-              <div id="trivia-stats-sent-table-container" class="fixTableHead w3-card-4 w3-white" style="height:320px;overflow: scroll;">
-                <table class="w3-table w3-bordered  w3-card-4 w3-white">
-                  <thead class="w3-bordered w3-card w3-white"><tr><th>Category</th><th>Count</th></tr></thead>
-                  <tbody id="trivia-stats-sent-table" >
-                  </tbody>
-                </table>    
+            <div id="trivia-activity-table" class="w3-card-4 w3-white" style="display: inline-block; min-height:320px;width: 100%;height: 100%;display:flex;justify-content:center;align-items:center; ">
+              <div class="w3-card-4 w3-white" style="min-height:320px;width: 100%;display:flex;justify-content:center;align-items:center; ">
+                <div style="display: inline-block;position: relative;height:100%; width: 100%;">
+                  <div id="trivia-activity-table-container" class="fixTableHead trivia-activity-table w3-card-4 w3-white" style="height:320px;">
+                    <table class="w3-table w3-bordered  w3-card-4 w3-white">
+                      <thead class="w3-bordered w3-card w3-white"><tr><th></th><th>Timestamp</th><th>Event</th></tr></thead>
+                      <tbody id="trivia-activity-table-body" style="overflow-y: scroll;">
+                      </tbody>
+                    </table>    
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-        <div id="trivia-stats-received" class="w3-quarter">
-          <div style="height:48px;">
-            <h5 class="w3-left">Events Received</h5>
-            <button id="trivia-stats-received-resize" class="w3-right circular-button not-for-mobile" style="display:block; margin:10px 0; border-radius: 25px; "><i class="fas fa-expand"></i></button>
-          </div>
-          <div class="w3-card-4 w3-white" style="min-height:320px;width: 100%;display:flex;justify-content:center;align-items:center; ">
-            <div style="display: inline-block;position: relative;height:100%; width: 100%;">
-              <div id="trivia-stats-received-table-container" class="fixTableHead w3-card-4 w3-white" style="height:320px;overflow: scroll;">
-                <table class="w3-table w3-bordered  w3-card-4 w3-white">
-                  <thead class="w3-bordered w3-card w3-white"><tr><th>Category</th><th>Count</th></tr></thead>
-                  <tbody id="trivia-stats-received-table" >
-                  </tbody>
-                </table>    
-              </div>
-            </div>
+            </div>  
           </div>
         </div>
       </div>

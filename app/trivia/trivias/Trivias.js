@@ -14,9 +14,10 @@ import pink from '@material-ui/core/colors/pink';
 import EditIcon from '@material-ui/icons/EditSharp';
 import CopyIcon from '@material-ui/icons/FileCopySharp';
 import DeleteIcon from '@material-ui/icons/DeleteSharp';
+import DeletedIcon from '@material-ui/icons/DeleteSweepSharp';
 import LockOpenIcon from '@material-ui/icons/LockOpenSharp';
 import LiveHelpIcon from '@material-ui/icons/LiveHelpSharp';
-import EmojiEventsSharpIcon from '@material-ui/icons/EmojiEventsSharp';
+import ShareIcon from '@material-ui/icons/ShareSharp';
 import ViewCarouselIcon from '@material-ui/icons/ViewCarousel';
 import green from '@material-ui/core/colors/green';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -83,6 +84,12 @@ const styles = theme => ({
       fill: pink[400],
     }
   },
+  shared: {
+    color: pink[400],
+    '& svg': {
+      fill: pink[400],
+    }
+  },
 });
 
 /*
@@ -102,20 +109,26 @@ function Trivias(props) {
   const [variant, setVariant] = useState('');
   const [message, setMessage] = useState('');
   const [showQRCode, setShowQRCode] = useState(false);
-  const [showWinners, setShowWinners] = useState(false);
   const [showAdminQRCode, setAdminShowQRCode] = useState(false);
   const [rowsSelected, setRowsSelected] = useState([]);
   const [rowsDeleted, setRowsDeleted] = useState([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showCloneDialog, setShowCloneDialog] = useState(false);
   const [showReopenDialog, setShowReopenDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [reopenAllowed, setReopenAllowed] = useState(false);
   const [editAllowed, setEditAllowed] = useState(false);
   const [deleteAllowed, setDeleteAllowed] = useState(false);
+  const [undeleteAllowed, setUndeleteAllowed] = useState(false);
   const [cloneAllowed, setCloneAllowed] = useState(false);
+  const [shareAllowed, setShareAllowed] = useState(false);
+  const [unshareAllowed, setUnshareAllowed] = useState(false);
   const [showDeleted, setShowDeleted] = useState(true);
   const { classes } = props;
   const [anchorEl2, setAnchorEl2] = React.useState(null);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [count, setCount] = useState(10);
+  const [page, setPage] = useState(0);
   const openRowMenu = Boolean(anchorEl2);
 
   const updateResult = React.useCallback((_variant, _message) => {
@@ -145,6 +158,7 @@ function Trivias(props) {
       }
       console.log('Trivias', response1.data);
       setTrivias(response1.data);
+      setCount(response1.data.length);
     }
   }, [showDeleted]);
 
@@ -212,6 +226,7 @@ function Trivias(props) {
       }
       console.log('Trivias', response1.data);
       setTrivias(response1.data);
+      setCount(response1.data.length);
       setCurrentRow(false);
     }
   };
@@ -271,7 +286,12 @@ function Trivias(props) {
   );
 
   const buildCollectWinners = (data) => {
-    let result = <div>Hmm..</div>;
+    let result = <div>
+      <Typography variant="caption" className={classes.desc} gutterBottom>
+        Top <b>{data[16]}</b>
+      </Typography>
+    </div>;
+
     if (data[15] && data[9] === 'COMPLETED' && data[16] && data[17].length) {
       let names = '';
       const winners = [];
@@ -298,14 +318,6 @@ function Trivias(props) {
       </div>;
     }
 
-    if (data[15] && data[9] !== 'COMPLETED') {
-      result = <div>
-        <Typography variant="caption" className={classes.desc} gutterBottom>
-          Top <b>{data[16]}</b>
-        </Typography>
-      </div>;
-    }
-
     return result;
   };
 
@@ -315,13 +327,16 @@ function Trivias(props) {
     ? <Typography variant="caption" className={Type.bold}><del className={classes.deleted}><b>{name}</b></del></Typography>
     : <Typography variant="caption" className={Type.bold}>{name}</Typography>);
 
-  const getTriviaName = (isDeleted, name, description) => (isDeleted
-    ? <div>
-      <Typography variant="caption" className={Type.bold}><del className={classes.deleted}><b>{name}</b></del></Typography><br/>
+  const getTriviaName = (isShared, isDeleted, name, description) => (isDeleted
+    ? <div className={classes.deleted}>
+      <DeletedIcon className={classes.deleted}/>
+      <Typography variant="caption" className={Type.bold}>&nbsp;<b>{name}</b></Typography><br/>
       <Typography variant="caption" className={Type.italic}><i>{description}</i></Typography>
     </div>
     : <div>
-      <Typography variant="caption" className={Type.bold}><b>{name}</b></Typography><br/>
+      {isShared
+        && <ShareIcon color="secondary"/>}
+      <Typography variant="caption" className={Type.bold}>&nbsp;<b>{name}</b></Typography><br/>
       <Typography variant="caption" className={Type.italic}><i>{description}</i></Typography>
     </div>);
 
@@ -356,6 +371,20 @@ function Trivias(props) {
     setCurrentRow(false);
     setRowsSelected([]);
     setShowCloneDialog(false);
+  };
+
+  const onRowShareConfirm = async () => {
+    const id = currentRow[0];
+    const response = await api.toggleTriviaShare({ id });
+    if (!response.success) {
+      updateResult('error', response.message);
+    } else {
+      updateResult('success', response.message);
+    }
+    refreshTrivias();
+    setCurrentRow(false);
+    setRowsSelected([]);
+    setShowShareDialog(false);
   };
 
   const onRowReopenConfirm = async () => {
@@ -393,6 +422,13 @@ function Trivias(props) {
     setShowCloneDialog(false);
   };
 
+  const onRowShareCancel = () => {
+    console.log('Trivia share cancelled');
+    setCurrentRow(false);
+    setRowsSelected([]);
+    setShowShareDialog(false);
+  };
+
   const columns = [
     {
       name: 'Id', // 0
@@ -404,7 +440,7 @@ function Trivias(props) {
         filterOptions: { fullWidth: true },
         customBodyRender: (value, tableMeta, updateValue) => (
           <React.Fragment >
-            {getTriviaName(tableMeta.rowData[14], tableMeta.rowData[1], tableMeta.rowData[2])}
+            {getTriviaName(tableMeta.rowData[18], tableMeta.rowData[14], tableMeta.rowData[1], tableMeta.rowData[2])}
           </React.Fragment>
         )
       }
@@ -439,6 +475,7 @@ function Trivias(props) {
       name: 'Top Performers', // 15, 16
       options: {
         filter: false,
+        sort: false,
         customBodyRender: (value, tableMeta, updateValue) => (
           <React.Fragment>
             {buildCollectWinners(tableMeta.rowData)}
@@ -501,11 +538,12 @@ function Trivias(props) {
       name: 'Action',
       options: {
         filter: false,
+        sort: false,
         viewColumns: true,
         customBodyRender: (value, tableMeta, updateValue) => (
           <React.Fragment >
             <Tooltip title={'Build Questions'}>
-              <IconButton className={classes.iconButton} variant="outlined" color="secondary" disabled={tableMeta.rowData[14]}
+              <IconButton className={classes.iconButton} variant="outlined" color="secondary"
                 onClick={(e) => {
                   if (tableMeta.rowData[14]) {
                     updateResult('warning', 'Trivia is marked as deleted, not supported');
@@ -523,7 +561,7 @@ function Trivias(props) {
               </IconButton>
             </Tooltip>
             <Tooltip title={'Preview Trivia'}>
-              <IconButton className={classes.iconButton} variant="outlined" color="secondary" disabled={tableMeta.rowData[14]}
+              <IconButton className={classes.iconButton} variant="outlined" color="secondary"
                 onClick={(e) => {
                   if (tableMeta.rowData[14]) {
                     updateResult('warning', 'Trivia is marked as deleted, not supported');
@@ -545,7 +583,7 @@ function Trivias(props) {
               </IconButton>
             </Tooltip>
             <Tooltip title={'Player QR Code'}>
-              <IconButton className={classes.iconButton} variant="outlined" style={{ color: '#11C7AA' }} disabled={tableMeta.rowData[14]}
+              <IconButton className={classes.iconButton} variant="outlined" style={{ color: '#11C7AA' }}
                 onClick={(e) => {
                   if (tableMeta.rowData[14]) {
                     updateResult('warning', 'Trivia is marked as deleted, not supported');
@@ -562,7 +600,7 @@ function Trivias(props) {
               </IconButton>
             </Tooltip>
             <Tooltip title={'Admin QR Code'}>
-              <IconButton className={classes.iconButton} variant="outlined" style={{ color: '#f96c04' }} disabled={tableMeta.rowData[14]}
+              <IconButton className={classes.iconButton} variant="outlined" style={{ color: '#f96c04' }}
                 onClick={(e) => {
                   if (tableMeta.rowData[14]) {
                     updateResult('warning', 'Trivia is marked as deleted, not supported');
@@ -578,20 +616,7 @@ function Trivias(props) {
                 <QRCodeIcon key="adminQR" width="16" height="16"/>
               </IconButton>
             </Tooltip>
-            {currentRow[15] && currentRow[17] && currentRow[17].length
-            && <Tooltip title={'Winners'}>
-              <IconButton className={classes.iconButton} variant="outlined" style={{ color: '#f96c04' }}
-                onClick={(e) => {
-                  if (tableMeta.rowData[14]) {
-                    updateResult('warning', 'Trivia is marked as deleted, not supported');
-                    return;
-                  }
-                  setCurrentRow(tableMeta.rowData);
-                  setShowWinners(true);
-                }}>
-                <EmojiEventsSharpIcon key="showWinners" width="16" height="16"/>
-              </IconButton>
-            </Tooltip>}
+
             <IconButton
               aria-label="more"
               aria-controls="long-menu"
@@ -603,14 +628,23 @@ function Trivias(props) {
                 else setReopenAllowed(false);
 
                 if (tableMeta.rowData[14] || tableMeta.rowData[9] === 'COMPLETED' || tableMeta.rowData[9] === 'ABORTED'
-                    || tableMeta.rowData[9] === 'EXPIRED' || tableMeta.rowData[9] === 'STARTED') setEditAllowed(false);
+                    || tableMeta.rowData[9] === 'EXPIRED' || tableMeta.rowData[9] === 'STARTED' || tableMeta.rowData[14]) setEditAllowed(false);
                 else setEditAllowed(true);
 
-                if (tableMeta.rowData[9] === 'STARTED') setDeleteAllowed(false);
+                if (tableMeta.rowData[9] === 'STARTED' || tableMeta.rowData[14]) setDeleteAllowed(false);
                 else setDeleteAllowed(true);
 
-                if (deletedCategories.includes(tableMeta.rowData[4])) setCloneAllowed(false);
+                if (tableMeta.rowData[14]) setUndeleteAllowed(true);
+                else setUndeleteAllowed(false);
+
+                if (tableMeta.rowData[14] || deletedCategories.includes(tableMeta.rowData[4])) setCloneAllowed(false);
                 else setCloneAllowed(true);
+
+                if (tableMeta.rowData[18] || tableMeta.rowData[14] || !tableMeta.rowData[5].length) setShareAllowed(false);
+                else setShareAllowed(true);
+
+                if (tableMeta.rowData[18] && !tableMeta.rowData[18]) setUnshareAllowed(true);
+                else setUnshareAllowed(false);
 
                 handleClickRowMenu(e);
               }}
@@ -625,7 +659,7 @@ function Trivias(props) {
               onClose={handleCloseRowMenu}
               PaperProps={{
                 style: {
-                  maxHeight: ITEM_HEIGHT * 4.5,
+                  maxHeight: 256,
                   width: '20ch',
                 },
               }}
@@ -661,6 +695,24 @@ function Trivias(props) {
                     <CopyIcon/>
                   </IconButton> Clone
                 </MenuItem>}
+              {shareAllowed
+                && <MenuItem key={'Share' + tableMeta.rowData[0]} onClick={(e) => {
+                  handleCloseRowMenu();
+                  setShowShareDialog(true);
+                }}>
+                  <IconButton className={classes.iconButton} variant="outlined" color="secondary">
+                    <ShareIcon/>
+                  </IconButton> Share
+                </MenuItem>}
+              {unshareAllowed
+                && <MenuItem key={'Unshare' + tableMeta.rowData[0]} onClick={(e) => {
+                  handleCloseRowMenu();
+                  setShowShareDialog(true);
+                }}>
+                  <IconButton className={classes.iconButton} variant="outlined" color="secondary">
+                    <ShareIcon/>
+                  </IconButton> Unshare
+                </MenuItem>}
               {deleteAllowed
                 && <MenuItem key={'Delete' + tableMeta.rowData[0]} onClick={(e) => {
                   handleCloseRowMenu();
@@ -669,13 +721,27 @@ function Trivias(props) {
                 }}>
                   <IconButton className={classes.iconButton} variant="outlined" color="secondary">
                     <DeleteIcon/>
-                  </IconButton> Toggle Delete
+                  </IconButton> Delete
+                </MenuItem>}
+              {undeleteAllowed
+                && <MenuItem key={'Undelete' + tableMeta.rowData[0]} onClick={(e) => {
+                  handleCloseRowMenu();
+                  setRowsDeleted([]);
+                  setShowDeleteDialog(true);
+                }}>
+                  <IconButton className={classes.iconButton} variant="outlined" color="secondary">
+                    <DeleteIcon/>
+                  </IconButton> Undelete
                 </MenuItem>}
             </Menu>
           </React.Fragment>
         ),
         setCellProps: () => ({ style: { height: 'auto', overflow: 'unset' } }),
       },
+    },
+    {
+      name: '', // 0
+      options: { display: false, filter: false, viewColumns: false }
     },
     {
       name: '', // 0
@@ -721,7 +787,20 @@ function Trivias(props) {
     rowsSelected,
     print: false,
     download: false,
-    rowsPerPage: 10,
+    rowsPerPage,
+    rowsPerPageOptions: [5, 10, 25, 50],
+    count,
+    page,
+    jumpToPage: true,
+    onChangePage: currentPage => {
+      console.log('currentPage: ' + currentPage);
+      setPage(currentPage);
+    },
+    onChangeRowsPerPage: numberOfRows => {
+      console.log('numberOfRows: ' + numberOfRows);
+      setRowsPerPage(numberOfRows);
+      setPage(0);
+    },
     customToolbar: () => (
       <TriviasCustomToolbar
         showDeleted={showDeleted}
@@ -758,8 +837,8 @@ function Trivias(props) {
 
       {showDeleteDialog && !Object.keys(rowsDeleted).length
         && <AlertDialog
-          title={currentRow[8] === true ? 'Undelete Trivia(s)' : 'Delete Trivia(s)'}
-          description={currentRow[8] === true ? 'Are you sure you want to undelete selected Trivia(s)?' : 'Are you sure you want to delete selected Trivia(s)?'}
+          title={currentRow[14] === true ? 'Undelete Trivia' : 'Delete Trivia'}
+          description={currentRow[14] === true ? 'Are you sure you want to undelete selected Trivia?' : 'Are you sure you want to delete selected Trivia?'}
           cancel='Cancel'
           submit='Confirm'
           onSubmit={onRowsDeleteConfirm}
@@ -769,8 +848,8 @@ function Trivias(props) {
 
       {showDeleteDialog && Object.keys(rowsDeleted).length
         && <AlertDialog
-          title={'Toggle Deletion(s)'}
-          description={'Are you sure you want to delete/undelete selected Trivia(s)?'}
+          title={'Delete Trivias'}
+          description={'Are you sure you want to delete selected Trivias?'}
           cancel='Cancel'
           submit='Confirm'
           onSubmit={onRowsDeleteConfirm}
@@ -778,10 +857,21 @@ function Trivias(props) {
         />
       }
 
+      {showShareDialog
+        && <AlertDialog
+          title={currentRow[18] === true ? 'Unshare Trivia' : 'Share Trivia'}
+          description={currentRow[18] === true ? 'Are you sure you want to unshare selected Trivia?' : 'Are you sure you want to share selected Trivia?'}
+          cancel='Cancel'
+          submit='Confirm'
+          onSubmit={onRowShareConfirm}
+          onCancel={onRowShareCancel}
+        />
+      }
+
       {showReopenDialog
         && <AlertDialog
           title='Reopen Trivia'
-          description={'Are you sure you want to reopen selected Trivia - ' + currentRow[1] + '?'}
+          description={'Are you sure you want to reopen selected Trivia - "' + currentRow[1] + '"?'}
           cancel='Cancel'
           submit='Confirm'
           onSubmit={onRowReopenConfirm}
@@ -792,11 +882,22 @@ function Trivias(props) {
       {showCloneDialog
         && <AlertDialog
           title='Clone Trivia'
-          description={'Are you sure you want to clone selected Trivia - ' + currentRow[1] + '?'}
+          description={'Are you sure you want to clone selected Trivia - "' + currentRow[1] + '"?'}
           cancel='Cancel'
           submit='Confirm'
           onSubmit={onRowCloneConfirm}
           onCancel={onRowCloneCancel}
+        />
+      }
+
+      {showShareDialog
+        && <AlertDialog
+          title={currentRow[18] ? 'Unshare Trivia' : 'Share Trivia'}
+          description={'Are you sure you want to ' + (currentRow[18] ? ' stop sharing ' : 'share ') + ' the selected Trivia - "' + currentRow[1] + '"?'}
+          cancel='Cancel'
+          submit='Confirm'
+          onSubmit={onRowShareConfirm}
+          onCancel={onRowShareCancel}
         />
       }
 
@@ -819,13 +920,6 @@ function Trivias(props) {
           open={showAdminQRCode}
           close={closeAdminQRCode}
           data={currentRow}
-        />
-      }
-      {showWinners
-        && <ScrollDialog
-          content={'TODO'}
-          cancelNeeded={false}
-          okButtonText={'OK'}
         />
       }
       {showModal

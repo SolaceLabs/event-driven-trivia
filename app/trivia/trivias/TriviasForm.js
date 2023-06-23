@@ -9,6 +9,7 @@ import Grid from '@material-ui/core/Grid';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import InputLabel from '@material-ui/core/InputLabel';
+import SharedIcon from '@material-ui/icons/FolderShared';
 import MenuItem from '@material-ui/core/MenuItem';
 import { DateTimePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
@@ -167,6 +168,7 @@ function TriviasForm(props) {
       setCategories([]);
       return;
     }
+    // setCategories([{ _id: 0, name: '-- I opt for manual Category/Question creation --' }].concat(response.data));
     setCategories(response.data);
     setCountWinners(itemWinners);
     setCountWinners(itemQuestions);

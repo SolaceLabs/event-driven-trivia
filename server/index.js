@@ -64,6 +64,7 @@ consoleCallbacks.setConsoleClient(consoleClient);
 
 consoleClient.connect();
 consoleClient.subscribe('trivia/*/query/info/>', consoleCallbacks.onGameInfoCallback);
+// consoleClient.subscribe('trivia/*/query/stats/>', consoleCallbacks.onGameStatsCallback);
 consoleClient.subscribe('trivia/*/query/scorecard/>', consoleCallbacks.onScorecardCallback);
 consoleClient.subscribe('trivia/*/query/performance/>', consoleCallbacks.onPerformanceCallback);
 consoleClient.subscribe('trivia/*/query/leaderboard/>', consoleCallbacks.onLeaderboardCallback);
@@ -77,7 +78,7 @@ consoleClient.subscribe('trivia/*/update/answer/>', consoleCallbacks.onAnswerCal
 consoleClient.subscribe('trivia/*/update/user/>', consoleCallbacks.onUserUpdateCallback);
 consoleClient.subscribe('trivia/*/update/winner/>', consoleCallbacks.onWinnerUpdateCallback);
 consoleClient.subscribe('trivia/*/broadcast/gameended/>', consoleCallbacks.onGameEndedCallback);
-consoleClient.subscribe('trivia/*/broadcast/restart/>', consoleCallbacks.onGameRestartCallback);
+consoleClient.subscribe('trivia/*/broadcast/restart', consoleCallbacks.onGameRestartCallback);
 consoleCallbacks.setupPlayerSynch();
 
 const monitorClient = new ConsoleClient('monitor');
@@ -111,6 +112,11 @@ const questionRoutes = require('./routes/questionRoutes');
 app.use('/api/trivia/questions', verifyToken, (req, res, next) => {
   next();
 }, questionRoutes);
+
+const dashboardRoutes = require('./routes/dashboardRoutes');
+app.use('/api/trivia/dashboard', verifyToken, (req, res, next) => {
+  next();
+}, dashboardRoutes);
 
 const triviaRoutes = require('./routes/triviaRoutes');
 app.use('/api/trivia/trivias', verifyToken, (req, res, next) => {

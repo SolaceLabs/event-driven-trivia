@@ -22,7 +22,7 @@ export const AccountActivationTrivia = loadable(() => import ('../trivia/users/A
 });
 
 // Trivia Question Category
-export const TriviaDashboard = loadable(() => import ('../trivia/Dashboard'), {
+export const Dashboard = loadable(() => import ('../trivia/Dashboard'), {
   fallback: <Loading />,
 });
 export const Trivia = loadable(() => import ('../trivia/Trivia'), {

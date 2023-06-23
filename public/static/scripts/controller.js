@@ -21,10 +21,15 @@ const stats = {
 let client;
 let controllerStartTimer;
 let eventCount = 0;
+let sliderPos = 0;
 let ctxActivityLive;
 let gameActivityChart;
 let ctxPerformanceLive;
 let gamePerformanceChart;
+
+let slider = document.getElementById('myRange');
+let sliderStart = document.getElementById('slider-start');
+let sliderEnd = document.getElementById('slider-end');
 
 function getQuestionCount() {
   return window.no_of_questions ? window.no_of_questions : 0;
@@ -101,7 +106,8 @@ function updateGameChat(message, controller = false) {
     month: 'short', // numeric, 2-digit, long, short, narrow
     hour: 'numeric', // numeric, 2-digit
     minute: 'numeric', // numeric, 2-digit
-    second: 'numeric', // numeric, 2-digit
+    second: 'numeric', // numeric, 2-digit,
+    fractionalSecondDigits: 3 // numeric, 3-digit
   });
 
   const temp = `<li class="w3-padding-2">
@@ -216,34 +222,74 @@ function sleep(milliseconds) {
 
 function gameActivityUpdate(message) {
   const payload = JSON.parse(message.payloadString);
-  const selected = (!window.eventGroups || !window.eventGroups.length) ? [payload.category] : window.eventGroups.filter(g => g.selected).map(gp => gp.category);
-  if (selected.indexOf(payload.category) < 0) return;
-
-  gameActivityChart.data.topics.push(payload.topic);
-  gameActivityChart.data.categories.push(payload.category);
+  gameActivityChart.data.payloads.push(payload);
 
   gameActivityChart.data.labels.push('');
+  gameActivityChart.data.topics.push(payload.topic);
+  gameActivityChart.data.categories.push(payload.category);
   gameActivityChart.data.datasets[0].data.push(payload.axis);
   gameActivityChart.data.datasets[0].pointBackgroundColor.push(payload.background);
   gameActivityChart.data.datasets[0].pointBorderColor.push('#00cc91');
 
   // re-render the chart
-  if (++eventCount > 50) {
-    gameActivityChart.data.labels.shift();
-    gameActivityChart.data.topics.shift();
-    gameActivityChart.data.categories.shift();
-    gameActivityChart.data.datasets[0].pointBackgroundColor.shift();
-    gameActivityChart.data.datasets[0].pointBorderColor.shift();
-    gameActivityChart.data.datasets[0].data.shift();
+  if (++eventCount > 20) {
+    gameActivityChart.data.labels = [];
+    gameActivityChart.data.topics = [];
+    gameActivityChart.data.categories = [];
+    gameActivityChart.data.datasets[0].pointBackgroundColor = [];
+    gameActivityChart.data.datasets[0].pointBorderColor = [];
+    gameActivityChart.data.datasets[0].data = [];
+    for (let i = eventCount - 20; i < eventCount; i++) {
+      const pl = gameActivityChart.data.payloads[i];
+      gameActivityChart.data.labels.push('');
+      gameActivityChart.data.topics.push(pl.topic);
+      gameActivityChart.data.categories.push(pl.category);
+      gameActivityChart.data.datasets[0].data.push(pl.axis);
+      gameActivityChart.data.datasets[0].pointBackgroundColor.push(pl.background);
+      gameActivityChart.data.datasets[0].pointBorderColor.push('#00cc91');
+    }
   }
-  // sleep(200);
+
+  sliderPos = eventCount - 20;
+  if (sliderPos < 0) sliderPos = 1;
+  if (slider) {
+    slider.setAttribute('value', sliderPos);
+    slider.setAttribute('max', eventCount);
+    sliderStart.innerHTML = 1;
+    sliderEnd.innerHTML = eventCount;
+    slider.style.display = 'none';
+    slider.style.display = 'block';
+  }
+
   gameActivityChart.update();
+
+  // update table
+  const date = new Date(payload.ts);
+  const timestamp = date.toLocaleString('en-US', {
+    weekday: 'short', // long, short, narrow
+    day: 'numeric', // numeric, 2-digit
+    year: 'numeric', // numeric, 2-digit
+    month: 'short', // numeric, 2-digit, long, short, narrow
+    hour: 'numeric', // numeric, 2-digit
+    minute: 'numeric', // numeric, 2-digit
+    second: 'numeric', // numeric, 2-digit
+    fractionalSecondDigits: 3 // numeric, 3-digit
+  });
+
+  const table = document.getElementById('trivia-activity-table-body');
+  const item = `<tr>
+                <td><span class="w3-medium fa-stack fa-lg"><i style="color: ${payload.background};" class="fa fa-square-o fa-stack-2x"></i><i class=${payload.action === 'send' ? "'fa fa-arrow-up fa-stack-1x'" : "'fa fa-arrow-down fa-stack-1x'"}"></i></span></td>
+                <td><span class="w3-medium">${timestamp}</span></td>
+                <td><span class="w3-padding-small">${payload.topic}</span></td>
+              </tr>`;
+  table.insertAdjacentHTML('afterbegin', item);
+
   updateHappening('Activity: [ ' + payload.topic + ', ' + payload.topic + ', ' + payload.category + ' ]', INFO);
 
-  Object.keys(stats[payload.action]).includes(payload.category)
-    ? stats[payload.action][payload.category] += 1
-    : stats[payload.action][payload.category] = 1;
-  statsUpdate(payload.action);
+  // Object.keys(stats[payload.action]).includes(payload.category)
+  //   ? stats[payload.action][payload.category] += 1
+  //   : stats[payload.action][payload.category] = 1;
+  // statsUpdate(payload.action);
 }
 
 function gamePerformanceUpdate(message) {
@@ -616,34 +662,34 @@ window.addEventListener('load', () => {
     document.querySelector('#trivia-progress-title').innerHTML = 'Start Trivia';
   }
 
-  document.querySelector('#trivia-activity-filter').addEventListener('click', () => {
-    if (!window.eventGroups || !window.eventGroups.length) {
-      showSnack('Event Groups not available');
-      return;
-    }
+  // document.querySelector('#trivia-activity-filter').addEventListener('click', () => {
+  //   if (!window.eventGroups || !window.eventGroups.length) {
+  //     showSnack('Event Groups not available');
+  //     return;
+  //   }
 
-    const eventGroupsList = document.querySelector('#trivia-event-groups');
-    let first = eventGroupsList.firstElementChild;
-    while (first) {
-      first.remove();
-      first = eventGroupsList.firstElementChild;
-    }
+  //   const eventGroupsList = document.querySelector('#trivia-event-groups');
+  //   let first = eventGroupsList.firstElementChild;
+  //   while (first) {
+  //     first.remove();
+  //     first = eventGroupsList.firstElementChild;
+  //   }
 
-    for (i = 0; i < window.eventGroups.length; i++) {
-      const entry = window.eventGroups[i];
-      entry.selected !== undefined ? entry.selected : true;
-      eventGroupsList.insertAdjacentHTML('beforeend',
-        `<label class="cmcontainer">
-          <span class="dot" style="background-color: ${entry.background}"></span>
-          <span class="w3-medium"><i class=${entry.action === 'send' ? "'fa fa-arrow-up'" : "'fa fa-arrow-down'"}"></i></span>
-          ${entry.category}
-          <input type="checkbox" ${entry.selected ? 'checked' : ''} onclick={updateEventGroup(${i})}>
-          <span class="checkmark"></span>
-        </label>`);
-    }
+  //   for (i = 0; i < window.eventGroups.length; i++) {
+  //     const entry = window.eventGroups[i];
+  //     entry.selected !== undefined ? entry.selected : true;
+  //     eventGroupsList.insertAdjacentHTML('beforeend',
+  //       `<label class="cmcontainer">
+  //         <span class="dot" style="background-color: ${entry.background}"></span>
+  //         <span class="w3-medium"><i class=${entry.action === 'send' ? "'fa fa-arrow-up'" : "'fa fa-arrow-down'"}"></i></span>
+  //         ${entry.category}
+  //         <input type="checkbox" ${entry.selected ? 'checked' : ''} onclick={updateEventGroup(${i})}>
+  //         <span class="checkmark"></span>
+  //       </label>`);
+  //   }
 
-    document.getElementById('trivia-select-events').style.display = 'block';
-  });
+  //   document.getElementById('trivia-select-events').style.display = 'block';
+  // });
 
   document.querySelector('.power-button').addEventListener('click', () => {
     // document.querySelector('.power-button')
@@ -669,6 +715,7 @@ window.addEventListener('load', () => {
   gameActivityChart = new Chart(ctxActivityLive, {
     type: 'line',
     data: {
+      payloads: [],
       topics: [],
       categories: [],
       labels: [],
@@ -706,9 +753,25 @@ window.addEventListener('load', () => {
         }]
       },
       tooltips: {
+        displayColors: false,
         callbacks: {
           title(t, d) { return 'Event: ' + d.topics[t[0].index]; },
-          label(t, d) { return 'Category: ' + d.categories[t.index]; }
+          label(t, d) { return null; },
+          footer(t, d) {
+            const date = new Date(d.payloads[t[0].index].ts);
+            const timestamp = date.toLocaleString('en-US', {
+              weekday: 'short', // long, short, narrow
+              day: 'numeric', // numeric, 2-digit
+              year: 'numeric', // numeric, 2-digit
+              month: 'short', // numeric, 2-digit, long, short, narrow
+              hour: 'numeric', // numeric, 2-digit
+              minute: 'numeric', // numeric, 2-digit
+              second: 'numeric', // numeric, 2-digit
+              fractionalSecondDigits: 3 // numeric, 3-digit
+            });
+
+            return timestamp;
+          }
         }
       }
     }
@@ -740,7 +803,8 @@ window.addEventListener('load', () => {
       scales: {
         yAxes: [{
           ticks: {
-            beginAtZero: true
+            beginAtZero: true,
+            display: false
           }
         }]
       },
@@ -764,4 +828,40 @@ window.addEventListener('load', () => {
       }
     }
   });
+
+  slider = document.getElementById('myRange');
+  sliderStart = document.getElementById('slider-start');
+  sliderEnd = document.getElementById('slider-end');
+
+  slider.oninput = (event) => {
+    sliderPos = parseInt(event.currentTarget.value, 10);
+    console.log('Slider: ', sliderPos);
+
+    gameActivityChart.data.labels = [];
+    gameActivityChart.data.topics = [];
+    gameActivityChart.data.categories = [];
+    gameActivityChart.data.datasets[0].pointBackgroundColor = [];
+    gameActivityChart.data.datasets[0].pointBorderColor = [];
+    gameActivityChart.data.datasets[0].data = [];
+    const start = sliderPos;
+    let end = start + 20;
+    if (end > eventCount) end = eventCount;
+    for (let i = start; i < end; i++) {
+      const payload = gameActivityChart.data.payloads[i];
+      gameActivityChart.data.labels.push('');
+      gameActivityChart.data.topics.push(payload.topic);
+      gameActivityChart.data.categories.push(payload.category);
+      gameActivityChart.data.datasets[0].data.push(payload.axis);
+      gameActivityChart.data.datasets[0].pointBackgroundColor.push(payload.background);
+      gameActivityChart.data.datasets[0].pointBorderColor.push('#00cc91');
+    }
+    sliderPos = start;
+    slider.setAttribute('value', sliderPos);
+    slider.setAttribute('min', 1);
+    slider.setAttribute('max', eventCount);
+    slider.style.display = 'none';
+    slider.style.display = 'block';
+
+    gameActivityChart.update();
+  };
 });

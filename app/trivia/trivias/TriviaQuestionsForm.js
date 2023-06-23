@@ -107,8 +107,8 @@ function TriviaQuestionsForm(props) {
 
   const countNames = {
     0: '-- Select --',
-    // 1: 'One',
-    // 2: 'Two',
+    1: 'One',
+    2: 'Two',
     3: 'Three',
     4: 'Four',
     5: 'Five',
@@ -127,7 +127,7 @@ function TriviaQuestionsForm(props) {
 
   useEffect(async () => {
     console.log(dataState);
-  }, []);
+  }, [dataState]);
 
   const updateResult = React.useCallback((_variant, _message) => {
     console.log('updateResult called');
@@ -186,6 +186,7 @@ function TriviaQuestionsForm(props) {
 
   const handleQuestionsMode = (event, newMode) => {
     console.log(newMode);
+    if (!newMode) return;
     setDataState({
       ...dataState,
       mode: newMode
@@ -277,8 +278,8 @@ function TriviaQuestionsForm(props) {
                     }}
                   >
                     <MenuItem value={0}>{countNames[0]}</MenuItem>
-                    {/* <MenuItem value={1}>{countNames[1]}</MenuItem>
-                    <MenuItem value={2}>{countNames[2]}</MenuItem> */}
+                    <MenuItem value={1}>{countNames[1]}</MenuItem>
+                    <MenuItem value={2}>{countNames[2]}</MenuItem>
                     <MenuItem value={3}>{countNames[3]}</MenuItem>
                     <MenuItem value={4}>{countNames[4]}</MenuItem>
                     <MenuItem value={5}>{countNames[5]}</MenuItem>
@@ -321,7 +322,7 @@ function TriviaQuestionsForm(props) {
                   <ToggleButton value="RANDOM">
                     RANDOM
                   </ToggleButton>
-                  <ToggleButton value="SELECTIVE" disabled>
+                  <ToggleButton value="SELECTIVE">
                     SELECTIVE
                   </ToggleButton>
                 </ToggleButtonGroup>

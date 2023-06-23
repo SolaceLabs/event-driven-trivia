@@ -1,104 +1,114 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles, alpha } from '@material-ui/core/styles';
-
+import QuestionAnswer from '@material-ui/icons/QuestionAnswer';
+import LiveHelp from '@material-ui/icons/LiveHelp';
+import Category from '@material-ui/icons/Category';
+import TouchApp from '@material-ui/icons/TouchApp';
 import Grid from '@material-ui/core/Grid';
-import {
-  BarChart, Bar,
-  AreaChart, Area,
-  LineChart, Line,
-} from 'recharts';
-import AssignmentReturned from '@material-ui/icons/AssignmentReturned';
-import { injectIntl } from 'react-intl';
+import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
+import Snackbar from '@material-ui/core/Snackbar';
 import TileCounterWidget from './TileCounterWidget';
-import styles from '../styles/widget-jss';
+import SnackBarWrapper from '../common/SnackBarWrapper';
 
-export const data1 = [
-  {
-    name: 'Page A',
-    uv: 4000,
-    pv: 2400,
-    amt: 2400
+const styles = theme => ({
+  rootCounter: {
+    flexGrow: 1,
   },
-  {
-    name: 'Page B',
-    uv: 3000,
-    pv: 1398,
-    amt: 2210
+  largeIcon: {
+    fontSize: 64
   },
-  {
-    name: 'Page C',
-    uv: 2000,
-    pv: 9800,
-    amt: 2290
-  },
-  {
-    name: 'Page D',
-    uv: 2780,
-    pv: 3908,
-    amt: 2000
-  },
-  {
-    name: 'Page E',
-    uv: 1890,
-    pv: 4800,
-    amt: 2181
-  },
-];
+});
+
+const api = new TriviaWrapper();
 
 function DashboardCounter(props) {
-  const { classes, intl, theme } = props;
+  const { classes } = props;
+  const [metrics, setMetrics] = useState({
+    trivias: 'N/A', categories: 'N/A', questions: 'N/A', engagements: 'N/A'
+  });
+  const [openStyle, setOpen] = useState(false);
+  const [variant, setVariant] = useState('');
+  const [message, setMessage] = useState('');
+  const [showDeleted, setShowDeleted] = useState(false);
+
+  const updateResult = React.useCallback((_variant, _message) => {
+    console.log('updateResult called');
+    setVariant(_variant);
+    setMessage(_message);
+    setOpen(true);
+  });
+
+  const handleCloseStyle = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
+  useEffect(async () => {
+    const response = await api.getDashboardMetrics();
+    if (!response.success) {
+      setMetrics({
+        trivias: 'N/A', categories: 'N/A', questions: 'N/A', engagements: 'N/A'
+      });
+      updateResult('error', response.message);
+    } else {
+      setMetrics(response.data);
+      console.log('SharedTrivias', response.data);
+    }
+  }, [showDeleted]);
+
   return (
     <div className={classes.rootCounter}>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        open={openStyle}
+        autoHideDuration={6000}
+        onClose={() => handleCloseStyle()}
+      >
+        <SnackBarWrapper
+          onClose={() => handleCloseStyle()}
+          variant={variant}
+          message={message}
+          className={classes.margin}
+        />
+      </Snackbar>
+
       <Grid container spacing={2}>
         <Grid item md={3} xs={6}>
           <TileCounterWidget
-            color="secondary-dark"
-            start={0}
-            end={20}
-            duration={3}
+            value={metrics.trivias}
             title={'Trivias'}
           >
-            <AssignmentReturned className={classes.counterIcon} />
+            <QuestionAnswer className={classes.largeIcon} />
           </TileCounterWidget>
         </Grid>
         <Grid item md={3} xs={6}>
           <TileCounterWidget
-            color="secondary-main"
-            start={0}
-            end={20}
-            duration={3}
+            value={metrics.categories}
             title={'Categories'}
           >
-            <BarChart width={100} height={40} data={data1}>
-              <Bar dataKey="uv" fill={theme.palette.secondary.main} />
-            </BarChart>
+            <Category className={classes.largeIcon} />
           </TileCounterWidget>
         </Grid>
         <Grid item md={3} xs={6}>
           <TileCounterWidget
-            color="secondary-main"
-            start={0}
-            end={321}
-            duration={3}
+            value={metrics.questions}
             title={'Questions'}
           >
-            <AreaChart width={100} height={60} data={data1}>
-              <Area type="monotone" dataKey="uv" stroke={theme.palette.secondary.main} fill={alpha(theme.palette.secondary.main, 0.5)} />
-            </AreaChart>
+            <LiveHelp className={classes.largeIcon} />
           </TileCounterWidget>
         </Grid>
         <Grid item md={3} xs={6}>
           <TileCounterWidget
-            color="secondary-main"
-            start={0}
-            end={82}
-            duration={3}
+            value={metrics.engagements}
             title={'Engagement'}
           >
-            <LineChart width={100} height={80} data={data1}>
-              <Line type="monotone" dataKey="pv" stroke={theme.palette.secondary.main} strokeWidth={2} />
-            </LineChart>
+            <TouchApp className={classes.largeIcon} />
           </TileCounterWidget>
         </Grid>
       </Grid>
@@ -108,8 +118,6 @@ function DashboardCounter(props) {
 
 DashboardCounter.propTypes = {
   classes: PropTypes.object.isRequired,
-  intl: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles, { withTheme: true })(injectIntl(DashboardCounter));
+export default withStyles(styles)(DashboardCounter);

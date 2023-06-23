@@ -35,7 +35,7 @@ const MembersShowHelp = (props) => {
 
   return (
     <Button className={classes.button} variant="contained" color="secondary" onClick={() => props.setShow(prev => !prev)}>
-      Help
+      Do More
     </Button>
   );
 };

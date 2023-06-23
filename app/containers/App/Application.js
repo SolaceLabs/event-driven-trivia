@@ -1,14 +1,14 @@
 import { PropTypes } from 'prop-types';
 import React, { useContext } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
-import Dashboard from '../Templates/Dashboard';
+import DashboardTemplate from '../Templates/DashboardTemplate';
 import {
   Member,
   Category,
   NotFound,
   Question,
   Trivia,
-  TriviaDashboard,
+  Dashboard,
   LoginTrivia
 } from '../pageListAsync';
 
@@ -19,19 +19,19 @@ function Application(props) {
   const ts = localStorage.getItem('ts') ? localStorage.getItem('ts') : new Date().getTime();
   const expired = (new Date().getTime()) - ts < 86400000;
   return (
-    <Dashboard history={history} changeMode={changeMode}>
+    <DashboardTemplate history={history} changeMode={changeMode}>
       <Switch>
         <Route exact path="/app"><Redirect to="/app/trivia/dashboard" /> </Route>
         <Route exact path="/app/trivia"><Redirect to="/app/trivia/dashboard" /> </Route>
-        <Route exact path="/app/trivia" component={TriviaDashboard} />
-        <Route exact path="/app/trivia/dashboard" component={TriviaDashboard} />
+        <Route exact path="/app/trivia" component={Dashboard} />
+        <Route exact path="/app/trivia/dashboard" component={Dashboard} />
         <Route exact path="/app/trivia/trivia" component={Trivia} />
         <Route exact path="/app/trivia/question" component={Question} />
         <Route exact path="/app/trivia/category" component={Category} />
         <Route exact path="/app/trivia/member" component={Member} />
         <Route component={NotFound} />
       </Switch>
-    </Dashboard>
+    </DashboardTemplate>
   );
 }
 

@@ -89,6 +89,12 @@ class TriviaWrapper {
     return response.data;
   }
 
+  async getSharedCategories(params = null) {
+    console.log('Fetching Shared Categories');
+    const response = await this.api('GET', 'categories/shared' + (params ? `?${params}` : ''));
+    return response.data;
+  }
+
   async getCategory(category) {
     console.log('Get Category');
     const response = await this.api('GET', `categories/${category.id}`);
@@ -122,6 +128,12 @@ class TriviaWrapper {
   async cloneCategory(category) {
     console.log('Clone Category');
     const response = await this.api('POST', `categories/clone/${category.id}`);
+    return response.data;
+  }
+
+  async toggleCategoryShare(category) {
+    console.log('Toggle Share Category');
+    const response = await this.api('POST', `categories/toggleshare/${category.id}`);
     return response.data;
   }
 
@@ -174,7 +186,25 @@ class TriviaWrapper {
     return response.data;
   }
 
+  async searchQuestions(phrase) {
+    console.log('Search Questions');
+    const response = await this.api('POST', 'questions/search', { phrase });
+    return response.data;
+  }
+
   // Trivias
+  async getUpcomingTrivias(params = null) {
+    console.log('Fetching Upcoming Trivias');
+    const response = await this.api('GET', 'trivias/upcoming' + (params ? `?${params}` : ''));
+    return response.data;
+  }
+
+  async getSharedTrivias(params = null) {
+    console.log('Fetching Shared Trivias');
+    const response = await this.api('GET', 'trivias/shared' + (params ? `?${params}` : ''));
+    return response.data;
+  }
+
   async getTrivias(params = null) {
     console.log('Fetching Trivias');
     const response = await this.api('GET', 'trivias' + (params ? `?${params}` : ''));
@@ -238,6 +268,19 @@ class TriviaWrapper {
   async cloneTrivia(trivia) {
     console.log('Clone Trivia');
     const response = await this.api('POST', `trivias/clone/${trivia.id}`);
+    return response.data;
+  }
+
+  async toggleTriviaShare(trivia) {
+    console.log('Toggle Share Trivia');
+    const response = await this.api('POST', `trivias/toggleshare/${trivia.id}`);
+    return response.data;
+  }
+
+  // Dashboard
+  async getDashboardMetrics() {
+    console.log('Fetching Dashboard Metrics');
+    const response = await this.api('GET', 'dashboard/metics');
     return response.data;
   }
 

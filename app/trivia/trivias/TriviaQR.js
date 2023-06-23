@@ -91,7 +91,7 @@ export default function TriviaQR(props) {
         <DialogContent dividers={scroll === 'paper'}>
           <Grid container alignItems="center" display="flex" justifyContent="center" direction="column" spacing={4}>
             <Grid item xs={12} sm={12}>
-              <a href={gameUrl}>{gameUrl}</a>
+              <a target="_blank" href={gameUrl}>{gameUrl}</a>
             </Grid>
             <Grid item xs={12} sm={12}>
               <Box

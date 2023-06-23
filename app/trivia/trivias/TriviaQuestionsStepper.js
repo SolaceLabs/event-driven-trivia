@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
+// eslint-disable-next-line no-shadow
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -14,6 +15,7 @@ import Typography from '@material-ui/core/Typography';
 import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
 import green from '@material-ui/core/colors/green';
 import classNames from 'classnames';
+import TriviaQuestionChooser from './TriviaQuestionChooser';
 
 function getSteps(count, current_questions, current_step) {
   let questions = [];
@@ -95,10 +97,9 @@ function TriviaQuestionsStepper(props) {
   } = props;
 
   const [currentQuestions, setCurrentQuestions] = React.useState(questions);
-  const [currentNoOfQuestions, setCurrentNoOfQuestions] = React.useState(no_of_questions);
   const [activeStep, setActiveStep] = React.useState(0);
-  const [currentMode, setSelectionMode] = React.useState(mode);
   const [refresh, setRefresh] = React.useState(0);
+  const [chooseQuestion, setChooseQuestion] = React.useState(false);
   const steps = getSteps(no_of_questions, currentQuestions, activeStep);
 
   useEffect(async () => {
@@ -111,12 +112,12 @@ function TriviaQuestionsStepper(props) {
       if (!response.success) {
         updateResult('error', response.message);
         setCurrentQuestions([]);
-        updateQuestions(currentNoOfQuestions, currentQuestions, currentMode);
+        updateQuestions(no_of_questions, currentQuestions, mode);
         return;
       }
       console.log('Questions', response.data);
       setCurrentQuestions(response.data);
-      updateQuestions(response.data.length, response.data, currentMode);
+      updateQuestions(response.data.length, response.data, mode);
     }
   }, [no_of_questions]);
 
@@ -155,12 +156,12 @@ function TriviaQuestionsStepper(props) {
     if (!response.success) {
       updateResult('error', response.message);
       setCurrentQuestions([]);
-      updateQuestions(currentNoOfQuestions, currentQuestions, currentMode);
+      updateQuestions(no_of_questions, currentQuestions, mode);
       return;
     }
     console.log('Questions', response.data);
     setCurrentQuestions(response.data);
-    updateQuestions(response.data.length, response.data, currentMode);
+    updateQuestions(response.data.length, response.data, mode);
     setActiveStep(0);
   };
 
@@ -172,8 +173,25 @@ function TriviaQuestionsStepper(props) {
     setRefresh((refresh) => refresh + 1);
   };
 
+  const handleChooseQuestion = async () => {
+    setChooseQuestion(true);
+    // eslint-disable-next-line no-shadow
+    setRefresh((refresh) => refresh + 1);
+  };
+
+  const handleQuestionSelection = (step, question) => {
+    setChooseQuestion(false);
+    if (question) {
+      console.log('Question chosen', step, question);
+      currentQuestions.splice(step, 1, question);
+      setCurrentQuestions(currentQuestions);
+      // eslint-disable-next-line no-shadow
+      setRefresh((refresh) => refresh + 1);
+    }
+  };
+
   const getStepContent = (step) => {
-    if (!currentQuestions || !currentQuestions[step]) { return 'Hmm...'; }
+    if (!currentQuestions || !currentQuestions[step]) { return 'Hmm... call the doctor :)'; }
     const question = currentQuestions[step];
     // return question.question;
 
@@ -214,9 +232,9 @@ function TriviaQuestionsStepper(props) {
               {getStepContent(index)}
               <div className={classes.actionsContainer}>
                 <div>
-                  {currentMode === 'SELECTIVE'
+                  {mode === 'SELECTIVE'
                     && <Button
-                      // onClick={handleChooseQuestion} XX_DO_XX
+                      onClick={handleChooseQuestion}
                       className={classes.button}
                     >
                       CHOOSE QUESTION
@@ -252,7 +270,7 @@ function TriviaQuestionsStepper(props) {
         {steps.length > 0
           && <div><Typography>All steps completed, you're set!</Typography><br/></div>}
 
-        {(currentMode === 'RANDOM' && steps.length > 0)
+        {(mode === 'RANDOM' && steps.length > 0)
           && <div>
             <Typography>To randomize questions click on shuffle steps button</Typography>
             <Button onClick={handleRandomizeQuestions} className={classes.button} variant="contained" color="primary" >
@@ -267,6 +285,14 @@ function TriviaQuestionsStepper(props) {
             </Button>
           </div>}
       </Paper>
+
+      {chooseQuestion
+        && <TriviaQuestionChooser
+          category={category}
+          step={activeStep}
+          onClose={handleQuestionSelection}
+        />
+      }
     </div>
   );
 }
