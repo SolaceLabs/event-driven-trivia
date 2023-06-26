@@ -6,6 +6,7 @@ const { Worker } = require('worker_threads');
 const Trivia = require('../models/trivia');
 const TriviaStats = require('../models/triviastats');
 const utils = new MomentUtils();
+const Scheduler = require('../scheduler');
 const TriviaConstants = require('./TriviaConstants');
 const activities = {
   'broadcast/activity': { category: 'Activity Trails', background: '#2E8B57', action: 'receive' },
@@ -726,11 +727,14 @@ class ConsoleCallbacks {
       Trivia.findOneAndUpdate(
         { hash: game_code },
         { $set: { status: 'COMPLETED' } },
-        (err, result) => {
+        (err, trivia) => {
           if (err) {
             console.log('Update trivia failed: ', err);
             throw new Error('No Trivia found');
           }
+
+          const scheduler = new Scheduler();
+          scheduler.getInstance().endJob(trivia);
         });
 
       worker.kill('SIGHUP');
@@ -739,11 +743,13 @@ class ConsoleCallbacks {
       Trivia.findOneAndUpdate(
         { hash: game_code },
         { $set: { status: 'ABORTED' } },
-        (err, result) => {
+        (err, trivia) => {
           if (err) {
             console.log('Update trivia failed: ', err);
             throw new Error('No Trivia found');
           }
+          const scheduler = new Scheduler();
+          scheduler.getInstance().endJob(trivia);
         });
 
       console.log(this.getTime(), `Publish trivia/${game_code}/broadcast/gameaborted`);

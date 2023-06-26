@@ -16,6 +16,11 @@ const styles = theme => ({
   button: {
     margin: theme.spacing(1),
   },
+  doMoreButton: {
+    margin: theme.spacing(1),
+    color: 'rgba(0, 0, 0, 0.87)',
+    backgroundColor: '#fafafa',
+  },
   inputUpload: {
     display: 'none',
   },
@@ -34,7 +39,7 @@ const TriviasShowHelp = (props) => {
   const { classes } = props;
 
   return (
-    <Button className={classes.button} variant="contained" color="secondary" onClick={() => props.setShow(prev => !prev)}>
+    <Button className={classes.doMoreButton} variant="contained" color="secondary" onClick={() => props.setShow(prev => !prev)}>
       Do More
     </Button>
   );

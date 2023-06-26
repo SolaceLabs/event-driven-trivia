@@ -56,7 +56,7 @@ function TriviasHelp(props) {
           <Typography className={classes.secondaryHeading}></Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>
+          <Typography component={'span'} variant={'body2'}>
             <h6>Creating a Trivia</h6>
             <p>A Trivia captures the essence of the quiz game with a set of questions and provides links and QR Codes to access game and controller pages.</p>
             <p>Trivia creation is a 2-step process. First you defined the context of a Trivia with details like name, description, target audience,
@@ -65,25 +65,21 @@ function TriviasHelp(props) {
             or a manual selection of questions.</p>
             <p>The most important parameters that determines the game are number of questions, questions category and time limit for answering a question.</p>
             <h6>Trivia Status</h6>
-            <p>
-              <ul>
-                <li><b>NEW</b> Trivia is created, but questions are yet to be populated</li>
-                <li><b>READY</b> Trivia is created, populated with questions and the game can be launched anytime by the creator.</li>
-                <li><b>STARTED</b> Trivia is launched and the game is in progress.</li>
-                <li><b>SCHEDULED</b> Trivia is ready and scheduled for launch at a particular time.</li>
-                <li><b>EXPIRED</b> Trivia was scheduled, but never launched.</li>
-                <li><b>COMPLETED</b> Trivia was launched and the game is completed.</li>
-                <li><b>ABORTED</b> Trivia was launched and the game was aborted midway.</li>
-              </ul>
-            </p>
-            <p>
-              <h6>Managing Trivias</h6>
-              <ol>
-                <li>A Trivia can be edited or reopened for a fresh launch anytime except when in COMPLETED, EXPIRED or ABORTED status.</li>
-                <li>A Trivia can be deleted anytime except when it is in STARTED status, and the deletion will be a soft-delete (marked as deleted).</li>
-                <li>A Trivia can be cloned anytime.</li>
-              </ol>
-            </p>
+            <ul>
+              <li><b>NEW</b> Trivia is created, but questions are yet to be populated</li>
+              <li><b>READY</b> Trivia is created, populated with questions and the game can be launched anytime by the creator.</li>
+              <li><b>STARTED</b> Trivia is launched and the game is in progress.</li>
+              <li><b>SCHEDULED</b> Trivia is ready and scheduled for launch at a particular time.</li>
+              <li><b>EXPIRED</b> Trivia was scheduled, but never launched.</li>
+              <li><b>COMPLETED</b> Trivia was launched and the game is completed.</li>
+              <li><b>ABORTED</b> Trivia was launched and the game was aborted midway.</li>
+            </ul>
+            <h6>Managing Trivias</h6>
+            <ol>
+              <li>A Trivia can be edited or reopened for a fresh launch anytime except when in COMPLETED, EXPIRED or ABORTED status.</li>
+              <li>A Trivia can be deleted anytime except when it is in STARTED status, and the deletion will be a soft-delete (marked as deleted).</li>
+              <li>A Trivia can be cloned anytime.</li>
+            </ol>
           </Typography>
         </AccordionDetails>
       </Accordion>

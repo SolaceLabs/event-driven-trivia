@@ -64,7 +64,7 @@ function CategoriesHelp(props) {
           <Typography className={classes.secondaryHeading}></Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>
+          <Typography component={'span'} variant={'body2'}>
             <p>In Trivia, every question need to be associated with category.
             This sections lists the existing categories and the number of questions in that category.
             Categories can be edited and cloned anytime.</p>
@@ -99,7 +99,7 @@ function CategoriesHelp(props) {
             <Grid container alignItems="flex-start" direction="row" spacing={2}>
               <Grid item xs={12} sm={4}>
                 <Paper className={classes.paper}>
-                  <Typography>
+                  <Typography component={'span'} variant={'body2'}>
                     <span className={classNames(Type.bold, Type.underline)}>Bulk Import Template</span><br/><br/>
                     Download the bulk import template, a TSV (tab-delimited) file for bulk import.<br/><br/>
                     <CategoriesTemplateDownload />
@@ -108,7 +108,7 @@ function CategoriesHelp(props) {
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Paper className={classes.paper}>
-                  <Typography>
+                  <Typography component={'span'} variant={'body2'}>
                     <span className={classNames(Type.bold, Type.underline)}>Bulk Import</span><br/><br/>
                     Import the categories TSV (tab-delimited) file.<br/><br/>
                     <CategoriesUpload updateResult={updateResult}/>
@@ -117,7 +117,7 @@ function CategoriesHelp(props) {
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Paper className={classes.paper}>
-                  <Typography>
+                  <Typography component={'span'} variant={'body2'}>
                     <span className={classNames(Type.bold, Type.underline)}>Bulk Export</span><br/><br/>
                     Export the categories presented in the table as TSV (tab-delimited) file.<br/><br/>
                     <CategoriesUpload updateResult={updateResult}/>

@@ -89,6 +89,8 @@ function Questions(props) {
   const [showCloneDialog, setShowCloneDialog] = useState(false);
   const [editAllowed, setEditAllowed] = useState(false);
   const [cloneAllowed, setCloneAllowed] = useState(false);
+  const [deleteAllowed, setDeleteAllowed] = useState(false);
+  const [undeleteAllowed, setUndeleteAllowed] = useState(false);
   const [showDeleted, setShowDeleted] = useState(true);
   const [anchorEl2, setAnchorEl2] = useState(null);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -392,11 +394,17 @@ function Questions(props) {
               aria-haspopup="true"
               onClick={(e) => {
                 setCurrentRow(tableMeta.rowData);
-                if (tableMeta.rowData[8]) setEditAllowed(false);
+                if (tableMeta.rowData[8] || tableMeta.rowData[0] !== localStorage.getItem('id')) setEditAllowed(false);
                 else setEditAllowed(true);
 
-                if (tableMeta.rowData[8] || deletedCategories.includes(tableMeta.rowData[1])) setCloneAllowed(false);
+                if (tableMeta.rowData[8] || tableMeta.rowData[0] === localStorage.getItem('id') || deletedCategories.includes(tableMeta.rowData[1])) setCloneAllowed(false);
                 else setCloneAllowed(true);
+
+                if (tableMeta.rowData[8] || tableMeta.rowData[0] === localStorage.getItem('id')) setDeleteAllowed(false);
+                else setDeleteAllowed(true);
+
+                if (tableMeta.rowData[4] && tableMeta.rowData[0] === localStorage.getItem('id')) setUndeleteAllowed(true);
+                else setUndeleteAllowed(false);
 
                 handleClickRowMenu(e);
               }}
@@ -434,21 +442,36 @@ function Questions(props) {
                     <CopyIcon/>
                   </IconButton> Clone
                 </MenuItem>}
-              <MenuItem key={'Delete' + tableMeta.rowData[0]} onClick={(e) => {
-                handleCloseRowMenu();
-                setRowsDeleted([]);
-                setShowDeleteDialog(true);
-              }}>
-                <IconButton className={classes.iconButton} variant="outlined" color="secondary">
-                  <DeleteIcon/>
-                </IconButton> { tableMeta.rowData[8] ? 'Undelete' : 'Delete' }
-              </MenuItem>
+              {deleteAllowed
+                && <MenuItem key={'Delete' + tableMeta.rowData[0]} onClick={(e) => {
+                  handleCloseRowMenu();
+                  setRowsDeleted([]);
+                  setShowDeleteDialog(true);
+                }}>
+                  <IconButton className={classes.iconButton} variant="outlined" color="secondary">
+                    <DeleteIcon/>
+                  </IconButton> Delete
+                </MenuItem>}
+              {undeleteAllowed
+                && <MenuItem key={'Undelete' + tableMeta.rowData[0]} onClick={(e) => {
+                  handleCloseRowMenu();
+                  setRowsDeleted([]);
+                  setShowDeleteDialog(true);
+                }}>
+                  <IconButton className={classes.iconButton} variant="outlined" color="secondary">
+                    <DeleteIcon/>
+                  </IconButton> Undelete
+                </MenuItem>}
             </Menu>
           </React.Fragment>
         ),
         // setCellProps: () => ({ style: { maxWidth: "100px" }}),
       }
-    }
+    },
+    {
+      name: '', // 0
+      options: { display: false, filter: false, viewColumns: false }
+    },
 
   ];
 
@@ -559,7 +582,7 @@ function Questions(props) {
       }
 
       <MUIDataTable
-        title="Questions List"
+        title="Questions"
         data={questions}
         columns={columns}
         options={options}

@@ -21,6 +21,7 @@ const ngrok = (isDev && process.env.ENABLE_TUNNEL) || argv.tunnel
   : false;
 const { resolve } = require('path');
 const { verifyToken, verifyAdmin } = require('./middlewares/verifyTokenMiddleware');
+const Scheduler = require('./scheduler');
 
 require('./config/passport.config');
 
@@ -183,6 +184,9 @@ app.use((err, req, res, next) => {
   if (!err.statusCode) err.statusCode = 500;
   res.status(err.statusCode).send(err.message);
 });
+
+const scheduler = new Scheduler(logger, consoleClient);
+scheduler.getInstance().loadJobs(true);
 
 // Start your app.
 app.listen(port, host, async err => {

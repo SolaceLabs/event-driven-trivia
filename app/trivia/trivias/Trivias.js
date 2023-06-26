@@ -124,12 +124,12 @@ function Trivias(props) {
   const [shareAllowed, setShareAllowed] = useState(false);
   const [unshareAllowed, setUnshareAllowed] = useState(false);
   const [showDeleted, setShowDeleted] = useState(true);
-  const { classes } = props;
   const [anchorEl2, setAnchorEl2] = React.useState(null);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [count, setCount] = useState(10);
   const [page, setPage] = useState(0);
   const openRowMenu = Boolean(anchorEl2);
+  const { classes } = props;
 
   const updateResult = React.useCallback((_variant, _message) => {
     console.log('updateResult called');
@@ -902,7 +902,7 @@ function Trivias(props) {
       }
 
       <MUIDataTable
-        title="Trivias List"
+        title="Trivias"
         data={trivias}
         columns={columns}
         options={options}

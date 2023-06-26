@@ -14,6 +14,7 @@ const shortHash = require('shorthash2');
 const qr = require('qrcode');
 const Trivia = require('../models/trivia');
 const TriviaStats = require('../models/triviastats');
+const Scheduler = require('../scheduler');
 
 const utils = new MomentUtils();
 
@@ -135,7 +136,7 @@ router.get('/', async (req, res) => {
 router.get('/upcoming', async (req, res) => {
   const as_array = req?.query?.as_array && req?.query?.as_array === 'true';
   const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
-  Trivia.find({ deleted: false, status: { $in: ['READY', 'SCHEDULED'] } })
+  Trivia.find({ deleted: false, owner: { $eq: req.user._id }, status: { $in: ['READY', 'SCHEDULED'] } })
     .populate('questions')
     .populate('owner')
     .sort({ start_at: 1 })
@@ -283,6 +284,10 @@ router.post('/', async (req, res) => {
         hash: trivia.hash, trivia: _trivia._id, chat: [], events: []
       };
       TriviaStats.create(triviaStats);
+      if (trivia.status === 'SCHEDULED') {
+        const scheduler = new Scheduler();
+        scheduler.getInstance().addJob(_trivia);
+      }
       res.json({ success: true, data: _trivia, message: 'Create trivia successful' });
     })
     .catch(err => {
@@ -467,9 +472,14 @@ router.put('/:id', async (req, res) => {
 
   trivia.hash = _trivia.hash ? _trivia.hash : shortHash(trivia.name + '@' + (new Date()).getMilliseconds());
   trivia.adminHash = _trivia.adminHash ? _trivia.adminHash : shortHash(trivia.hash + ' => ' + trivia.name + '@' + (new Date()).getMilliseconds());
-  Trivia.findByIdAndUpdate(req.body.id, trivia, { new: true })
-    .then(() => {
-      res.json({ success: true, data: trivia, message: 'Update trivia successful' });
+  Trivia.findByIdAndUpdate({ _id: req.params.id }, trivia, { new: true })
+    .then((t) => {
+      if (t.status === 'SCHEDULED') {
+        const scheduler = new Scheduler();
+        scheduler.getInstance().addJob(t);
+      }
+
+      res.json({ success: true, data: t, message: 'Update trivia successful' });
     })
     .catch(err => {
       let message = 'Trivia update failed';

@@ -348,7 +348,7 @@ function Members(props) {
       }
 
       <MUIDataTable
-        title="Members List"
+        title="Members"
         data={members}
         columns={columns}
         options={options}

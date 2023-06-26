@@ -64,7 +64,7 @@ function QuestionsHelp(props) {
           <Typography className={classes.secondaryHeading}></Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography>
+          <Typography component={'span'} variant={'body2'}>
             <p>In Trivia, questions are the critical user interaction point.
             This section lists the existing questions and the category it belongs to.
             It is a best practice to check and make sure that a question does not exist, before creating a new one.</p>
@@ -103,7 +103,7 @@ function QuestionsHelp(props) {
             <Grid container alignItems="flex-start" direction="row" spacing={2}>
               <Grid item xs={12} sm={4}>
                 <Paper className={classes.paper}>
-                  <Typography>
+                  <Typography component={'span'} variant={'body2'}>
                     <span className={classNames(Type.bold, Type.underline)}>Bulk Import Template</span><br/><br/>
                     Download the bulk import template, a TSV (tab-delimited) file for bulk import.<br/><br/>
                     <QuestionsTemplateDownload />
@@ -112,7 +112,7 @@ function QuestionsHelp(props) {
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Paper className={classes.paper}>
-                  <Typography>
+                  <Typography component={'span'} variant={'body2'}>
                     <span className={classNames(Type.bold, Type.underline)}>Bulk Import</span><br/><br/>
                     Import the questions TSV (tab-delimited) file.<br/><br/>
                     <QuestionsUpload updateResult={updateResult}/>
@@ -121,7 +121,7 @@ function QuestionsHelp(props) {
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Paper className={classes.paper}>
-                  <Typography>
+                  <Typography component={'span'} variant={'body2'}>
                     <span className={classNames(Type.bold, Type.underline)}>Bulk Delete</span><br/><br/>
                     Export the questions presented in the table as TSV (tab-delimited) file.<br/><br/>
                     <QuestionsUpload updateResult={updateResult}/>

@@ -70,12 +70,13 @@ router.get('/', async (req, res) => {
   const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
   Category.find(show_deleted ? {} : { deleted: false })
     .populate('no_of_questions')
+    .populate('owner')
     .sort({ deleted: 1 })
     .then(categories => res.json({
       success: true,
       message: 'Get categories successful',
       data: as_array
-        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.deleted, c.shared])
+        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.deleted, c.shared, c.owner.name])
         : categories
     }))
     .catch(err => {

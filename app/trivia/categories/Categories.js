@@ -261,10 +261,27 @@ function Categories(props) {
       <Typography variant="caption" className={Type.bold}>&nbsp;<b>{name}</b></Typography><br/>
     </div>);
 
+  const getName = (name) => (
+    <div>
+      <Typography variant="caption" className={Type.bold}><i>{name}</i></Typography>
+    </div>);
+
   const columns = [
     {
       name: 'Id',
       options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: 'Owner', // 0
+      options: {
+        filterOptions: { fullWidth: true },
+        filter: true,
+        customBodyRender: (value, tableMeta, updateValue) => (
+          <React.Fragment >
+            {getName(tableMeta.rowData[6])}
+          </React.Fragment>
+        )
+      }
     },
     {
       name: 'Name',
@@ -401,6 +418,14 @@ function Categories(props) {
       name: '', // 0
       options: { display: false, filter: false, viewColumns: false }
     },
+    {
+      name: '', // 0
+      options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: '', // 0
+      options: { display: false, filter: false, viewColumns: false }
+    },
   ];
 
   const options = {
@@ -504,7 +529,7 @@ function Categories(props) {
       }
 
       <MUIDataTable
-        title="Categories List"
+        title="Categories"
         data={categories}
         columns={columns}
         options={options}

@@ -29,7 +29,7 @@ import SnackBarWrapper from '../common/SnackBarWrapper';
 const api = new TriviaWrapper();
 
 // validation functions
-const required = value => (value == null ? 'Required' : undefined);
+const required = value => (value == null ? 'Required' : '');
 
 const styles = theme => ({
   root: {
@@ -240,6 +240,8 @@ function TriviasForm(props) {
     if (!values.scheduled) {
       values.start_at = null;
       values.close_at = null;
+    } else {
+      values.status = 'SCHEDULED';
     }
 
     props.onSubmit(values);

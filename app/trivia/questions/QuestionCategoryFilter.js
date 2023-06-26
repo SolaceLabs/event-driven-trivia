@@ -74,59 +74,57 @@ function QuestionCategoryFilter(props) {
     : label);
 
   return (
-    <div>
-      <Dialog
-        open={open}
-        onClose={cancelFilters}
-        scroll={scroll}
-        aria-labelledby="scroll-dialog-title"
-        aria-describedby="scroll-dialog-description"
-      >
-        <DialogTitle id="scroll-dialog-title">Question Categories</DialogTitle>
-        <DialogContent dividers={scroll === 'paper'}>
-          <DialogContentText
-            id="scroll-dialog-description"
-            tabIndex={-1}
-          >
-            <FormControl component="fieldset">
-              <FormGroup>
-                <div className={classes.items}>
-                  {categories.map((cat) => (
-                    <FormControlLabel
-                      control={(
-                        <Checkbox
-                          checked={inputState[cat.name]}
-                          onChange={handleSelectionChange(cat.name)}
-                          value={cat.name}
-                        />
-                      )}
-                      label={getCategoryName(cat.deleted, `${cat.name} [${cat.no_of_questions}]`)}
-                    />
+    <Dialog
+      open={open}
+      onClose={cancelFilters}
+      scroll={scroll}
+      aria-labelledby="scroll-dialog-title"
+      aria-describedby="scroll-dialog-description"
+    >
+      <DialogTitle id="scroll-dialog-title">Question Categories</DialogTitle>
+      <DialogContent dividers={scroll === 'paper'}>
+        <DialogContentText
+          id="scroll-dialog-description"
+          tabIndex={-1}
+        >
+          <FormControl component="fieldset">
+            <FormGroup>
+              <div className={classes.items}>
+                {categories.map((cat) => (
+                  <FormControlLabel
+                    control={(
+                      <Checkbox
+                        checked={inputState[cat.name]}
+                        onChange={handleSelectionChange(cat.name)}
+                        value={cat.name}
+                      />
+                    )}
+                    label={getCategoryName(cat.deleted, `${cat.name} [${cat.no_of_questions}]`)}
+                  />
 
-                    // <div id={cat._id} className={classes.item}>
-                    //   <Checkbox
-                    //     checked={cat._id}
-                    //     onChange={handleSelectionChange(cat._id)}
-                    //     value={cat._id}
-                    //   />
-                    //   {`${cat.name} [${cat.no_of_questions}]`}
-                    // </div>
-                  ))}
-                </div>
-              </FormGroup>
-            </FormControl>
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={cancelFilters} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={submitFilters} color="primary">
-            Apply
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+                  // <div id={cat._id} className={classes.item}>
+                  //   <Checkbox
+                  //     checked={cat._id}
+                  //     onChange={handleSelectionChange(cat._id)}
+                  //     value={cat._id}
+                  //   />
+                  //   {`${cat.name} [${cat.no_of_questions}]`}
+                  // </div>
+                ))}
+              </div>
+            </FormGroup>
+          </FormControl>
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={cancelFilters} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={submitFilters} color="primary">
+          Apply
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 

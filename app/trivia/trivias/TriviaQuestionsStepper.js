@@ -71,6 +71,14 @@ const styles = theme => ({
   },
   choiceNormal: {
     backgroundColor: 'auto'
+  },
+  que_text: {
+    textAlign: 'left',
+    fontSize: '1em !important',
+    fontWeight: '600  !important',
+  },
+  choiceMargin: {
+    margin: 10
   }
 
 });
@@ -202,10 +210,10 @@ function TriviaQuestionsStepper(props) {
 
     return (
       <section>
-        <div className="que_text">
+        <div className={classes.que_text}>
           <span>{question.question}</span>
         </div>
-        <div className="option_list">
+        <div className={classNames(classes.choiceMargin, classes.option_list)}>
           <div className={selected_1}><span>{question.choice_1}</span></div>
           {question.choice_2
               && <div className={selected_2}><span>{question.choice_2}</span></div>}

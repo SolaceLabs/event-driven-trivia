@@ -37,6 +37,9 @@ export const Question = loadable(() => import('../trivia/Question'), {
 export const Member = loadable(() => import('../trivia/Member'), {
   fallback: <Loading />,
 });
+export const Faq = loadable(() => import('../trivia/FaqTrivia'), {
+  fallback: <Loading />,
+});
 
 export const ComingSoon = loadable(() =>
   import ('./Pages/ComingSoon'), {

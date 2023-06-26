@@ -105,8 +105,4 @@ function CategoriesUpload(props) {
   );
 }
 
-CategoriesUpload.propTypes = {
-  forceUpdate: PropTypes.func.isRequired,
-};
-
 export default CategoriesUpload;

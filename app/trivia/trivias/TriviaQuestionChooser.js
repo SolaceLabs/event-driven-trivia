@@ -1,7 +1,7 @@
 /* eslint-disable no-plusplus */
 import React, { useEffect, useState } from 'react';
+import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -11,16 +11,72 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
+import classNames from 'classnames';
 import { Divider } from '@material-ui/core';
 import TriviaQuestionChooserForm from './TriviaQuestionChooserForm';
+// import '../styles/question-tpl.css';
 
 const api = new TriviaWrapper();
 
-export default function TriviaQuestionChooser(props) {
+const styles = theme => ({
+  root: {
+    flexGrow: 1,
+  },
+  button: {
+    marginTop: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  },
+  actionsContainer: {
+    marginBottom: theme.spacing(2),
+  },
+  resetContainer: {
+    padding: theme.spacing(3),
+  },
+  paper: {
+    padding: 10
+  },
+  center: {
+    textAlign: 'center'
+  },
+  left: {
+    textAlign: 'left'
+  },
+  right: {
+    textAlign: 'right'
+  },
+  middle: {
+    verticalAlign: 'middle',
+  },
+  stepLabel: {
+    cursor: 'pointer'
+  },
+  choiceSelected: {
+    padding: 5,
+    backgroundColor: '#009191',
+    color: '#fff'
+  },
+  choiceNormal: {
+    backgroundColor: 'auto'
+  },
+  search: {
+    margin: 5,
+  },
+  que_text: {
+    textAlign: 'left',
+    fontSize: '1em !important',
+    fontWeight: '600  !important',
+  },
+  choiceMargin: {
+    margin: 10
+  }
+});
+
+function TriviaQuestionChooser(props) {
   const {
     step,
     onClose,
     category,
+    classes,
     ...other
   } = props;
   const [options, setOptions] = React.useState([]);
@@ -77,7 +133,9 @@ export default function TriviaQuestionChooser(props) {
       {...other}
     >
       <DialogTitle id="confirmation-dialog-title">Select Question</DialogTitle>
-      <TriviaQuestionChooserForm handleSubmit={(phrase) => searchQuestion(phrase)} />
+      <div class={classes.search}>
+        <TriviaQuestionChooserForm handleSubmit={(phrase) => searchQuestion(phrase)} />
+      </div>
       <Divider/>
       <DialogContent dividers>
         <RadioGroup
@@ -88,7 +146,29 @@ export default function TriviaQuestionChooser(props) {
           onChange={handleChange}
         >
           {options.map((option) => (
-            <FormControlLabel value={option.id} key={option.id} control={<Radio />} label={option.value} />
+            <div id={option.id} className={classes.choiceMargin}>
+              <FormControlLabel value={option.id}
+                key={option.id} control={<Radio />} label={<span className={classes.que_text}>{option.value}</span>} />
+              <section>
+                <div className={classNames(classes.choiceMargin, classes.option_list)}>
+                  <div className={option.question.choice_1 === option.question.answer ? classes.choiceSelected : classes.choiceNormal}>
+                    <span>{option.question.choice_1}</span>
+                  </div>
+                  {option.question.choice_2
+                      && <div className={option.question.choice_2 === option.question.answer ? classes.choiceSelected : classes.choiceNormal}
+                      ><span>{option.question.choice_2}</span>
+                      </div>}
+                  {option.question.choice_3
+                      && <div className={option.question.choice_3 === option.question.answer ? classes.choiceSelected : classes.choiceNormald_3}>
+                        <span>{option.question.choice_3}</span>
+                      </div>}
+                  {option.question.choice_4
+                      && <div className={option.question.choice_4 === option.question.answer ? classes.choiceSelected : classes.choiceNormal}>
+                        <span>{option.question.choice_4}</span>
+                      </div>}
+                </div>
+              </section>
+            </div>
           ))}
         </RadioGroup>
       </DialogContent>
@@ -109,3 +189,5 @@ TriviaQuestionChooser.propTypes = {
   step: PropTypes.number.isRequired,
   category: PropTypes.string.isRequired,
 };
+
+export default withStyles(styles)(TriviaQuestionChooser);

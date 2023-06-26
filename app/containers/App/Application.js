@@ -9,6 +9,7 @@ import {
   Question,
   Trivia,
   Dashboard,
+  Faq,
   LoginTrivia
 } from '../pageListAsync';
 
@@ -29,6 +30,7 @@ function Application(props) {
         <Route exact path="/app/trivia/question" component={Question} />
         <Route exact path="/app/trivia/category" component={Category} />
         <Route exact path="/app/trivia/member" component={Member} />
+        <Route exact path="/app/trivia/faq" component={Faq} />
         <Route component={NotFound} />
       </Switch>
     </DashboardTemplate>

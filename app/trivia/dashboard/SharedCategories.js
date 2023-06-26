@@ -154,16 +154,6 @@ function SharedCategories(props) {
       <Typography variant="caption" className={Type.bold}><i>{name}</i></Typography>
     </div>);
 
-  const getTriviaName = (isDeleted, name, description) => (isDeleted
-    ? <div>
-      <Typography variant="caption" className={Type.bold}><del className={classes.deleted}><b>{name}</b></del></Typography><br/>
-      <Typography variant="caption" className={Type.italic}><i>{description}</i></Typography>
-    </div>
-    : <div>
-      <Typography variant="caption" className={Type.bold}><b>{name}</b></Typography><br/>
-      <Typography variant="caption" className={Type.italic}><i>{description}</i></Typography>
-    </div>);
-
   const columns = [
     {
       name: 'Id',

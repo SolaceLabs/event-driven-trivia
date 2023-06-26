@@ -74,8 +74,4 @@ function QuestionsUpload(props) {
   );
 }
 
-QuestionsUpload.propTypes = {
-  forceUpdate: PropTypes.func.isRequired,
-};
-
 export default QuestionsUpload;
