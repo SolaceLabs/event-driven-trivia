@@ -32,7 +32,13 @@ export default function CategoriesTemplateDownload() {
   const [csvFile, setCsvFile] = React.useState('');
 
   const downloadCategoryTemplate = () => {
-    axios.get('/api/trivia/categories/template')
+    axios.get('/api/trivia/categories/template', {
+      headers: {
+        Authorization: `${
+          localStorage.getItem('token')
+        }`
+      }
+    })
       .then(res => {
         console.log(res);
         fileDownload(res.data, 'categories_tpl.tsv');

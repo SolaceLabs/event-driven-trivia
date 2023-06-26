@@ -32,7 +32,13 @@ export default function QuestionsTemplateDownload() {
   const [csvFile, setCsvFile] = React.useState('');
 
   const downloadQuestionTemplate = () => {
-    axios.get('/api/trivia/questions/template')
+    axios.get('/api/trivia/questions/template', {
+      headers: {
+        Authorization: `${
+          localStorage.getItem('token')
+        }`
+      }
+    })
       .then(res => {
         console.log(res);
         fileDownload(res.data, 'questions_tpl.tsv');
