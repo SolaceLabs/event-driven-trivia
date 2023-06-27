@@ -26,7 +26,7 @@ function QuestionsCustomToolbar(props) {
           <AddIcon className={classes.deleteIcon}/>
         </IconButton>
       </Tooltip>
-      <Tooltip title={'Set Filter'}>
+      <Tooltip title={'Choose Categories'}>
         <IconButton className={classes.iconButton} onClick={() => { openFilterDialog(); }} >
           <PlaylistAddCheck className={classes.deleteIcon}/>
         </IconButton>

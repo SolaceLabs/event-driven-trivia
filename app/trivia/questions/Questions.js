@@ -117,7 +117,8 @@ function Questions(props) {
       setCategories(response.data);
       setDeletedCategories(response.data.filter(el => el.deleted).map(el1 => el1.name));
       const params1 = new URLSearchParams();
-      params1.append('category', filterList ? JSON.stringify(filterList) : '');
+      const filters = response.data.length ? [response.data[0].name] : [];
+      params1.append('category', filters ? JSON.stringify(filters) : '');
       params1.append('show_deleted', showDeleted);
       const response1 = await api.getQuestions(params1);
       if (!response1.success) {

@@ -41,7 +41,8 @@ function Dashboard(props) {
   });
 
   const handleOpenGuide = () => {
-    setOpenGuide(true);
+    // setOpenGuide(true);
+    history.push('/app/trivia/faq');
   };
 
   const handleCloseGuide = () => {
