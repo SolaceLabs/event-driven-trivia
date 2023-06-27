@@ -31,10 +31,21 @@ const styles = theme => ({
     },
     fontWeight: 400
   },
-  counter: {
-    color: theme.palette.common.white,
+  counterYours: {
+    color: theme.palette.secondary.main,
     fontSize: 28,
     fontWeight: 500
+  },
+  counterOverall: {
+    color: theme.palette.secondary.main,
+    fontSize: 18,
+    fontWeight: 500
+  },
+  counter: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    height: '100%'
   },
   customContent: {
     color: theme.palette.secondary.main,
@@ -52,17 +63,19 @@ const styles = theme => ({
 function TileCounterWidget(props) {
   const {
     classes,
-    value,
+    yours,
+    overall,
     title,
     children,
   } = props;
 
   return (
     <Paper className={classNames(classes.root, classes.tileColor)}>
-      <div>
-        <Typography className={classes.counter}>
-          {value}
+      <div className={classes.counter}>
+        <Typography className={classes.counterYours}>
+          {yours} <span className={classes.counterOverall}> / {overall} </span>
         </Typography>
+
         <Typography className={classes.title} variant="subtitle1">{title}</Typography>
       </div>
       <div className={classes.customContent}>

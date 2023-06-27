@@ -858,7 +858,7 @@ function updatePlayerName() {
     document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName;
     document.getElementById('player-id').style.padding = '3px';
     document.getElementById('player-name-form').style.display = 'none';
-    // setup();
+    setup();
     closeNicknameDialog();
   }
 }

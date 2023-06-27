@@ -39,43 +39,49 @@ router.post('/register', async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
+  const email_is_verified = !((email.indexOf('@solace.com') < 0));
 
   try {
     await User.create({
-      name, email, password: hashedPassword
+      name, email, password: hashedPassword, email_is_verified
     });
-    const newUser = await User.findOne({ email });
-    const verification_token = jwt.sign({ id: newUser._id, email }, process.env.TRIVIA_SECRET);
-    const verification_link = `https://trivia.demo.solace.dev/account-activation?token=${verification_token}`;
-    const textMessage = `
-    Hello ${name},\n\n
-    Are you ready to gain access to Fireball Trivia - Event-driven Trivia built wit Solace PubSub+ platform?\n\n
-    First, you must complete your registration by clicking on the button below:\n\n
-    ${verification_link}\n\n    
-    This link will verify your email address, and then you’ll be a part of the Fireball Trivia community.\n\n    
-    See you there!\n\n    
-    Best regards,\n
-    Fireball Trivia team`;
-    const htmlMessage = `
-    Hello ${name},<br/><br/>
-    Are you ready to gain access to <strong>Fireball Trivia - Event-driven Trivia built with Solace PubSub+ platform</strong>?<br/><br/>
-    First, you must complete your registration by clicking on the button below:<br/><br/>
-    ${verification_link}<br/><br/>
-    This link will verify your email address, and then you’ll be a part of the Fireball Trivia community.<br/><br/>
-    See you there!<br/><br/>
-    Best regards,<br/>
-    Fireball Trivia team`;
 
-    const mail = {
-      to: email,
-      from: process.env.SENDGRID_FROM_EMAIL,
-      subject: 'Verify your Fireball Trivia account',
-      text: textMessage,
-      html: htmlMessage
-    };
+    if (!email_is_verified) {
+      const newUser = await User.findOne({ email });
+      const verification_token = jwt.sign({ id: newUser._id, email }, process.env.TRIVIA_SECRET);
+      const verification_link = `https://trivia.demo.solace.dev/account-activation?token=${verification_token}`;
+      const textMessage = `
+      Hello ${name},\n\n
+      Are you ready to gain access to Fireball Trivia - Event-driven Trivia built wit Solace PubSub+ platform?\n\n
+      First, you must complete your registration by clicking on the button below:\n\n
+      ${verification_link}\n\n    
+      This link will verify your email address, and then you’ll be a part of the Fireball Trivia community.\n\n    
+      See you there!\n\n    
+      Best regards,\n
+      Fireball Trivia team`;
+      const htmlMessage = `
+      Hello ${name},<br/><br/>
+      Are you ready to gain access to <strong>Fireball Trivia - Event-driven Trivia built with Solace PubSub+ platform</strong>?<br/><br/>
+      First, you must complete your registration by clicking on the button below:<br/><br/>
+      ${verification_link}<br/><br/>
+      This link will verify your email address, and then you’ll be a part of the Fireball Trivia community.<br/><br/>
+      See you there!<br/><br/>
+      Best regards,<br/>
+      Fireball Trivia team`;
 
-    sendMail(mail);
-    res.json({ success: true, message: 'Account created, you will receive an email with verification link for account activation.' });
+      const mail = {
+        to: email,
+        from: process.env.SENDGRID_FROM_EMAIL,
+        subject: 'Verify your Fireball Trivia account',
+        text: textMessage,
+        html: htmlMessage
+      };
+
+      sendMail(mail);
+      res.json({ success: true, message: 'Account created, you will receive an email with verification link for account activation.' });
+    } else {
+      res.json({ success: true, message: 'Welcome Solacian, your Account is ready for use' });
+    }
   } catch (e) {
     res.json({ success: false, message: 'Error creating a new account.' });
   }

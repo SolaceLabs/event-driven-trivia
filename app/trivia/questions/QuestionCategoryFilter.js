@@ -90,27 +90,40 @@ function QuestionCategoryFilter(props) {
           <FormControl component="fieldset">
             <FormGroup>
               <div className={classes.items}>
-                {categories.map((cat) => (
-                  <FormControlLabel
-                    control={(
-                      <Checkbox
-                        checked={inputState[cat.name]}
-                        onChange={handleSelectionChange(cat.name)}
-                        value={cat.name}
-                      />
-                    )}
-                    label={getCategoryName(cat.deleted, `${cat.name} [${cat.no_of_questions}]`)}
-                  />
-
-                  // <div id={cat._id} className={classes.item}>
-                  //   <Checkbox
-                  //     checked={cat._id}
-                  //     onChange={handleSelectionChange(cat._id)}
-                  //     value={cat._id}
-                  //   />
-                  //   {`${cat.name} [${cat.no_of_questions}]`}
-                  // </div>
-                ))}
+                <b>Your Categories</b>
+                <div>
+                  {categories.filter(cat => cat.owner.name === localStorage.getItem('name')).map((cat) => (
+                    <FormControlLabel
+                      control={(
+                        <Checkbox
+                          checked={inputState[cat.name]}
+                          onChange={handleSelectionChange(cat.name)}
+                          value={cat.name}
+                        />
+                      )}
+                      label={getCategoryName(cat.deleted, `${cat.name} [${cat.no_of_questions}]`)}
+                    />
+                  ))}
+                </div>
+                {!(categories.filter(cat => cat.owner.name === localStorage.getItem('name')).length)
+                  && <div>None<br/></div>}
+                <br/><b>Shared Categories</b>
+                <div>
+                  {categories.filter(cat => cat.owner.name !== localStorage.getItem('name')).map((cat) => (
+                    <FormControlLabel
+                      control={(
+                        <Checkbox
+                          checked={inputState[cat.name]}
+                          onChange={handleSelectionChange(cat.name)}
+                          value={cat.name}
+                        />
+                      )}
+                      label={getCategoryName(cat.deleted, `${cat.name} [${cat.no_of_questions}]`)}
+                    />
+                  ))}
+                </div>
+                {!(categories.filter(cat => cat.owner.name !== localStorage.getItem('name')).length)
+                  && <div>None<br/></div>}
               </div>
             </FormGroup>
           </FormControl>

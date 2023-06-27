@@ -68,11 +68,11 @@ function Dashboard(props) {
           <SharedTrivias />
         </Grid>
       </PapperBlock>
-      <PapperBlock>
+      {/* <PapperBlock>
         <Grid className={classes.root}>
           <SharedCategories />
         </Grid>
-      </PapperBlock>
+      </PapperBlock> */}
     </div>
   );
 }

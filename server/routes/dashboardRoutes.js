@@ -21,16 +21,28 @@ router.get('/metics', async (req, res) => {
   const data = {};
   await Trivia.count({})
     .then(count => data.trivias = count);
+  await Trivia.count({ owner: { $eq: req.user._id } })
+    .then(count => data.yourTrivias = count);
 
   await Question.count({})
     .then(count => data.questions = count);
+  await Question.count({ owner: { $eq: req.user._id } })
+    .then(count => data.yourQuestions = count);
 
   await Category.count({})
     .then(count => data.categories = count);
+  await Category.count({ owner: { $eq: req.user._id } })
+    .then(count => data.yourCategories = count);
 
   await Trivia.aggregate([{ $group: { _id: null, count: { $sum: '$players.high' } } }])
     .then(result => {
       data.engagements = result[0] ? result[0].count : 0;
+    });
+  await Trivia.aggregate([
+    { $match: { owner: req.user._id } },
+    { $group: { _id: null, count: { $sum: '$players.high' } } }])
+    .then(result => {
+      data.yourEngagements = result[0] ? result[0].count : 0;
     });
 
   return res.json({ success: true, data });

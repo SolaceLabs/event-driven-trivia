@@ -55,6 +55,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   req.body.owner = req.user._id;
+  
   User.create(req.body)
     .then(user => res.json({ success: true, data: user, message: 'Create user successful' }))
     .catch(err => {

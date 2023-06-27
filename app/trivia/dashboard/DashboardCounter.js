@@ -81,7 +81,8 @@ function DashboardCounter(props) {
       <Grid container spacing={2}>
         <Grid item md={3} xs={6}>
           <TileCounterWidget
-            value={metrics.trivias}
+            overall={metrics.trivias}
+            yours={metrics.yourTrivias}
             title={'Trivias'}
           >
             <QuestionAnswer className={classes.largeIcon} />
@@ -89,7 +90,8 @@ function DashboardCounter(props) {
         </Grid>
         <Grid item md={3} xs={6}>
           <TileCounterWidget
-            value={metrics.categories}
+            overall={metrics.categories}
+            yours={metrics.yourCategories}
             title={'Categories'}
           >
             <Category className={classes.largeIcon} />
@@ -97,7 +99,8 @@ function DashboardCounter(props) {
         </Grid>
         <Grid item md={3} xs={6}>
           <TileCounterWidget
-            value={metrics.questions}
+            overall={metrics.questions}
+            yours={metrics.yourQuestions}
             title={'Questions'}
           >
             <LiveHelp className={classes.largeIcon} />
@@ -105,7 +108,8 @@ function DashboardCounter(props) {
         </Grid>
         <Grid item md={3} xs={6}>
           <TileCounterWidget
-            value={metrics.engagements}
+            overall={metrics.engagements}
+            yours={metrics.yourEngagements}
             title={'Engagement'}
           >
             <TouchApp className={classes.largeIcon} />
