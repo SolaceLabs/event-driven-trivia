@@ -71,11 +71,10 @@ function TriviaQuestionChooserForm(props) {
           maxLength="64"
           onChange={handleChange}
           onKeyUp={handleKeyUp}
-          placeholder={'Type words or phrases in your question...'}
+          placeholder={'Type words or phrases in your question and enter to submit...'}
           type="text"
           value={title}
         />
-        <p>Press enter to submit</p>
       </FormControl>
     </form>
   );

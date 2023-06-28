@@ -1,14 +1,20 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-plusplus */
 import React, { useEffect, useState } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
+import MUIDataTable from 'mui-datatables';
 import Button from '@material-ui/core/Button';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Dialog from '@material-ui/core/Dialog';
+import Typography from '@material-ui/core/Typography';
+import Type from 'enl-styles/Typography.scss';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import TriviaWrapper from 'enl-api/trivia/TriviaWrapper';
 import classNames from 'classnames';
@@ -19,6 +25,9 @@ import TriviaQuestionChooserForm from './TriviaQuestionChooserForm';
 const api = new TriviaWrapper();
 
 const styles = theme => ({
+  overrides: {
+    MUIDataTableToolbar: { root: { display: 'none' } },
+  },
   root: {
     flexGrow: 1,
   },
@@ -68,6 +77,10 @@ const styles = theme => ({
   },
   choiceMargin: {
     margin: 10
+  },
+  dialogTitle: {
+    display: 'flex',
+    justifyContent: 'space-between',
   }
 });
 
@@ -80,9 +93,16 @@ function TriviaQuestionChooser(props) {
     ...other
   } = props;
   const [options, setOptions] = React.useState([]);
+  const [questions, setQuestions] = React.useState([]);
   const [open, setOpen] = React.useState(true);
   const [value, setValue] = React.useState(null);
   const [refresh, setRefresh] = React.useState(0);
+  const [selectionMode, setSelectionMode] = React.useState('SEARCH');
+  const [rowSelected, setRowSelected] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [count, setCount] = useState(10);
+  const [page, setPage] = useState(0);
+
   const radioGroupRef = React.useRef(null);
 
   const handleEntering = () => {
@@ -96,17 +116,50 @@ function TriviaQuestionChooser(props) {
   };
 
   const handleOk = () => {
-    const q = options.find(el => el.id === value);
-    onClose(step, q.question);
+    if (selectionMode === 'SEARCH') {
+      const q = options.find(el => el.id === value);
+      if (q === undefined) return;
+      onClose(step, q.question);
+    } else {
+      const q = {
+        _id: questions[rowSelected][0],
+        category: questions[rowSelected][1],
+        question: questions[rowSelected][2],
+        choice_1: questions[rowSelected][3],
+        choice_2: questions[rowSelected][4],
+        choice_3: questions[rowSelected][5],
+        choice_4: questions[rowSelected][6],
+        answer: questions[rowSelected][7],
+        deleted: questions[rowSelected][8],
+      };
+      onClose(step, q);
+    }
   };
 
   const handleChange = (event) => {
     setValue(event.target.value);
   };
 
+  const handleSelectionMode = async (event, newMode) => {
+    if (!newMode) return;
+    setSelectionMode(newMode);
+    if (newMode === 'LIST') {
+      const params = new URLSearchParams();
+      params.append('category', JSON.stringify([category]));
+      params.append('show_deleted', false);
+      const response = await api.getQuestions(params);
+      if (!response.success) {
+        setQuestions([]);
+      } else {
+        setQuestions(response.data);
+        setCount(response.data.length);
+      }
+    }
+  };
+
   const searchQuestion = async (phrase) => {
     console.log('Searched for phrase', phrase);
-    const response = await api.searchQuestions(phrase);
+    const response = await api.searchQuestions([category], phrase);
     if (response.success) {
       options.splice(0, options.length);
       response.questions.forEach(question => {
@@ -120,6 +173,128 @@ function TriviaQuestionChooser(props) {
     }
   };
 
+  const getQuestion = (data) => {
+    const selected_1 = data[3] === data[7] ? classes.choiceSelected : classes.choiceNormal;
+    const selected_2 = data[4] === data[7] ? classes.choiceSelected : classes.choiceNormal;
+    const selected_3 = data[5] === data[7] ? classes.choiceSelected : classes.choiceNormal;
+    const selected_4 = data[6] === data[7] ? classes.choiceSelected : classes.choiceNormal;
+    return (
+      <React.Fragment>
+        <div className={classes.que_text}>
+          <span>{data[2]}</span>
+        </div>
+        <div className={selected_1} >
+          {data[3]}
+        </div>
+        <div className={selected_2} >
+          {data[4]}
+        </div>
+        {data[5]
+        && <div className={selected_3} gutterBottom>
+          {data[5]}
+        </div>}
+        {data[6]
+        && <div className={selected_4} gutterBottom>
+          {data[6]}
+        </div>}
+      </React.Fragment>
+    );
+  };
+
+  const CustomCheckbox = (_props) => {
+    const newProps = { ..._props };
+    newProps.color = props['data-description'] === 'row-select' ? 'secondary' : 'primary';
+
+    if (_props['data-description'] === 'row-select') {
+      return (<Radio {...newProps} />);
+    }
+    return (<Checkbox {...newProps} />);
+  };
+
+  const questionColumns = [
+    {
+      name: 'Id',
+      options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: 'Question',
+      sort: false,
+      options: {
+        display: true,
+        filter: false,
+        filterOptions: { fullWidth: true },
+        customBodyRender: (val, tableMeta, updatedVal) => (
+          <React.Fragment >
+            {getQuestion(tableMeta.rowData)}
+          </React.Fragment>
+        ),
+      }
+    },
+    {
+      name: '',
+      options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: '',
+      options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: '',
+      options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: '',
+      options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: '',
+      options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: '',
+      options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: '',
+      options: { display: false, filter: false, viewColumns: false }
+    },
+  ];
+
+  const questionOptions = {
+    selectableRows: 'single',
+    selectToolbarPlacement: 'none',
+    rowsSelected: [rowSelected],
+    responsive: 'vertical',
+    filter: false,
+    print: false,
+    search: false,
+    download: false,
+    viewColumns: false,
+    rowsPerPage,
+    rowsPerPageOptions: [5, 10, 25, 50],
+    count,
+    page,
+    jumpToPage: true,
+    fixedHeader: true,
+    onChangePage: currentPage => {
+      console.log('currentPage: ' + currentPage);
+      setPage(currentPage);
+    },
+    onChangeRowsPerPage: numberOfRows => {
+      console.log('numberOfRows: ' + numberOfRows);
+      setRowsPerPage(numberOfRows);
+      setPage(0);
+    },
+    textLabels: {
+      body: {
+        noMatch: 'Sorry, no questions found! Choose a different category and try again.',
+      }
+    },
+    onRowSelectionChange: rows => {
+      setRowSelected(rows[0].index);
+    }
+  };
+
   return (
     <Dialog
       disableEscapeKeyDown
@@ -130,15 +305,36 @@ function TriviaQuestionChooser(props) {
       }}
       aria-labelledby="confirmation-dialog-title"
       open={open}
+      scroll={'paper'}
+      PaperProps={{
+        style: {
+          overflowY: 'unset',
+        },
+      }}
       {...other}
     >
-      <DialogTitle id="confirmation-dialog-title">Select Question</DialogTitle>
-      <div class={classes.search}>
+      <DialogTitle id="confirmation-dialog-title">
+        <div className={classes.dialogTitle}>
+          Select Question
+          <ToggleButtonGroup value={selectionMode} exclusive onChange={handleSelectionMode}>
+            <ToggleButton value="SEARCH">
+              SEARCH
+            </ToggleButton>
+            <ToggleButton value="LIST">
+              LIST
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </div>
+      </DialogTitle>
+      {selectionMode === 'SEARCH'
+      && <div class={classes.search}>
+        <Divider variant="fullWidth" />
         <TriviaQuestionChooserForm handleSubmit={(phrase) => searchQuestion(phrase)} />
-      </div>
+      </div>}
       <Divider/>
       <DialogContent dividers>
-        <RadioGroup
+        {selectionMode === 'SEARCH'
+        && <RadioGroup
           ref={radioGroupRef}
           aria-label="ringtone"
           name="ringtone"
@@ -146,7 +342,7 @@ function TriviaQuestionChooser(props) {
           onChange={handleChange}
         >
           {options.map((option) => (
-            <div id={option.id} className={classes.choiceMargin}>
+            <div id={option.id}>
               <FormControlLabel value={option.id}
                 key={option.id} control={<Radio />} label={<span className={classes.que_text}>{option.value}</span>} />
               <section>
@@ -170,7 +366,19 @@ function TriviaQuestionChooser(props) {
               </section>
             </div>
           ))}
-        </RadioGroup>
+        </RadioGroup>}
+        {selectionMode === 'LIST'
+        && <div>
+          <MUIDataTable
+            // title="Questions"
+            data={questions}
+            columns={questionColumns}
+            options={questionOptions}
+            components={{
+              Checkbox: CustomCheckbox,
+            }}
+          />
+        </div>}
       </DialogContent>
       <DialogActions>
         <Button autoFocus onClick={handleCancel} color="primary">

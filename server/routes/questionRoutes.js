@@ -180,7 +180,12 @@ router.post('/clone/:id', async (req, res) => {
 });
 
 router.post('/search', async (req, res) => {
-  Question.find({ $text: { $search: req.body.phrase } })
+  const categories = req.body.category;
+  if (!categories.length) {
+    res.json({ success: false, message: 'No questions found, expand the category and refresh', });
+    return;
+  }
+  Question.find({ category: { $in: categories }, $text: { $search: req.body.phrase } })
     .then(questions => res.json({ success: true, questions }))
     .catch(err => {
       const message = 'No Question found';

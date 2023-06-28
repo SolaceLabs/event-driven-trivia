@@ -27,7 +27,9 @@ const QuestionSchema = new Schema(
   }
 );
 
-QuestionSchema.index({ question: 'text', category: 'text' });
+QuestionSchema.index({
+  question: 'text', category: 'text', choice_1: 'text', choice_2: 'text', choice_3: 'text', choice_4: 'text'
+});
 QuestionSchema.set('toObject', { virtuals: true });
 QuestionSchema.set('toJSON', { virtuals: true });
 

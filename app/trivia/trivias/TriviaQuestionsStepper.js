@@ -34,6 +34,11 @@ const styles = theme => ({
     marginTop: theme.spacing(1),
     marginRight: theme.spacing(1),
   },
+  highlightButton: {
+    marginTop: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    color: theme.palette.text.main,
+  },
   actionsContainer: {
     marginBottom: theme.spacing(2),
   },
@@ -227,6 +232,14 @@ function TriviaQuestionsStepper(props) {
     );
   };
 
+  if (!currentQuestions.length) {
+    return (
+      <div className={classes.root}>
+        No questions found in this category!
+      </div>
+    )
+  }
+
   return (
     <div className={classes.root}>
       <Stepper nonLinear activeStep={activeStep} orientation="vertical">
@@ -242,10 +255,11 @@ function TriviaQuestionsStepper(props) {
                 <div>
                   {mode === 'SELECTIVE'
                     && <Button
+                      color="primary"
                       onClick={handleChooseQuestion}
-                      className={classes.button}
+                      className={classes.highlightButton}
                     >
-                      CHOOSE QUESTION
+                      SELECT QUESTION
                     </Button>
                   }
                   <Button
@@ -295,11 +309,12 @@ function TriviaQuestionsStepper(props) {
       </Paper>
 
       {chooseQuestion
-        && <TriviaQuestionChooser
-          category={category}
-          step={activeStep}
-          onClose={handleQuestionSelection}
-        />
+        && <div>
+          <TriviaQuestionChooser
+            category={category}
+            step={activeStep}
+            onClose={handleQuestionSelection}
+          /></div>
       }
     </div>
   );

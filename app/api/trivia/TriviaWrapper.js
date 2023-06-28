@@ -186,9 +186,9 @@ class TriviaWrapper {
     return response.data;
   }
 
-  async searchQuestions(phrase) {
+  async searchQuestions(category, phrase) {
     console.log('Search Questions');
-    const response = await this.api('POST', 'questions/search', { phrase });
+    const response = await this.api('POST', 'questions/search', { category, phrase });
     return response.data;
   }
 
