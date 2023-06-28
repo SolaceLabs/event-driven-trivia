@@ -55,7 +55,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   req.body.owner = req.user._id;
-  
+
   User.create(req.body)
     .then(user => res.json({ success: true, data: user, message: 'Create user successful' }))
     .catch(err => {
@@ -64,6 +64,15 @@ router.post('/', async (req, res) => {
       console.log(err);
       console.log(message);
       return res.json({ success: false, message, });
+    });
+});
+
+router.post('/toggleadmin/:id', async (req, res) => {
+  User.findById({ _id: req.params.id })
+    .then(user => {
+      user.role = (user.role === 'ADMIN') ? 'MEMBER' : 'ADMIN';
+      user.save();
+      res.json({ success: true, data: user, message: 'Toggle admin role successful' });
     });
 });
 

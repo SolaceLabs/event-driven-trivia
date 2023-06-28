@@ -74,6 +74,7 @@ function Members(props) {
   const [rowsDeleted, setRowsDeleted] = useState([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDeleted, setShowDeleted] = useState(false);
+  const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [anchorEl2, setAnchorEl2] = React.useState(null);
   const openRowMenu = Boolean(anchorEl2);
 
@@ -134,6 +135,10 @@ function Members(props) {
     setShowDeleted(!showDeleted);
   };
 
+  const toggleAdmin = () => {
+    setShowAdminDialog(!showAdminDialog);
+  };
+
   const saveResults = async (values) => {
     console.log(values);
 
@@ -171,9 +176,29 @@ function Members(props) {
     setRowsSelected([]);
   };
 
+  const onRowAdminConfirm = async () => {
+    const id = currentRow[0];
+    const response = await api.toggleAdminRole({ id });
+    if (!response.success) {
+      updateResult('error', response.message);
+    } else {
+      updateResult('success', response.message);
+    }
+    refreshMembers();
+    setCurrentRow(false);
+    setShowAdminDialog(false);
+  };
+
   const onRowsDeleteCancel = () => {
     console.log('Members Delete cancelled');
     setShowDeleteDialog(false);
+    setRowsSelected([]);
+    setRowsDeleted([]);
+  };
+
+  const onRowAdminCancel = () => {
+    console.log('Admin role toggle cancelled');
+    setShowAdminDialog(false);
     setRowsSelected([]);
     setRowsDeleted([]);
   };
@@ -262,6 +287,14 @@ function Members(props) {
                 },
               }}
             >
+              <MenuItem key={'Admin' + tableMeta.rowData[0]} onClick={(e) => {
+                handleCloseRowMenu();
+                setShowAdminDialog(true);
+              }}>
+                <IconButton className={classes.iconButton} variant="outlined" color="secondary">
+                  <DeleteIcon/>
+                </IconButton> { tableMeta.rowData[3] === 'ADMIN' ? 'Remove Admin' : 'Make Admin' }
+              </MenuItem>
               <MenuItem key={'Delete' + tableMeta.rowData[0]} onClick={(e) => {
                 handleCloseRowMenu();
                 setRowsDeleted([]);
@@ -344,6 +377,17 @@ function Members(props) {
           submit='Confirm'
           onSubmit={onRowsDeleteConfirm}
           onCancel={onRowsDeleteCancel}
+        />
+      }
+
+      {showAdminDialog
+        && <AlertDialog
+          title={currentRow[3] === 'ADMIN' ? 'Remove Admin' : 'Make Admin'}
+          description={currentRow[3] === 'ADMIN' ? 'Are you sure you want to grant Admin role to the selected member?' : 'Are you sure you want to remove Admin role from the selected member?'}
+          cancel='Cancel'
+          submit='Confirm'
+          onSubmit={onRowAdminConfirm}
+          onCancel={onRowAdminCancel}
         />
       }
 

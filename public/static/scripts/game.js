@@ -706,7 +706,7 @@ function gameWinner(message) {
   window.score = score;
   setTimeout(() => {
     document.querySelector('#refresh-warning-footer').style.display = 'none';
-  }, 5000);
+  }, 90000);
 }
 
 function gameLeaderboard(message) {
@@ -921,6 +921,24 @@ window.addEventListener('load', () => {
     const hideButtons = document.querySelectorAll('.not-for-mobile');
     hideButtons.forEach(el => el.style.display = 'none');
   }
+
+  document.getElementById('nickname').addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+    }
+  });
+
+  document.getElementById('winner-name').addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+    }
+  });
+
+  document.getElementById('winner-email').addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+    }
+  });
 
   const triviaAnswer = document.querySelectorAll('.trivia-answer');
   triviaAnswer.forEach(item => {

@@ -96,10 +96,6 @@ div#fashion .ranking{
   margin-top: 46px;
 }
 
-.trivia-controller {
-  margin-top: 78px;
-}
-
 #trivia-chat-list {
   display: flex; 
   flex-direction: column;

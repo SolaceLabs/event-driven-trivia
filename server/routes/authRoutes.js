@@ -43,7 +43,7 @@ router.post('/register', async (req, res) => {
 
   try {
     await User.create({
-      name, email, password: hashedPassword, email_is_verified
+      name, email, password: hashedPassword, email_is_verified, status: email_is_verified ? 'ACTIVE' : 'NEW'
     });
 
     if (!email_is_verified) {

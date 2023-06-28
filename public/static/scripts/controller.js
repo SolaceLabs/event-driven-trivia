@@ -381,11 +381,13 @@ function gameInfo(message) {
     return;
   }
 
-  document.getElementById('trivia-controller').style.display = 'none';
-  document.getElementById('trivia-controller').style.height = 0;
-  document.getElementById('trivia-progress-controller').style.marginTop = '24px';
-  document.getElementById('trivia-not-available').style.display = 'none';
-  document.getElementById('trivia-not-available').height = 0;
+  if (trivia.status !== 'SCHEDULED') {
+    document.getElementById('trivia-controller').style.display = 'none';
+    document.getElementById('trivia-controller').style.height = 0;
+    document.getElementById('trivia-progress-controller').style.marginTop = '24px';
+    document.getElementById('trivia-not-available').style.display = 'none';
+    document.getElementById('trivia-not-available').height = 0;
+  }
   if (trivia.players) document.getElementById('trivia-participants').innerHTML = trivia.players.current;
 
   if (new Date(trivia.start_at).getTime() - new Date().getTime() < 0) {
@@ -653,6 +655,12 @@ window.addEventListener('load', () => {
     const hideButtons = document.querySelectorAll('.not-for-mobile');
     hideButtons.forEach(el => el.style.display = 'none');
   }
+
+  document.getElementById('admincode').addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+    }
+  });
 
   document.querySelector('#trivia-performance-load').addEventListener('click', () => {
     client.publish(`trivia/${window.gameCode}/query/performance/${window.nickName}`);

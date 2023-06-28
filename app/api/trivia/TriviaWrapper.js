@@ -82,6 +82,12 @@ class TriviaWrapper {
     return response.data;
   }
 
+  async toggleAdminRole(member) {
+    console.log('Toggle Admin role');
+    const response = await this.api('POST', `members/toggleadmin/${member.id}`);
+    return response.data;
+  }
+
   // Trivia Question Categories
   async getCategories(params = null) {
     console.log('Fetching Categories');
