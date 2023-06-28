@@ -237,7 +237,7 @@ function TriviaQuestionsStepper(props) {
       <div className={classes.root}>
         No questions found in this category!
       </div>
-    )
+    );
   }
 
   return (

@@ -6,6 +6,7 @@ import Paper from '@material-ui/core/Paper';
 import { Field, reduxForm, change } from 'redux-form';
 import Snackbar from '@material-ui/core/Snackbar';
 import Grid from '@material-ui/core/Grid';
+import ListSubheader from '@material-ui/core/ListSubheader';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -350,7 +351,10 @@ function TriviasForm(props) {
                   required
                   fullWidth={true}
                 >
-                  {categories.map((category) => <MenuItem key={category._id} value={category.name}>{category.name}</MenuItem>)}
+                  <ListSubheader>Your Categories</ListSubheader>
+                  {categories.filter(cat => cat.owner._id === localStorage.getItem('id')).map((category) => <MenuItem key={category._id} value={category.name}>{category.name}</MenuItem>)}
+                  <ListSubheader>Shared Categories</ListSubheader>
+                  {categories.filter(cat => cat.owner._id !== localStorage.getItem('id')).map((category) => <MenuItem key={category._id} value={category.name}>{category.name}</MenuItem>)}
                 </Field>
               </FormControl>
             </div>

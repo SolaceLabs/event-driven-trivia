@@ -53,7 +53,7 @@ const styles = theme => ({
   },
   choiceSelected: {
     padding: 5,
-    backgroundColor: '#f96c04',
+    backgroundColor: '#009191',
     color: '#fff'
   },
   choiceNormal: {
@@ -91,7 +91,7 @@ function Questions(props) {
   const [cloneAllowed, setCloneAllowed] = useState(false);
   const [deleteAllowed, setDeleteAllowed] = useState(false);
   const [undeleteAllowed, setUndeleteAllowed] = useState(false);
-  const [showDeleted, setShowDeleted] = useState(true);
+  const [showDeleted, setShowDeleted] = useState(false);
   const [anchorEl2, setAnchorEl2] = useState(null);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [count, setCount] = useState(10);
@@ -117,7 +117,8 @@ function Questions(props) {
       setCategories(response.data);
       setDeletedCategories(response.data.filter(el => el.deleted).map(el1 => el1.name));
       const params1 = new URLSearchParams();
-      const filters = response.data.length ? [response.data[0].name] : [];
+      const filters = !filterList.length ? [response.data[0].name] : filterList;
+      if (!filterList.length) setFilterList([response.data[0].name]);
       params1.append('category', filters ? JSON.stringify(filters) : '');
       params1.append('show_deleted', showDeleted);
       const response1 = await api.getQuestions(params1);
@@ -395,19 +396,22 @@ function Questions(props) {
               aria-haspopup="true"
               onClick={(e) => {
                 setCurrentRow(tableMeta.rowData);
-                if (tableMeta.rowData[8] || tableMeta.rowData[0] !== localStorage.getItem('id')) setEditAllowed(false);
-                else setEditAllowed(true);
+                let _editAllowed; let _cloneAllowed; let _deleteAllowed; let _undeleteAllowed;
+                if (!tableMeta.rowData[8] && tableMeta.rowData[9] === localStorage.getItem('id')) _editAllowed = true;
+                else _editAllowed = false;
 
-                if (tableMeta.rowData[8] || tableMeta.rowData[0] === localStorage.getItem('id') || deletedCategories.includes(tableMeta.rowData[1])) setCloneAllowed(false);
-                else setCloneAllowed(true);
+                if (!tableMeta.rowData[8] && tableMeta.rowData[9] === localStorage.getItem('id')
+                  && !deletedCategories.includes(tableMeta.rowData[1])) _cloneAllowed = true;
+                else _cloneAllowed = false;
 
-                if (tableMeta.rowData[8] || tableMeta.rowData[0] === localStorage.getItem('id')) setDeleteAllowed(false);
-                else setDeleteAllowed(true);
+                if (!tableMeta.rowData[8] && tableMeta.rowData[9] === localStorage.getItem('id')) _deleteAllowed = true;
+                else _deleteAllowed = false;
 
-                if (tableMeta.rowData[4] && tableMeta.rowData[0] === localStorage.getItem('id')) setUndeleteAllowed(true);
-                else setUndeleteAllowed(false);
+                if (tableMeta.rowData[8] && tableMeta.rowData[9] === localStorage.getItem('id')) _undeleteAllowed = true;
+                else _undeleteAllowed = false;
 
-                handleClickRowMenu(e);
+                setEditAllowed(_editAllowed); setCloneAllowed(_cloneAllowed); setDeleteAllowed(_deleteAllowed); setUndeleteAllowed(_undeleteAllowed);
+                if (_editAllowed || _cloneAllowed || _deleteAllowed || _undeleteAllowed) handleClickRowMenu(e);
               }}
             >
               <MoreVertIcon />
@@ -542,6 +546,7 @@ function Questions(props) {
 
       {showFilterDialog
         && <QuestionCategoryFilter
+          showDeleted={showDeleted}
           categories={categories}
           filterList={filterList}
           onSubmit={submitFilters}

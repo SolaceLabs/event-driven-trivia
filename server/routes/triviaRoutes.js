@@ -74,8 +74,9 @@ router.get('/test', async (req, res) => res.send('trivia route testing!'));
 router.get('/', async (req, res) => {
   const as_array = req?.query?.as_array && req?.query?.as_array === 'true';
   const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
-  Trivia.find(show_deleted ? { owner: { $eq: req.user._id } } : { owner: { $eq: req.user._id }, deleted: false })
+  Trivia.find(show_deleted ? { owner: { $eq: req.user._id }, deleted: true } : { owner: { $eq: req.user._id }, deleted: false })
     .populate('questions')
+    .populate('owner')
     .sort({ deleted: 1 })
     .then(trivias => {
       if (trivias.length > 0) {
@@ -120,7 +121,8 @@ router.get('/', async (req, res) => {
             c.collect_winners, // 15
             c.no_of_winners, // 16
             c.winners, // 17
-            c.shared // 18
+            c.shared, // 18
+            c.owner._id // 19
           ])
           : trivias
       });
@@ -148,7 +150,7 @@ router.get('/upcoming', async (req, res) => {
           ? trivias.map(c => [c._id, c.name, c.description, c.audience, c.category, // 0-4
             c.questions, c.scheduled, c.start_at, c.close_at, c.status, // 5-9
             c.mode, c.no_of_questions, c.time_limit, c.hash, c.deleted, // 10-14
-            c.collect_winners, c.no_of_winners, c.winners, c.owner.name // 15-18
+            c.collect_winners, c.no_of_winners, c.winners, c.shared, c.owner._id // 15-19
           ])
           : trivias
       });
@@ -175,7 +177,7 @@ router.get('/shared', async (req, res) => {
           ? trivias.map(c => [c._id, c.name, c.description, c.audience, c.category, // 0-4
             c.questions, c.scheduled, c.start_at, c.close_at, c.status, // 5-9
             c.mode, c.no_of_questions, c.time_limit, c.hash, c.deleted, // 10-14
-            c.collect_winners, c.no_of_winners, c.winners, c.owner.name // 15-18
+            c.collect_winners, c.no_of_winners, c.winners, c.shared, c.owner._id // 15-19
           ])
           : trivias
       });

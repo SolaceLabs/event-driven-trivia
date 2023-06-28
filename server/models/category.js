@@ -25,6 +25,14 @@ CategorySchema.virtual('no_of_questions', {
   count: true // Set `count: true` on the virtual
 });
 
+CategorySchema.virtual('no_of_deleted_questions', {
+  ref: 'Question',
+  localField: 'name',
+  foreignField: 'category',
+  count: true, // Set `count: true` on the virtual
+  match: { deleted: true }
+});
+
 CategorySchema.index({ name: 1 });
 CategorySchema.plugin(UniqueValidator);
 

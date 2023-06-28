@@ -68,15 +68,16 @@ router.get('/test', async (req, res) => res.send('category route testing!'));
 router.get('/', async (req, res) => {
   const as_array = req?.query?.as_array && req?.query?.as_array === 'true';
   const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
-  Category.find(show_deleted ? {} : { deleted: false })
+  Category.find(show_deleted ? { deleted: true } : { deleted: false })
     .populate('no_of_questions')
+    .populate('no_of_deleted_questions')
     .populate('owner')
     .sort({ deleted: 1 })
     .then(categories => res.json({
       success: true,
       message: 'Get categories successful',
       data: as_array
-        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.deleted, c.shared, c.owner.name])
+        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.deleted, c.shared, c.owner._id, c.no_of_deleted_questions, c.owner.name])
         : categories
     }))
     .catch(err => {
@@ -90,14 +91,15 @@ router.get('/', async (req, res) => {
 router.get('/shared', async (req, res) => {
   const as_array = req?.query?.as_array && req?.query?.as_array === 'true';
   const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
-  Category.find(show_deleted ? { shared: true } : { shared: true, deleted: false })
+  Category.find(show_deleted ? { shared: true, deleted: true } : { shared: true, deleted: false })
     .populate('owner')
     .populate('no_of_questions')
+    .populate('no_of_deleted_questions')
     .then(categories => res.json({
       success: true,
       message: 'Get shared categories successful',
       data: as_array
-        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.deleted, c.shared, c.owner.name])
+        ? categories.map(c => [c._id, c.name, c.description, c.no_of_questions, c.deleted, c.shared, c.owner._id, c.no_of_deleted_questions, c.owner.name])
         : categories
     }))
     .catch(err => {

@@ -18,7 +18,7 @@ const styles = theme => ({
   },
   doMoreButton: {
     margin: theme.spacing(1),
-    color: 'rgba(0, 0, 0, 0.87)',
+    color: theme.palette.text.main,
     backgroundColor: '#fafafa',
   },
   inputUpload: {
@@ -39,7 +39,7 @@ const CategoriesShowHelp = (props) => {
   const { classes } = props;
 
   return (
-    <Button className={classes.doMoreButton} variant="contained" color="secondary" onClick={() => props.setShow(prev => !prev)}>
+    <Button className={classes.doMoreButton} variant="contained" color="primary" onClick={() => props.setShow(prev => !prev)}>
       Do More
     </Button>
   );

@@ -1,5 +1,6 @@
 const dummyContents = {
   user: {
+    id: 'id',
     name: 'John Doe',
     title: 'Administrator',
     avatar: '/images/avatars/pp_boy4.jpg',

@@ -34,6 +34,7 @@ function QuestionCategoryFilter(props) {
   const {
     onCancel,
     onSubmit,
+    showDeleted,
     categories,
     filterList,
     classes
@@ -69,9 +70,14 @@ function QuestionCategoryFilter(props) {
     onCancel([]);
   };
 
-  const getCategoryName = (isDeleted, label) => (isDeleted
-    ? <del className={classes.deleted}> {label} </del>
-    : label);
+  const getCategoryName = (cat) => {
+    const label = cat.no_of_deleted_questions
+      ? <span>{cat.name} [{cat.no_of_questions - cat.no_of_deleted_questions}] <span className={classes.deleted}>[{cat.no_of_deleted_questions}]</span></span>
+      : `${cat.name} [${cat.no_of_questions}]`;
+    return cat.deleted
+      ? <del className={classes.deleted}> {label} </del>
+      : label;
+  };
 
   return (
     <Dialog
@@ -92,8 +98,9 @@ function QuestionCategoryFilter(props) {
               <div className={classes.items}>
                 <b>Your Categories</b>
                 <div>
-                  {categories.filter(cat => cat.owner.name === localStorage.getItem('name')).map((cat) => (
+                  {categories.filter(cat => cat.owner._id === localStorage.getItem('id')).map((cat) => (
                     <FormControlLabel
+                      id={cat._id}
                       control={(
                         <Checkbox
                           checked={inputState[cat.name]}
@@ -101,16 +108,17 @@ function QuestionCategoryFilter(props) {
                           value={cat.name}
                         />
                       )}
-                      label={getCategoryName(cat.deleted, `${cat.name} [${cat.no_of_questions}]`)}
+                      label={getCategoryName(cat)}
                     />
                   ))}
                 </div>
-                {!(categories.filter(cat => cat.owner.name === localStorage.getItem('name')).length)
+                {!(categories.filter(cat => cat.owner._id === localStorage.getItem('id')).length)
                   && <div>None<br/></div>}
                 <br/><b>Shared Categories</b>
                 <div>
-                  {categories.filter(cat => cat.owner.name !== localStorage.getItem('name')).map((cat) => (
+                  {categories.filter(cat => cat.owner._id !== localStorage.getItem('id')).map((cat) => (
                     <FormControlLabel
+                      id={cat._id}
                       control={(
                         <Checkbox
                           checked={inputState[cat.name]}
@@ -118,11 +126,11 @@ function QuestionCategoryFilter(props) {
                           value={cat.name}
                         />
                       )}
-                      label={getCategoryName(cat.deleted, `${cat.name} [${cat.no_of_questions}]`)}
+                      label={getCategoryName(cat)}
                     />
                   ))}
                 </div>
-                {!(categories.filter(cat => cat.owner.name !== localStorage.getItem('name')).length)
+                {!(categories.filter(cat => cat.owner._id !== localStorage.getItem('id')).length)
                   && <div>None<br/></div>}
               </div>
             </FormGroup>

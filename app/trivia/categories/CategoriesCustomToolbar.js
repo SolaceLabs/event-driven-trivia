@@ -25,12 +25,12 @@ function CategoriesCustomToolbar(props) {
           <AddIcon className={classes.deleteIcon}/>
         </IconButton>
       </Tooltip>
-      <Tooltip title={ showDeleted ? 'Hide Deleted' : 'Show Deleted'}>
+      <Tooltip title={ showDeleted ? 'Show Active Categories' : 'Show Deleted Categories'}>
         <IconButton className={classes.iconButton} onClick={() => { toggleDeleted(); }} >
           {showDeleted
-            && <VisibilityOffIcon className={classes.deleteIcon}/>}
-          {!showDeleted
             && <RemoveRedEyeIcon className={classes.deleteIcon}/>}
+          {!showDeleted
+            && <VisibilityOffIcon className={classes.deleteIcon}/>}
         </IconButton>
       </Tooltip>
       <Tooltip title={'Refresh Categories'}>

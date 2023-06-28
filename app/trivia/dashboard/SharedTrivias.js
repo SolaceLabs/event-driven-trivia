@@ -50,7 +50,7 @@ const styles = theme => ({
   },
   choiceSelected: {
     padding: 5,
-    backgroundColor: green[600],
+    backgroundColor: '#009191',
     color: '#fff'
   },
   choiceNormal: {

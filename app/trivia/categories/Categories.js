@@ -84,7 +84,7 @@ function Categories(props) {
   const [cloneAllowed, setCloneAllowed] = useState(false);
   const [shareAllowed, setShareAllowed] = useState(false);
   const [unshareAllowed, setUnshareAllowed] = useState(false);
-  const [showDeleted, setShowDeleted] = useState(true);
+  const [showDeleted, setShowDeleted] = useState(false);
   const [anchorEl2, setAnchorEl2] = React.useState(null);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [count, setCount] = useState(10);
@@ -278,7 +278,7 @@ function Categories(props) {
         filter: true,
         customBodyRender: (value, tableMeta, updateValue) => (
           <React.Fragment >
-            {getName(tableMeta.rowData[6])}
+            {getName(tableMeta.rowData[8])}
           </React.Fragment>
         )
       }
@@ -315,25 +315,30 @@ function Categories(props) {
               aria-haspopup="true"
               onClick={(e) => {
                 setCurrentRow(tableMeta.rowData);
-                if (tableMeta.rowData[4]) setEditAllowed(false);
-                else setEditAllowed(true);
+                let _editAllowed; let _cloneAllowed; let _shareAllowed; let _unshareAllowed; let _deleteAllowed; let _undeleteAllowed;
+                if (!tableMeta.rowData[4] && tableMeta.rowData[6] === localStorage.getItem('id')) _editAllowed = true;
+                else _editAllowed = false;
 
-                if (tableMeta.rowData[4]) setCloneAllowed(false);
-                else setCloneAllowed(true);
+                if (!tableMeta.rowData[4]) _cloneAllowed = true;
+                else _cloneAllowed = false;
 
-                if (tableMeta.rowData[4]) setDeleteAllowed(false);
-                else setDeleteAllowed(true);
+                if (!tableMeta.rowData[4] && tableMeta.rowData[6] === localStorage.getItem('id')) _deleteAllowed = true;
+                else _deleteAllowed = false;
 
-                if (tableMeta.rowData[4]) setUndeleteAllowed(true);
-                else setUndeleteAllowed(false);
+                if (tableMeta.rowData[4] && tableMeta.rowData[6] === localStorage.getItem('id')) _undeleteAllowed = true;
+                else _undeleteAllowed = false;
 
-                if (tableMeta.rowData[5] || tableMeta.rowData[4] || !tableMeta.rowData[3]) setShareAllowed(false);
-                else setShareAllowed(true);
+                if (!tableMeta.rowData[5] && !tableMeta.rowData[4] && tableMeta.rowData[3]
+                  && tableMeta.rowData[6] === localStorage.getItem('id')) _shareAllowed = true;
+                else _shareAllowed = false;
 
-                if (tableMeta.rowData[5] && !tableMeta.rowData[4]) setUnshareAllowed(true);
-                else setUnshareAllowed(false);
+                if (!tableMeta.rowData[4] && tableMeta.rowData[5] && tableMeta.rowData[6] === localStorage.getItem('id')) _unshareAllowed = true;
+                else _unshareAllowed = false;
 
-                handleClickRowMenu(e);
+                setEditAllowed(_editAllowed); setCloneAllowed(_cloneAllowed); setDeleteAllowed(_deleteAllowed);
+                setUndeleteAllowed(_undeleteAllowed); setShareAllowed(_shareAllowed); setUnshareAllowed(_unshareAllowed);
+
+                if (_editAllowed || _cloneAllowed || _deleteAllowed || _undeleteAllowed || _shareAllowed || _unshareAllowed) handleClickRowMenu(e);
               }}
             >
               <MoreVertIcon />
@@ -413,6 +418,10 @@ function Categories(props) {
         ),
         // setCellProps: () => ({ style: { maxWidth: "100px" }}),
       }
+    },
+    {
+      name: '', // 0
+      options: { display: false, filter: false, viewColumns: false }
     },
     {
       name: '', // 0

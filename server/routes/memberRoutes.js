@@ -25,7 +25,7 @@ router.get('/test', async (req, res) => res.send('user route testing!'));
 router.get('/', async (req, res) => {
   const as_array = req?.query?.as_array && req?.query?.as_array === 'true';
   const show_deleted = req?.query?.show_deleted && req?.query?.show_deleted === 'true';
-  User.find(show_deleted ? {} : { deleted: false })
+  User.find(show_deleted ? { deleted: true } : { deleted: false })
     .sort({ deleted: 1 })
     .then(users => res.json({
       success: true,

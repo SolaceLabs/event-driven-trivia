@@ -67,7 +67,7 @@ const styles = theme => ({
   },
   choiceSelected: {
     padding: 5,
-    backgroundColor: green[600],
+    backgroundColor: '#009191',
     color: '#fff'
   },
   choiceNormal: {
@@ -123,7 +123,7 @@ function Trivias(props) {
   const [cloneAllowed, setCloneAllowed] = useState(false);
   const [shareAllowed, setShareAllowed] = useState(false);
   const [unshareAllowed, setUnshareAllowed] = useState(false);
-  const [showDeleted, setShowDeleted] = useState(true);
+  const [showDeleted, setShowDeleted] = useState(false);
   const [anchorEl2, setAnchorEl2] = React.useState(null);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [count, setCount] = useState(10);
@@ -472,7 +472,7 @@ function Trivias(props) {
       }
     },
     {
-      name: 'Top Performers', // 15, 16
+      name: 'Winners', // 15, 16
       options: {
         filter: false,
         sort: false,
@@ -623,30 +623,36 @@ function Trivias(props) {
               aria-haspopup="true"
               onClick={(e) => {
                 setCurrentRow(tableMeta.rowData);
+                let _reopenAllowed; let _editAllowed; let _cloneAllowed; let _shareAllowed; let _unshareAllowed; let _deleteAllowed; let _undeleteAllowed;
                 if (!tableMeta.rowData[14] && (tableMeta.rowData[9] === 'COMPLETED' || tableMeta.rowData[9] === 'ABORTED'
-                    || tableMeta.rowData[9] === 'EXPIRED')) setReopenAllowed(true);
-                else setReopenAllowed(false);
+                    || tableMeta.rowData[9] === 'EXPIRED') && tableMeta.rowData[19] === localStorage.getItem('id')) _reopenAllowed = true;
+                else _reopenAllowed = false;
 
-                if (tableMeta.rowData[14] || tableMeta.rowData[9] === 'COMPLETED' || tableMeta.rowData[9] === 'ABORTED'
-                    || tableMeta.rowData[9] === 'EXPIRED' || tableMeta.rowData[9] === 'STARTED' || tableMeta.rowData[14]) setEditAllowed(false);
-                else setEditAllowed(true);
+                if (!tableMeta.rowData[14] && !(tableMeta.rowData[9] === 'COMPLETED' || tableMeta.rowData[9] === 'ABORTED'
+                    || tableMeta.rowData[9] === 'EXPIRED' || tableMeta.rowData[9] === 'STARTED')
+                    && tableMeta.rowData[19] === localStorage.getItem('id')) _editAllowed = true;
+                else _editAllowed = false;
 
-                if (tableMeta.rowData[9] === 'STARTED' || tableMeta.rowData[14]) setDeleteAllowed(false);
-                else setDeleteAllowed(true);
+                if (!tableMeta.rowData[14] && tableMeta.rowData[9] !== 'STARTED' && tableMeta.rowData[19] === localStorage.getItem('id')) _deleteAllowed = true;
+                else _deleteAllowed = false;
 
-                if (tableMeta.rowData[14]) setUndeleteAllowed(true);
-                else setUndeleteAllowed(false);
+                if (tableMeta.rowData[14] && tableMeta.rowData[19] === localStorage.getItem('id')) _undeleteAllowed = true;
+                else _undeleteAllowed = false;
 
-                if (tableMeta.rowData[14] || deletedCategories.includes(tableMeta.rowData[4])) setCloneAllowed(false);
-                else setCloneAllowed(true);
+                if (!tableMeta.rowData[14] && tableMeta.rowData[5].length && tableMeta.rowData[19] === localStorage.getItem('id')) _cloneAllowed = true;
+                else _cloneAllowed = false;
 
-                if (tableMeta.rowData[18] || tableMeta.rowData[14] || !tableMeta.rowData[5].length) setShareAllowed(false);
-                else setShareAllowed(true);
+                if (!tableMeta.rowData[14] && !tableMeta.rowData[18] && tableMeta.rowData[5].length
+                    && tableMeta.rowData[19] === localStorage.getItem('id')) _shareAllowed = true;
+                else _shareAllowed = false;
 
-                if (tableMeta.rowData[18] && !tableMeta.rowData[18]) setUnshareAllowed(true);
-                else setUnshareAllowed(false);
+                if (!tableMeta.rowData[14] && tableMeta.rowData[18] && tableMeta.rowData[19] === localStorage.getItem('id')) _unshareAllowed = true;
+                else _unshareAllowed = false;
 
-                handleClickRowMenu(e);
+                setReopenAllowed(_reopenAllowed); setEditAllowed(_editAllowed); setCloneAllowed(_cloneAllowed); setDeleteAllowed(_deleteAllowed);
+                setUndeleteAllowed(_undeleteAllowed); setShareAllowed(_shareAllowed); setUnshareAllowed(_unshareAllowed);
+
+                if (_reopenAllowed || _editAllowed || _cloneAllowed || _deleteAllowed || _undeleteAllowed || _shareAllowed || _unshareAllowed) handleClickRowMenu(e);
               }}
             >
               <MoreVertIcon />
@@ -738,6 +744,14 @@ function Trivias(props) {
         ),
         setCellProps: () => ({ style: { height: 'auto', overflow: 'unset' } }),
       },
+    },
+    {
+      name: '', // 0
+      options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: '', // 0
+      options: { display: false, filter: false, viewColumns: false }
     },
     {
       name: '', // 0

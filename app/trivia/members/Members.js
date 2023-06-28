@@ -73,7 +73,7 @@ function Members(props) {
   const [rowsSelected, setRowsSelected] = useState([]);
   const [rowsDeleted, setRowsDeleted] = useState([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showDeleted, setShowDeleted] = useState(true);
+  const [showDeleted, setShowDeleted] = useState(false);
   const [anchorEl2, setAnchorEl2] = React.useState(null);
   const openRowMenu = Boolean(anchorEl2);
 

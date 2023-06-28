@@ -19,12 +19,12 @@ function MembersCustomToolbar(props) {
 
   return (
     <React.Fragment>
-      <Tooltip title={ showDeleted ? 'Hide Deleted' : 'Show Deleted'}>
+      <Tooltip title={ showDeleted ? 'Show Active Members' : 'Show Deleted Members'}>
         <IconButton className={classes.iconButton} onClick={() => { toggleDeleted(); }} >
           {showDeleted
-            && <VisibilityOffIcon className={classes.deleteIcon}/>}
-          {!showDeleted
             && <RemoveRedEyeIcon className={classes.deleteIcon}/>}
+          {!showDeleted
+            && <VisibilityOffIcon className={classes.deleteIcon}/>}
         </IconButton>
       </Tooltip>
       <Tooltip title={'Refresh Members'}>

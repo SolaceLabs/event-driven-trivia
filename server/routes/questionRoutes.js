@@ -73,7 +73,8 @@ router.get('/', async (req, res) => {
     return;
   }
 
-  await Question.find(show_deleted ? { category: { $in: filter } } : { deleted: false, category: { $in: filter } })
+  await Question.find(show_deleted ? { deleted: true, category: { $in: filter } } : { deleted: false, category: { $in: filter } })
+    .populate('owner')
     .sort({ deleted: 1 })
     .then(questions => {
       res.json({
@@ -81,7 +82,7 @@ router.get('/', async (req, res) => {
         message: 'Get questions successful',
         data: questions.map(q => [q._id, q.category, q.question,
           q.choice_1, q.choice_2, q.choice_3,
-          q.choice_4, q.answer, q.deleted])
+          q.choice_4, q.answer, q.deleted, q.owner._id])
       });
     })
     .catch(err => {
