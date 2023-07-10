@@ -1,6 +1,7 @@
+/* eslint-disable no-return-assign */
 // cconsole.js
-'use strict';
-const chalk = require('chalk')
+
+const chalk = require('chalk');
 module.exports = class cconsole {
   static getTime = () => {
     const now = new Date();
@@ -15,10 +16,11 @@ module.exports = class cconsole {
     args.forEach(arg => str += ` ${arg}`);
     console.log(str);
   }
+
   static error(name, ...args) {
     let str = chalk.green.bold(`[${name}]: `);
     str += chalk.red.bold(` ${this.getTime()} - `);
     args.forEach(arg => str += ` ${arg}`);
     console.log(str);
   }
-}
+};

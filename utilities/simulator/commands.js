@@ -19,6 +19,14 @@ const init = (data) => {
   printMockConfig();
 };
 
+const setGameCode = (code) => {
+  const mocks = getMockConfig();
+  mocks.gameCode = code;
+  console.log(chalk.green.bold(`Mock game code set to ${code}`));
+  setMockConfig(mocks);
+  printMockConfig();
+};
+
 const setChatCount = (count) => {
   const mocks = getMockConfig();
   mocks.chatCount = Number(count);
@@ -113,6 +121,7 @@ module.exports = {
   setClientCount,
   setLeaderBoardRefresh,
   setScoreCardRefresh,
+  setGameCode,
   reviewMock,
   resetMock,
   startMock,

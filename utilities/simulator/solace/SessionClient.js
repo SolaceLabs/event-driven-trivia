@@ -1,8 +1,8 @@
 /* eslint-disable no-useless-escape */
 /* eslint-disable no-plusplus */
 const solaceModule = require('solclientjs'); // logging supported
-const cconsole = require('./cconsole');
 const shortHash = require('shorthash2');
+const cconsole = require('./cconsole');
 require('dotenv').config();
 const {
   SOLACE_URL, MSG_VPN, USER_NAME, PASSWORD

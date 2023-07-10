@@ -630,7 +630,7 @@ class ConsoleCallbacks {
               console.log('Update Trivia failed: ', _err);
               throw new Error('Update Trivia failed');
             } else {
-              // console.log('Update stats success', result);
+              console.log('Update stats success', result);
               this.publishLeaderBoard(result);
 
               Trivia.aggregate([

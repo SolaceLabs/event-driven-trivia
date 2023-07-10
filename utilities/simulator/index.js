@@ -1,13 +1,25 @@
 #! /usr/bin/env node
 const { program } = require('commander');
-const { init, setChatCount, setClientCount, setLeaderBoardRefresh, setScoreCardRefresh, 
-  reviewMock, resetMock, startMock, stopMock } = require('./commands');
+const {
+  init, setChatCount, setClientCount, setLeaderBoardRefresh, setScoreCardRefresh, setGameCode,
+  reviewMock, resetMock, startMock, stopMock
+} = require('./commands');
 
 require('dotenv').config();
-console.log("PROCESS: " + process.pid);
+console.log('PROCESS: ' + process.pid);
 
-process.on('SIGINT', function() {
-  console.log("Caught interrupt signal");
+const {
+  CLIENTS, CHAT, LEADERBOARD, SCORECARD, GAME_CODE
+} = process.env;
+
+if (CLIENTS !== undefined) setClientCount(CLIENTS);
+if (CHAT !== undefined) setChatCount(CHAT);
+if (LEADERBOARD !== undefined) setLeaderBoardRefresh(LEADERBOARD);
+if (SCORECARD !== undefined) setScoreCardRefresh(SCORECARD);
+if (GAME_CODE !== undefined) setGameCode(GAME_CODE);
+
+process.on('SIGINT', () => {
+  console.log('Caught interrupt signal');
   stopMock();
   process.exit();
 });
