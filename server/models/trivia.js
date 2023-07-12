@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 const playerSchema = new Schema({
-  names: [String], connected: [String], current: Number, high: Number, timestamp: Date
+  names: [String], connected: [String], joined: [String], live: Number, current: Number, high: Number, timestamp: Date
 });
 
 const winnerSchema = new Schema({

@@ -19,7 +19,7 @@ const styles = theme => ({
   doMoreButton: {
     margin: theme.spacing(1),
     color: theme.palette.text.main,
-    backgroundColor: '#fafafa',
+    backgroundColor: '#6f6e77',
   },
   inputUpload: {
     display: 'none',

@@ -111,9 +111,10 @@ function updateGameChat(message, controller = false) {
                 </li>`;
 
   const gameChatList = document.querySelectorAll('.trivia-chat-list');
-  gameChatList.forEach(el => el.insertAdjacentHTML('beforeend', temp));
+  gameChatList.forEach(el => el.insertAdjacentHTML('afterbegin', temp));
   const gameChatArea = document.querySelectorAll('.trivia-chat-container');
   gameChatArea.forEach(el => el.scrollTop = el.scrollHeight);
+  gameChatArea.scrollTop = gameChatArea[0].scrollHeight;
 }
 
 function emptyGameChat() {
@@ -124,6 +125,7 @@ function emptyGameChat() {
 }
 
 function sendChatMessage(message) {
+  if (!message.length) return;
   const emoji = emojiRegex.test(message);
 
   updateHappening('Message: ' + message, INFO);
@@ -297,7 +299,7 @@ function gameInfo(message) {
 
   document.getElementById('trivia-not-available').style.display = 'none';
   document.getElementById('trivia-not-available').height = 0;
-  if (trivia.players) document.getElementById('trivia-participants').innerHTML = trivia.players.current;
+  if (trivia.players) document.getElementById('trivia-participants').innerHTML = trivia.players.live ? trivia.players.live : '-';
 
   if (new Date(trivia.start_at).getTime() - new Date().getTime() < 0) {
     document.getElementById('count-down-tracker').style.display = 'none';
@@ -504,6 +506,20 @@ function gameStart(message = undefined) {
     updateHappening('Mock game start', INFO);
     showNextQuestion();
   }
+}
+
+function openNicknameDialog() {
+  document.getElementById('player-name-form').style.display = 'block';
+}
+
+function gameInvite(message = undefined) {
+  // `trivia/${window.gameCode}/broadcast/gamestarted`
+  // if (window.gameStarted) {
+  //   console.log('Hmm... duplicate game start, ignored!');
+  //   return;
+  // }
+
+  if (!window.joined) document.getElementById('player-join-form').style.display = 'block';
 }
 
 function submitForm() {
@@ -778,6 +794,7 @@ function solaceClientConnected() {
     client.subscribe(`trivia/${window.gameCode}/response/getrank/${window.nickName}`, gameYourRank);
     client.subscribe(`trivia/${window.gameCode}/response/winner/${window.nickName}`, gameWinner);
     client.subscribe(`trivia/${window.gameCode}/update/error/+/${window.nickName}`, gameError);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/invite`, gameInvite);
     client.subscribe(`trivia/${window.gameCode}/broadcast/gamestarted`, gameStart);
     client.subscribe(`trivia/${window.gameCode}/broadcast/gameaborted`, gameAbort);
     client.subscribe(`trivia/${window.gameCode}/broadcast/gameended`, gameEnd);
@@ -803,7 +820,47 @@ function solaceClientConnectionError() {
   document.getElementById('could_not_connect_to_broker').classList.add('show');
 }
 
-function setup() {
+function init() {
+  try {
+    document.getElementById('game_content').classList.add('hide');
+    document.getElementById('spinner').classList.add('show');
+
+    const gameCode = getQueryParams('code', location.href);
+    updateHappening('Query Params: ' + location.href + ', ' + gameCode, DEBUG);
+    if (!gameCode) {
+      document.getElementById('spinner').classList.remove('show');
+      document.getElementById('spinner').classList.add('hide');
+      document.getElementById('invalid_game').classList.add('show');
+
+      updateHappening('Error: Unknown or missing game code', ERROR);
+      alert('Unknown Game: setup');
+
+      return;
+    }
+
+    window.gameCode = gameCode;
+    window.type = 'player';
+    window.questions = [];
+    window.currentQuestion = 0;
+    window.timeLimit = 0;
+
+    client = new SolaceClient(
+      window.nickName,
+      window.gameCode,
+      window.type,
+      solaceClientConnected,
+      solaceClientConnectionError,
+      solaceClientDisconnected
+    );
+    client.connect();
+
+    updateHappening('Successfully connected to Broker', INFO);
+  } catch (error) {
+    updateHappening('Error: ' + error.message, ERROR);
+  }
+}
+
+function join() {
   try {
     document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName;
     document.getElementById('player-id').style.padding = '3px';
@@ -858,7 +915,7 @@ function updatePlayerName() {
     document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName;
     document.getElementById('player-id').style.padding = '3px';
     document.getElementById('player-name-form').style.display = 'none';
-    setup();
+    join();
     closeNicknameDialog();
   }
 }
@@ -867,12 +924,8 @@ function randomPlayerName() {
   document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName;
   document.getElementById('player-id').style.padding = '3px';
   document.getElementById('player-name-form').style.display = 'none';
-  setup();
+  join();
   closeNicknameDialog();
-}
-
-function openNicknameDialog() {
-  document.getElementById('player-name-form').style.display = 'block';
 }
 
 slider.oninput = (event) => {
@@ -916,7 +969,24 @@ window.addEventListener('beforeunload', (e) => {
 });
 
 window.addEventListener('load', () => {
-  console.log('IsMobile', isMobile());
+  const mobile = isMobile();
+  console.log('IsMobile', mobile);
+  if (document.getElementById('full-dashboard')) document.getElementById('full-dashboard').style.display = 'none';
+  if (document.getElementById('dashboard-visibility')) document.getElementById('dashboard-visibility').innerHTML = 'Show Dashboard';
+
+  document.getElementById('dashboard-visibility').addEventListener('click', (event) => {
+    if (document.getElementById('dashboard-visibility').innerHTML === 'Show Dashboard') {
+      if (document.getElementById('full-dashboard')) document.getElementById('full-dashboard').style.display = 'block';
+      if (document.getElementById('dashboard-visibility')) document.getElementById('dashboard-visibility').innerHTML = 'Hide Dashboard';
+    } else {
+      if (document.getElementById('full-dashboard')) document.getElementById('full-dashboard').style.display = 'none';
+      if (document.getElementById('dashboard-visibility')) document.getElementById('dashboard-visibility').innerHTML = 'Show Dashboard';
+    }
+  });
+
+  // initialize the game
+  // init();
+
   if (isMobile()) {
     const hideButtons = document.querySelectorAll('.not-for-mobile');
     hideButtons.forEach(el => el.style.display = 'none');
@@ -979,6 +1049,11 @@ window.addEventListener('load', () => {
   // document.querySelector('#trivia-chat-load').addEventListener('click', () => {
   //   client.publish(`trivia/${window.gameCode}/query/stats/${window.nickName}`);
   // });
+  document.querySelector('#join-button').addEventListener('click', () => {
+    window.joined = true;
+    client.publish(`trivia/${window.gameCode}/update/join/${window.nickName}`);
+    document.getElementById('player-join-form').style.display = 'none';
+  });
   document.querySelector('#trivia-leaderboard-load').addEventListener('click', () => {
     client.publish(`trivia/${window.gameCode}/query/leaderboard/${window.nickName}`);
   });

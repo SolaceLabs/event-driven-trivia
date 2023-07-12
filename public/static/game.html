@@ -63,8 +63,17 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
       </div>
     </div>
 
+    <div id="player-name-container"  class="w3-row-padding" style="display: flex; flex-direction: row; justify-content: space-between; margin-top: 26px;">
+      <div class="player-name-holder"> <span class="player-name" id="player-id"></span></div>
+      <div id="partial-dashboard-holder" class="w3-row-padding" style="cursor: pointer">
+        <div class="w3-right" style="display: flex; align-items: baseline;">
+          <i style="font-size: 18px;" class="fas fa-dashboard"></i>
+          <span id="dashboard-visibility" class="w3-right" style="margin-left:10px;"></span>
+        </div>
+      </div>
+    </div>
+
     <!-- DASHBOARD CONTENT! -->
-    <div class="player-name-holder"> <span class="player-name" id="player-id"></span></div>
     <div id="trivia-controller" class="w3-container w3-padding-large trivia-controller" style="padding:unset !important;">
       <div class="w3-container w3-padding-large">
         <div id="count-down-tracker" class="w3-row-padding w3-margin-bottom">
@@ -73,8 +82,8 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
         </div>
       </div>
     </div>
-    
-    <div class="w3-row-padding w3-margin-bottom" >
+
+    <div id="full-dashboard" class="w3-row-padding w3-margin-bottom" >
       <div class="w3-twothird">
         <div class="w3-third">
             <div class="w3-container sol-accent-1 w3-padding-large">
@@ -140,21 +149,20 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
           <div style="height:48px;">
             <h5 class="w3-left">Chatter</h5>
             <button id="trivia-chat-resize" class="w3-right circular-button not-for-mobile" style="display:block; margin:10px 0; border-radius: 25px; "><i class="fas fa-expand"></i></button>
-            <!-- <button id="trivia-chat-load" class="w3-right circular-button" style="margin:10px 0; border-radius: 25px; "><i class="fa fa-refresh"></i></button> -->
           </div>          
-          <div class="w3-card-4 w3-white" style="min-height:320px;width: 100%;display:flex;justify-content:center;align-items:center; ">
-            <div style="display: inline-block;position: relative;height:100%; width: 100%;">
+          <div class="w3-card-4 w3-white" style="width: 100%;display:flex;justify-content:center;align-items:center; ">
+            <div style="display: flex;height:320px; width: 100%;">
               <div id="trivia-modal-chat" class="w3-container w3-light-grey trivia-chat">
-                <div class="fixTableHead trivia-score-card-table w3-card-4 w3-white" style="height:320px;overflow: scroll;">
-                  <div id="trivia-chat-container" class="w3-white trivia-chat-container" style="height:320px; overflow: scroll;">
+                <div class="trivia-chat-input-area">
+                  <input id="trivia-chat-input" class="trivia-chat-input" type="text">
+                  <button class="trivia-chat-submit"> <i class="material-icons"> send</i></button>
+                  <button class="trivia-chat-emoji-button not-for-mobile"> &#127773;</button>
+                </div>
+                <div class="fixTableHead trivia-score-card-table w3-card-4 w3-white" style="flex-grow: 1;">
+                  <div id="trivia-chat-container" class="w3-white trivia-chat-container">
                     <ul class="w3-ul trivia-chat-list" style="height: inherit;">
                     </ul>            
                   </div>                        
-                  <div class="trivia-chat-input-area">
-                    <input id="trivia-chat-input" class="trivia-chat-input" type="text">
-                    <button class="trivia-chat-submit"> <i class="material-icons"> send</i></button>
-                    <button class="trivia-chat-emoji-button not-for-mobile"> &#127773;</button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -378,11 +386,9 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
 
   <!-- PLAYER NAME FORM -->
   <div id="player-name-form" class="overlay image-background">
-    <!-- <a href="javascript:void(0)" class="closebtn"  onclick="closeNicknameDialog()">&times;</a> -->
     <div class="player-name-modal ">
       <div class="msg-text" id="player-name-intro"></div>
       <form class="center-of-div image-transbox">
-        <!-- <img src="images/person.svg" alt="Avatar" class="w3-circle w3-margin-top"> -->
         <div><label class="image-transbox-title"><b>Nickname</b></label></div><br/>
         <input class="w3-input w3-border w3-margin-bottom" type="text" 
               placeholder="Enter Nickname" id="nickname" required>
@@ -394,6 +400,27 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
     </div>
   </div>
 
+
+  <!-- PLAYER JOIN FORM -->
+  <div id="player-join-form" class="overlay image-background">
+    <div class="player-name-modal">
+    
+      <div class="button-container">
+        <div id="invite-header">
+          <div>Trivia is about to start!</div>
+          <div id="invite-header-border"></div>
+        </div>
+        <div class="trivia-get-set-go-container">
+          <div id="join-button" class="glass-btn red-btn">
+            <div class="content">
+              Join
+            </div>
+          </div>
+        </div>
+    </div>
+    </div>
+  </div>
+  
   <!-- INFO LOG CONTENT -->
   <div id="info-log-modal" class="modal">
     <div class="w3-bar w3-top w3-black w3-large">
@@ -422,6 +449,8 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
     document.getElementById("game_content").style.display = 'block';
     document.getElementById("trivia-modal").style.display = 'none';
     document.getElementById("tsparticles").style.display = 'none';
+    document.getElementById('player-name-form').style.display = 'none';
+    document.getElementById('player-join-form').style.display = 'none';
 
     openNicknameDialog();
 
