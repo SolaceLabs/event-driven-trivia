@@ -18,7 +18,7 @@ const activities = {
   'broadcast/question': { category: 'Trivia Interaction', background: '#4831D4', action: 'receive' },
   'broadcast/restart': { category: 'Trivia Status', background: '#4831D4', action: 'receive' },
   'broadcast/usercount': { category: 'User Presence', background: '#4831D4', action: 'receive' },
-  'query/eventgroups': { category: 'Trivia Info', background: '#EE4E34', action: 'send' },
+  'broadcast/invite': { category: 'Trivia Invite', background: '#4831D4', action: 'receive' },
   'query/getrank': { category: 'Member Rank', background: '#EE4E34', action: 'send' },
   'query/info': { category: 'Trivia Info', background: '#EE4E34', action: 'send' },
   'query/stats': { category: 'Trivia Stats', background: '#EE4E34', action: 'send' },
@@ -27,7 +27,6 @@ const activities = {
   'query/scorecard': { category: 'Trivia Scorecard', background: '#EE4E34', action: 'send' },
   'query/validation': { category: 'Trivia Info', background: '#EE4E34', action: 'send' },
   'query/winner': { category: 'Trivia Info', background: '#EE4E34', action: 'send' },
-  'response/eventgroups': { category: 'Trivia Info', background: '#783937', action: 'receive' },
   'response/getrank': { category: 'Member Rank', background: '#783937', action: 'receive' },
   'response/info': { category: 'Trivia Info', background: '#783937', action: 'receive' },
   'response/stats': { category: 'Trivia Stats', background: '#783937', action: 'receive' },
@@ -41,6 +40,7 @@ const activities = {
   'update/answer': { category: 'Trivia Interaction', background: '#3A6B35', action: 'send' },
   'update/chat': { category: 'Trivia Chat', background: '#3A6B35', action: 'send' },
   'update/error': { category: 'Trivia Error', background: '#3A6B35', action: 'send' },
+  'update/invite': { category: 'Trivia Invite', background: '#3A6B35', action: 'send' },
   'update/start': { category: 'Trivia Status', background: '#3A6B35', action: 'send' },
   'update/winner': { category: 'Trivia Winner', background: '#3A6B35', action: 'send' },
   'update/user': { category: 'Activity Trails', background: '#3A6B35', action: 'send' }
@@ -51,6 +51,8 @@ const activitySetting = Object.values(activities);
 const triviaPlayersConfig = new Conf();
 class ConsoleCallbacks {
   setupPlayerSynch = () => {
+    triviaPlayersConfig.set('players', {});
+
     setInterval(() => {
       const players = triviaPlayersConfig.get('players') ? triviaPlayersConfig.get('players') : {};
       let changed = 0;
@@ -442,16 +444,6 @@ class ConsoleCallbacks {
     }
   }
 
-  onEventGroupsCallback = (message) => {
-    // 'trivia/${game_code}/query/eventgroups/${window.nickName}'
-    const topic = message.getDestination();
-    const parts = topic.getName().split('/');
-    const game_code = parts[1];
-    const reply_to = parts[4];
-    const groups = Object.values(activities).sort((a, b) => (a.category < b.category ? -1 : 1));
-    this.consoleClient.publish(`trivia/${game_code}/response/eventgroups/${reply_to}`, groups);
-  }
-
   onLeaderboardCallback = (message) => {
     // 'trivia/${game_code}/query/leaderboard/${window.nickName}'
     const topic = message.getDestination();
@@ -536,42 +528,68 @@ class ConsoleCallbacks {
       game = await this.getTriviaPlayers(game_code);
       if (!game) {
         game = {
-          names: [], connected: [], current: 0, high: 1
+          names: [], connected: [], joined: [], live: 0, current: 0, high: 1
         };
       }
     }
 
-    // if (!game.current && action === 'DISCONNECTED') {
-    //   // ignore
-    // } else {
-    if (game.connected.includes(reply_to) && action === 'CONNECTED') {
-      this.consoleClient.publish(`trivia/${game_code}/broadcast/usercount/${game.current}`);
-      return;
-    }
+    // if (game.connected.includes(reply_to) && action === 'CONNECTED') {
+    //   this.consoleClient.publish(`trivia/${game_code}/broadcast/usercount/${game.current}`);
+    //   return;
+    // }
 
-    if (!game.connected.includes(reply_to) && action === 'DISCONNECTED') {
-      this.consoleClient.publish(`trivia/${game_code}/broadcast/usercount/${game.current}`);
-      return;
-    }
+    // if (!game.connected.includes(reply_to) && action === 'DISCONNECTED') {
+    //   this.consoleClient.publish(`trivia/${game_code}/broadcast/usercount/${game.current}`);
+    //   return;
+    // }
 
-    // if (!game.names.includes(reply_to)) game.names.push(reply_to);
     if (!game.connected.includes(reply_to) && action === 'CONNECTED') {
       game.names.push(reply_to);
       game.connected.push(reply_to);
-    }
-    if (game.connected.includes(reply_to) && action === 'DISCONNECTED') {
-      game.connected = game.connected.filter(a => a !== reply_to);
-      game.names = game.names.filter(a => a !== reply_to);
+      game.current += ((action === 'CONNECTED') ? 1 : -1);
+      game.current = (game.current < 0) ? 0 : game.current;
+
+      console.log(this.getTime(), `Publish trivia/${game_code}/broadcast/chat`);
+      this.consoleClient.publish(`trivia/${game_code}/broadcast/chat`, {
+        name: 'controller',
+        message: `${reply_to} joined`,
+        emoji: false,
+        timestamp: new Date().toISOString()
+      });
     }
 
-    game.current += ((action === 'CONNECTED') ? 1 : -1);
-    game.current = (game.current < 0) ? 0 : game.current;
+    if (game.connected.includes(reply_to) && action === 'DISCONNECTED') {
+      if (game.joined.includes(reply_to)) {
+        game.joined = game.joined.filter(a => a !== reply_to);
+        game.live -= 1;
+        game.live = (game.live < 0) ? 0 : game.live;
+        this.consoleClient.publish(`trivia/${game_code}/broadcast/usercount/${game.live}`);
+      }
+
+      console.log(this.getTime(), `Publish trivia/${game_code}/broadcast/chat`);
+      this.consoleClient.publish(`trivia/${game_code}/broadcast/chat`, {
+        name: 'controller',
+        message: `${reply_to} left`,
+        emoji: false,
+        timestamp: new Date().toISOString()
+      });
+
+      game.connected = game.connected.filter(a => a !== reply_to);
+      game.names = game.names.filter(a => a !== reply_to);
+      game.current += ((action === 'CONNECTED') ? 1 : -1);
+      game.current = (game.current < 0) ? 0 : game.current;
+    }
+
+    if (game.connected.includes(reply_to) && action === 'JOINED') {
+      game.joined.push(reply_to);
+      game.live += 1;
+      this.consoleClient.publish(`trivia/${game_code}/broadcast/usercount/${game.live}`);
+    }
+
     game.high = (game.current > game.high) ? game.current : game.high;
     game.timeStamp = new Date();
     players[game_code] = game;
 
-    this.consoleClient.publish(`trivia/${game_code}/broadcast/usercount/${game.current}`);
-    // }
     triviaPlayersConfig.set('players', players);
   }
 
@@ -696,7 +714,7 @@ class ConsoleCallbacks {
             trivia: _trivia._id,
             questions,
             players: {
-              names: [], low: 0, current: 0, high: 0
+              names: [], low: 0, joined: [], live: 0, current: 0, high: 0
             },
             chat: [],
             score: [],
@@ -809,6 +827,47 @@ class ConsoleCallbacks {
       console.log(`Worker exited with code ${code}.`);
       // worker.terminate();
     });
+  }
+
+  onJoinCallback = async (message) => {
+    // 'trivia/${game_code}/update/join'
+    const topic = message.getDestination();
+    const parts = topic.getName().split('/');
+    const game_code = parts[1];
+    const reply_to = parts[4];
+
+    const status = await this.getGameStatus(game_code);
+    if (status === 'TRIVIA_NOT_FOUND') {
+      this.consoleClient.publish(`trivia/${game_code}/update/error/join/${reply_to}`, { message: 'Trivia not found' });
+      return;
+    }
+    if (status === 'STARTED') {
+      this.consoleClient.publish(`trivia/${game_code}/update/error/join/${reply_to}`, { message: 'Trivia already in progress' });
+      return;
+    }
+
+    this.updateTriviaUsersConfig(game_code, reply_to, 'JOINED');
+  }
+
+  onInviteCallback = async (message) => {
+    // 'trivia/${game_code}/update/invite'
+    const topic = message.getDestination();
+    const parts = topic.getName().split('/');
+    const game_code = parts[1];
+    const reply_to = parts[4];
+
+    const status = await this.getGameStatus(game_code);
+    if (status === 'TRIVIA_NOT_FOUND') {
+      this.consoleClient.publish(`trivia/${game_code}/update/error/invite/${reply_to}`, { message: 'Trivia not found' });
+      return;
+    }
+    if (status === 'STARTED') {
+      this.consoleClient.publish(`trivia/${game_code}/update/error/invite/${reply_to}`, { message: 'Trivia already in progress' });
+      return;
+    }
+
+    console.log(this.getTime(), `Publish trivia/${game_code}/broadcast/invite`);
+    this.consoleClient.publish(`trivia/${game_code}/broadcast/invite`);
   }
 }
 

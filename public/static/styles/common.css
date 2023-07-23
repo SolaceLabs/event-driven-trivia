@@ -93,7 +93,8 @@ div#fashion .ranking{
 
 /*-- TRIVIA PREGAME CHAT --*/
 .trivia-controller {
-  margin-top: 46px;
+  /* margin-top: 46px; */
+  margin-top: 6px;
 }
 
 #trivia-chat-list {
@@ -178,7 +179,7 @@ input[type="text"]{
   position: relative;
   display: flex;
   justify-content: center;
-  margin-top: -33px;
+  /* margin-top: -33px; */
 }
 
 .trivia-chat-emoji-button {
@@ -206,13 +207,21 @@ input[type="text"]{
 }
 
 .trivia-chat-container {
+  /* height: 287px;
+  margin-top: 32px; */
   width: 100%;
   padding: 0;
-  flex-grow: 1;
 }
 
 .trivia-no-chat {
   height: inherit; 
+}
+
+.chat-message {
+  padding: 0.5em;
+  margin: 0.5em;
+  line-height: 1.1em;
+  background-color: white;
 }
 
 /*-- SCORECARD  --*/
@@ -641,7 +650,7 @@ input[type="text"]{
 
 .player-name-holder {
   position:fixed;
-	top:50px;
+	/* top:50px; */
 	right:5px;
   color:black;
   font-style: italic;
@@ -1031,4 +1040,202 @@ input[type="text"]{
   color: #fff;
   min-width: 36px;
   text-align: center;
+}
+
+/**
+ * ==============================================
+ * SLANTED BUTTON
+ * ==============================================
+ */
+
+.trivia-get-set-go-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 10px;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.glass-btn {
+  width: 100px;
+  height: 100px;
+  background-color: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  margin-left: 1em;
+  margin-right: 1em;  
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &.green-btn {
+    -webkit-box-shadow: 0px 20px 20px -17px rgba(0 145 147);
+    -moz-box-shadow: 0px 20px 20px -17px rgba(0 145 147);
+    box-shadow: 0px 20px 20px -17px rgba(0 145 147);
+
+    &:hover {
+      -webkit-box-shadow: 0px 20px 35px -16px rgba(0 145 147);
+      -moz-box-shadow: 0px 20px 35px -16px rgba(0 145 147);
+      box-shadow: 0px 20px 35px -16px rgba(0 145 147);
+    }
+
+    .content {
+      font-size: 2em;
+      /* font-family: "Roboto", sans-serif; */
+      background: linear-gradient(to right, rgba(0 145 147), rgba(0, 144, 147, 0.847) 70%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0px 10px 37px rgba(0 145 147 0.8);
+    }
+
+    &:hover {
+      background-color: darken(#fafafa, 2%);    
+      transform: translateY(-5px);
+      transition: all 0.3s;
+    }  
+  }
+
+  &.green-btn-disabled {
+    .content {
+      font-size: 2em;
+      /* font-family: "Roboto", sans-serif; */
+      background: linear-gradient(to right, rgba(0 145 147), rgba(0, 144, 147, 0.847) 70%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0px 10px 37px rgba(0 145 147 0.8);
+    }
+  }
+
+  &.red-btn {
+    -webkit-box-shadow: 0px 20px 20px -17px rgba(255, 16, 39, 0.5);
+    -moz-box-shadow: 0px 20px 20px -17px rgba(255, 16, 39, 0.5);
+    box-shadow: 0px 20px 20px -17px rgba(255, 16, 39, 0.5);
+
+    &:hover {
+      -webkit-box-shadow: 0px 20px 35px -16px rgba(255, 16, 39, 0.57);
+      -moz-box-shadow: 0px 20px 35px -16px rgba(255, 16, 39, 0.57);
+      box-shadow: 0px 20px 35px -16px rgba(255, 16, 39, 0.57);      
+    }
+
+    .content {
+      font-size: 2em;
+      /* font-family: "Roboto", sans-serif; */
+      background: linear-gradient(to right, #ff1027, #ff4f06 70%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0px 10px 37px rgba(255, 16, 39, 0.6);
+    }
+
+    &:hover {
+      background-color: darken(#fafafa, 2%);    
+      transform: translateY(-5px);
+      transition: all 0.3s;
+    }  
+  }
+
+  &.red-btn-disabled {
+    .content {
+      font-size: 2em;
+      /* font-family: "Roboto", sans-serif; */
+      background: linear-gradient(to right, #ff1027, #ff4f06 70%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0px 10px 37px rgba(255, 16, 39, 0.6);
+    }
+  }
+
+  &.amber-btn {
+    -webkit-box-shadow: 0px 20px 20px -17px rgba(255, 159, 16, 0.53);
+    -moz-box-shadow: 0px 20px 20px -17px rgba(255, 159, 16, 0.53);
+    box-shadow: 0px 20px 20px -17px rgba(255, 159, 16, 0.53);
+
+    &:hover {
+      -webkit-box-shadow: 0px 20px 35px -16px rgba(255, 159, 16, 0.6);
+      -moz-box-shadow: 0px 20px 35px -16px rgba(255, 159, 16, 0.6);
+      box-shadow: 0px 20px 35px -16px rgba(255, 159, 16, 0.6);      
+    }
+
+    .content {
+      font-size: 2em;
+      /* font-family: "Roboto", sans-serif; */
+      background: linear-gradient(to right, #ff8d00, #f7ad07 70%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0px 10px 37px rgba(255, 94, 16, 0.7);
+    }
+
+    &:hover {
+      background-color: darken(#fafafa, 2%);    
+      transform: translateY(-5px);
+      transition: all 0.3s;
+    }  
+  }
+
+  &.amber-btn-disabled {
+    .content {
+      font-size: 2em;
+      /* font-family: "Roboto", sans-serif; */
+      background: linear-gradient(to right, #ff8d00, #f7ad07 70%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0px 10px 37px rgba(255, 94, 16, 0.7);
+    }
+  }
+}
+
+/***************
+TYPEWRITER EFFECT 
+*****************/
+#invite-header {
+  /* height: 40px; */
+  white-space: nowrap;
+  overflow: hidden;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 24px;
+  font-weight: bolder;
+  font-style: italic;
+  /* color: rgba(255, 255, 255, 1); */
+  color: white;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+#invite-header-border {
+  border-bottom: solid 3px rgba(0, 255, 0, .75);
+  position: absolute;
+  /* right: -7px; */
+  /* width: 20px; */
+}
+/* Animation */
+#invite-header {
+  animation: animated-text 2s steps(30, end) 1s 1 normal both
+}
+#invite-header-border {
+  animation: animated-cursor 600ms steps(30, end) infinite;
+}
+/* text animation */
+@keyframes animated-text {
+  from {
+    width: 0;
+  }
+  to {
+    width: 370px;
+  }
+}
+/* cursor animations */
+@keyframes animated-cursor {
+  from {
+    border-top-color: rgba(0, 255, 0, .75);
+  }
+  to {
+    border-top-color: transparent;
+  }
 }

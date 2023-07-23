@@ -111,19 +111,20 @@ function updateGameChat(message, controller = false) {
   });
 
   const temp = `<li class="w3-padding-2">
-                <div class="tooltip">` + (
+                  <div class="tooltip">` + (
     controller
-      ? `<span class="w3-medium w3-padding-small" style="background-color: #fff">${message.name}</span>`
+      ? (message.name ? `<span class="w3-medium w3-padding-small" style="background-color: #fff">${message.name}</span>` : '')
       : `<span class="w3-medium w3-padding-small w3-black">${message.name}</span>`
   ) + `<span class="w3-medium">&nbsp;${message.message}</span>
-                  <span class="tooltiptext">${timestamp}</span>
-                </div>
-              </li>`;
+                    <span class="tooltiptext">${timestamp}</span>
+                  </div>
+                </li>`;
 
   const gameChatList = document.querySelectorAll('.trivia-chat-list');
-  gameChatList.forEach(el => el.insertAdjacentHTML('beforeend', temp));
+  gameChatList.forEach(el => el.insertAdjacentHTML('afterbegin', temp));
   const gameChatArea = document.querySelectorAll('.trivia-chat-container');
   gameChatArea.forEach(el => el.scrollTop = el.scrollHeight);
+  gameChatArea.scrollTop = gameChatArea[0].scrollHeight;
 }
 
 function submitAdminCode() {
@@ -149,6 +150,7 @@ function submitAdminCode() {
 }
 
 function sendChatMessage(message) {
+  if (!message.length) return;
   const emoji = emojiRegex.test(message);
 
   updateHappening('Message: ' + message, INFO);
@@ -388,7 +390,7 @@ function gameInfo(message) {
     document.getElementById('trivia-not-available').style.display = 'none';
     document.getElementById('trivia-not-available').height = 0;
   }
-  if (trivia.players) document.getElementById('trivia-participants').innerHTML = trivia.players.current;
+  if (trivia.players) document.getElementById('trivia-participants').innerHTML = trivia.players.live ? trivia.players.live : '-';
 
   if (new Date(trivia.start_at).getTime() - new Date().getTime() < 0) {
     document.getElementById('count-down-tracker').style.display = 'none';
@@ -443,7 +445,8 @@ function gameEnd(message) {
   document.getElementById('trivia-controller').style.marginTop = 0;
   document.getElementById('trivia-progress-controller').style.display = 'none';
   document.getElementById('trivia-progress-controller').style.height = 0;
-
+  
+  document.querySelector('#progress-bar-container').style.display = 'none';
   document.querySelector('.abort-button').style.display = 'none';
   document.querySelector('.power-button').style.display = 'none';
   client.publish(`trivia/${window.gameCode}/query/leaderboard/${window.nickName}`);
@@ -511,12 +514,6 @@ function gameLeaderboard(message) {
   }
 }
 
-function gameEventGroups(message) {
-  // `trivia/${window.gameCode}/response/eventgroups/#`
-  const groups = JSON.parse(message.payloadString);
-  window.eventGroups = groups.map(g => { g.selected = true; return g; });
-}
-
 function gameQuestion(message) {
   // `trivia/${window.gameCode}/broadcast/question/#`
   const question = JSON.parse(message.payloadString);
@@ -568,7 +565,6 @@ function solaceClientConnected() {
     client.subscribe(`trivia/${window.gameCode}/response/performance/#`, gamePerformanceUpdate);
     client.subscribe(`trivia/${window.gameCode}/broadcast/leaderboard`, gameLeaderboard);
     client.subscribe(`trivia/${window.gameCode}/response/leaderboard/#`, gameLeaderboard);
-    client.subscribe(`trivia/${window.gameCode}/response/eventgroups/#`, gameEventGroups);
     client.subscribe(`trivia/${window.gameCode}/response/validation/${window.nickName}`, gameValidation);
     client.subscribe(`trivia/${window.gameCode}/update/error/+/#`, gameError);
     client.subscribe(`trivia/${window.gameCode}/broadcast/gameaborted`, gameAbort);
@@ -581,7 +577,6 @@ function solaceClientConnected() {
     }
 
     client.publish(`trivia/${window.gameCode}/query/info/${window.nickName}`);
-    client.publish(`trivia/${window.gameCode}/query/eventgroups/${window.nickName}`);
   } else {
     document.getElementById('spinner').classList.remove('show');
     document.getElementById('invalid_game').classList.add('show');
@@ -642,19 +637,39 @@ function setup() {
   }
 }
 
-function updateEventGroup(index) {
-  window.eventGroups[index].selected !== undefined
-    ? ''
-    : window.eventGroups[index].selected = false;
-  window.eventGroups[index].selected = !window.eventGroups[index].selected;
-}
-
 window.addEventListener('load', () => {
-  console.log('IsMobile', isMobile());
-  if (isMobile()) {
+  const mobile = isMobile();
+  console.log('IsMobile', mobile);
+
+  if (mobile) {
     const hideButtons = document.querySelectorAll('.not-for-mobile');
     hideButtons.forEach(el => el.style.display = 'none');
   }
+
+  window.state = 'GET';
+  document.querySelector('#trivia-progress-title').innerHTML = 'Invite members to join... click on SET!';
+
+  document.querySelector('#amber-btn').addEventListener('click', () => {
+    document.querySelector('#amber-btn').classList.remove('amber-btn');
+    document.querySelector('#amber-btn').classList.add('amber-btn-disabled');
+    document.getElementById('progress-invite-container').classList.remove('w3-hide');
+    document.getElementById('progress-bar-container').classList.add('w3-hide');
+    document.querySelector('#trivia-progress-title').innerHTML = 'Waiting for members to join, when ready just click on GO!';
+    // publish 'trivia/${game_code}/update/invite'
+    client.publish(`trivia/${window.gameCode}/update/invite/${window.nickName}`);
+
+    window.state = 'SET';
+  });
+
+  document.querySelector('#green-btn').addEventListener('click', () => {
+    document.querySelector('#green-btn').classList.remove('green-btn');
+    document.querySelector('#green-btn').classList.add('green-btn-disabled');
+    document.getElementById('progress-invite-container').classList.add('w3-hide');
+    document.getElementById('progress-bar-container').classList.remove('w3-hide');
+    document.querySelector('.button-container').style.display = 'none';
+
+    window.state = 'GO';
+  });
 
   document.getElementById('admincode').addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
@@ -666,43 +681,7 @@ window.addEventListener('load', () => {
     client.publish(`trivia/${window.gameCode}/query/performance/${window.nickName}`);
   });
 
-  if (!window.status) {
-    document.querySelector('#trivia-progress-title').innerHTML = 'Start Trivia';
-  }
-
-  // document.querySelector('#trivia-activity-filter').addEventListener('click', () => {
-  //   if (!window.eventGroups || !window.eventGroups.length) {
-  //     showSnack('Event Groups not available');
-  //     return;
-  //   }
-
-  //   const eventGroupsList = document.querySelector('#trivia-event-groups');
-  //   let first = eventGroupsList.firstElementChild;
-  //   while (first) {
-  //     first.remove();
-  //     first = eventGroupsList.firstElementChild;
-  //   }
-
-  //   for (i = 0; i < window.eventGroups.length; i++) {
-  //     const entry = window.eventGroups[i];
-  //     entry.selected !== undefined ? entry.selected : true;
-  //     eventGroupsList.insertAdjacentHTML('beforeend',
-  //       `<label class="cmcontainer">
-  //         <span class="dot" style="background-color: ${entry.background}"></span>
-  //         <span class="w3-medium"><i class=${entry.action === 'send' ? "'fa fa-arrow-up'" : "'fa fa-arrow-down'"}"></i></span>
-  //         ${entry.category}
-  //         <input type="checkbox" ${entry.selected ? 'checked' : ''} onclick={updateEventGroup(${i})}>
-  //         <span class="checkmark"></span>
-  //       </label>`);
-  //   }
-
-  //   document.getElementById('trivia-select-events').style.display = 'block';
-  // });
-
   document.querySelector('.power-button').addEventListener('click', () => {
-    // document.querySelector('.power-button')
-    //   .classList
-    //   .add('power-button-disabled');
     document.querySelector('.power-button').style.display = 'none';
     document.querySelector('.abort-button').style.display = 'block';
     client.publish(`trivia/${window.gameCode}/update/start/${window.nickName}`);

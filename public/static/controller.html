@@ -63,25 +63,51 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
     <!-- DASHBOARD CONTENT! -->
     <div id="trivia-controller" class="w3-container w3-padding-large trivia-controller" style="padding:unset !important;">
       <div class="w3-container w3-padding-large">
-        <div id="count-down-tracker" class="w3-row-padding">
-        <!-- <h5 class="w3-center"><b><i class="fa fa-clock-o"></i> Countdown To Game</b></h5> -->
+        <div id="count-down-tracker" class="w3-row-padding w3-margin-bottom">
+          <!-- <h5 class="w3-center"><b><i class="fa fa-clock-o"></i> Countdown To Game</b></h5> -->
           <div id="flipdown" class="flipdown" style="margin: auto;width:max-content; padding: 10px;"></div>
         </div>
       </div>
     </div>
     
     <div id="trivia-progress-controller" class="w3-container w3-padding-large" style="margin-top: 0">
-      <div class="w3-row-padding w3-margin-bottom">
-        <div class="progress-bar" >
-          <h5 id="trivia-progress-title" class="w3-center" style="flex:auto"><b><i class="fa fa-clock-o"></i> Trivia Progress</b></h5>
-          <button class="abort-button circular-button" style="display:none;"><i class="fas fa-stop"></i></button>
-          <button class="power-button circular-button" style="display:block;"><i class="fas fa-power-off"></i></button>
-        </div>
-        <div class="w3-white">
-          <div id="trivia-progress" class="w3-container w3-green w3-center" style="width:0px;padding:0;min-height: 18px;"></div>
+      <div class="button-container">
+        <div class="trivia-get-set-go-container">
+          <div id="red-btn" class="glass-btn red-btn-disabled">
+            <div class="content">
+              Get
+            </div>
+          </div>
+          <div id="amber-btn" class="glass-btn amber-btn">
+            <div class="content">
+              Set
+            </div>
+          </div>
+          <div id="green-btn" class="glass-btn green-btn">
+            <div class="content">
+              Go
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
+    <div id="progress-invite-container" class="w3-row-padding w3-margin-bottom">
+      <div class="progress-bar" >
+        <h5 id="trivia-progress-title" class="w3-center" style="flex:auto"><b><i class="fa fa-clock-o"></i>Sending out <b>Game Start</b> notification</b></h5>
+      </div>
+    </div>
+
+    <div id="progress-bar-container" class="w3-row-padding w3-margin-bottom w3-hide">
+      <div class="progress-bar" >
+        <h5 id="trivia-progress-title" class="w3-center" style="flex:auto"><b><i class="fa fa-clock-o"></i> Trivia Progress</b></h5>
+        <button class="abort-button circular-button" style="display:none;"><i class="fas fa-stop"></i></button>
+        <button class="power-button circular-button" style="display:block;"><i class="fas fa-power-off"></i></button>
+      </div>
+      <div class="w3-white">
+        <div id="trivia-progress" class="w3-container w3-green w3-center" style="width:0px;padding:0;min-height: 18px;"></div>
+      </div>
+    </div>                
 
     <div class="w3-row-padding w3-margin-bottom">
       <div class="w3-quarter">
@@ -128,33 +154,34 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
 
     <div class="w3-panel">
       <div class="w3-row-padding" style="margin:0 -16px">
-        <!-- game CHAT -->
+        <!-- PREGAME CHAT -->
         <div id="trivia-chat" class="w3-third">
           <div style="height:48px;">
             <h5 class="w3-left">Chatter</h5>
             <button id="trivia-chat-resize" class="w3-right circular-button not-for-mobile" style="display:block; margin:10px 0; border-radius: 25px; "><i class="fas fa-expand"></i></button>
           </div>          
-          <div class="w3-card-4 w3-white" style="min-height:320px;width: 100%;display:flex;justify-content:center;align-items:center; ">
-            <div style="display: inline-block;position: relative;height:100%; width: 100%;">
+          <div class="w3-card-4 w3-white" style="width: 100%;display:flex;justify-content:center;align-items:center; ">
+            <div style="display: flex;height:320px; width: 100%;">
               <div id="trivia-modal-chat" class="w3-container w3-light-grey trivia-chat">
-                <div id="trivia-chat-container" class="w3-white trivia-chat-container" style="height:320px; overflow: scroll;">
-                  <ul class="w3-ul trivia-chat-list" style="height: inherit;">
-                  </ul>            
-                </div>
-                        
                 <div class="trivia-chat-input-area">
                   <input id="trivia-chat-input" class="trivia-chat-input" type="text">
                   <button class="trivia-chat-submit"> <i class="material-icons"> send</i></button>
                   <button class="trivia-chat-emoji-button  not-for-mobile"> &#127773;</button>
                 </div>
+                <div class="fixTableHead trivia-score-card-table w3-card-4 w3-white" style="flex-grow: 1;">
+                  <div id="trivia-chat-container" class="w3-white trivia-chat-container">
+                    <ul class="w3-ul trivia-chat-list" style="height: inherit;">
+                    </ul>            
+                  </div>                        
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <!-- PERFORMANCE -->
-        <div id="trivia-performance" class="w3-third">
-          <div id="trivia-scorecard-load"></div>
-          <div id="trivia-scorecard-resize"></div>
+        <!-- SCORECARD -->
+        <div id="trivia-score-card" class="w3-third">
+          <div id="trivia-performance-load"></div>
+          <div id="trivia-performance-resize"></div>
           <div style="height:48px;">
             <h5 class="w3-left">Performance</h5>
             <button id="trivia-performance-resize" class="w3-right circular-button not-for-mobile" style="display:block; margin:10px 0; border-radius: 25px; "><i class="fas fa-expand"></i></button>
@@ -169,6 +196,29 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
             </div>
           </div>
         </div>
+
+        <!-- SCORECARD - NOT REQUIRED, HIDDEN-->
+        <div id="trivia-score-card" class="w3-third" style="display: none">
+          <div id="trivia-performance-load"></div>
+          <div id="trivia-performance-resize"></div>
+          <div style="height:48px;">
+            <h5 class="w3-left">Scorecard</h5>
+            <button id="trivia-scorecard-resize" class="w3-right circular-button not-for-mobile" style="display:block; margin:10px 0; border-radius: 25px; "><i class="fas fa-expand"></i></button>
+            <button id="trivia-scorecard-load" class="w3-right circular-button" style="margin:10px 0; border-radius: 25px; "><i class="fa fa-refresh"></i></button>
+          </div>
+          <div class="w3-card-4 w3-white" style="min-height:320px;width: 100%;display:flex;justify-content:center;align-items:center; ">
+            <div style="display: inline-block;position: relative;height:100%; width: 100%;">
+              <div id="trivia-score-card-table-container" class="fixTableHead trivia-score-card-table w3-card-4 w3-white" style="height:320px;overflow: scroll;">
+                <table class="w3-table w3-bordered  w3-card-4 w3-white">
+                  <thead class="w3-bordered w3-card w3-white"><tr><th>Q No</th><th>Answered?</th><th>Correct</th><th>Score</th></tr></thead>
+                  <tbody id="trivia-score-card-table" >
+                  </tbody>
+                </table>    
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- LEADERBOARD -->
         <div id="trivia-leader-board" class="w3-third">
           <div style="height:48px;">

@@ -150,7 +150,7 @@ router.get('/upcoming', async (req, res) => {
           ? trivias.map(c => [c._id, c.name, c.description, c.audience, c.category, // 0-4
             c.questions, c.scheduled, c.start_at, c.close_at, c.status, // 5-9
             c.mode, c.no_of_questions, c.time_limit, c.hash, c.deleted, // 10-14
-            c.collect_winners, c.no_of_winners, c.winners, c.shared, c.owner._id // 15-19
+            c.collect_winners, c.no_of_winners, c.winners, c.shared, c.owner._id, c.owner.name // 15-20
           ])
           : trivias
       });
@@ -177,7 +177,7 @@ router.get('/shared', async (req, res) => {
           ? trivias.map(c => [c._id, c.name, c.description, c.audience, c.category, // 0-4
             c.questions, c.scheduled, c.start_at, c.close_at, c.status, // 5-9
             c.mode, c.no_of_questions, c.time_limit, c.hash, c.deleted, // 10-14
-            c.collect_winners, c.no_of_winners, c.winners, c.shared, c.owner._id // 15-19
+            c.collect_winners, c.no_of_winners, c.winners, c.shared, c.owner._id, c.owner.name // 15-20
           ])
           : trivias
       });
@@ -349,7 +349,7 @@ router.post('/reopen/:id', async (req, res) => {
     {
       $set: {
         players: {
-          names: [], connected: [], current: 0, high: 0
+          names: [], connected: [], joined: [], live: 0, current: 0, high: 0
         },
         chat: [],
         winners: [],

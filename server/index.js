@@ -69,10 +69,11 @@ consoleClient.subscribe('trivia/*/query/info/>', consoleCallbacks.onGameInfoCall
 consoleClient.subscribe('trivia/*/query/scorecard/>', consoleCallbacks.onScorecardCallback);
 consoleClient.subscribe('trivia/*/query/performance/>', consoleCallbacks.onPerformanceCallback);
 consoleClient.subscribe('trivia/*/query/leaderboard/>', consoleCallbacks.onLeaderboardCallback);
-consoleClient.subscribe('trivia/*/query/eventgroups/>', consoleCallbacks.onEventGroupsCallback);
 consoleClient.subscribe('trivia/*/query/getrank/>', consoleCallbacks.onGetRankCallback);
 consoleClient.subscribe('trivia/*/query/validation/>', consoleCallbacks.onValidateCallback);
 consoleClient.subscribe('trivia/*/query/winner/>', consoleCallbacks.onWinnerCheckCallback);
+consoleClient.subscribe('trivia/*/update/invite/>', consoleCallbacks.onInviteCallback);
+consoleClient.subscribe('trivia/*/update/join/>', consoleCallbacks.onJoinCallback);
 consoleClient.subscribe('trivia/*/update/start/>', consoleCallbacks.onStartCallback);
 consoleClient.subscribe('trivia/*/update/chat/>', consoleCallbacks.onChatCallback);
 consoleClient.subscribe('trivia/*/update/answer/>', consoleCallbacks.onAnswerCallback);

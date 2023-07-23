@@ -218,23 +218,23 @@ function SharedTrivias(props) {
 
   const columns = [
     {
-      name: 'Id', // 0
+      name: 'Id', // [0] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: 'Owner', // 0
+      name: 'Owner', // [1] 0
       options: {
         filterOptions: { fullWidth: true },
         filter: true,
         customBodyRender: (value, tableMeta, updateValue) => (
           <React.Fragment >
-            {getName(tableMeta.rowData[18])}
+            {getName(tableMeta.rowData[20])}
           </React.Fragment>
         )
       }
     },
     {
-      name: 'Trivia', // 1, 2
+      name: 'Trivia', // [2] 1, 2
       options: {
         customBodyRender: (value, tableMeta, updateValue) => (
           <React.Fragment >
@@ -244,7 +244,7 @@ function SharedTrivias(props) {
       }
     },
     {
-      name: 'Audience', // 3
+      name: 'Audience', // [3] 3
       options: {
         filterOptions: { fullWidth: true },
         customBodyRender: (value, tableMeta, updateValue) => (
@@ -259,7 +259,7 @@ function SharedTrivias(props) {
       }
     },
     {
-      name: 'Category', // 4
+      name: 'Category', // [4] 4
       options: {
         filterOptions: { fullWidth: true },
         customBodyRender: (value, tableMeta, updateValue) => (
@@ -270,7 +270,7 @@ function SharedTrivias(props) {
       }
     },
     {
-      name: 'Questions Count', // 11
+      name: 'Questions Count', // [5] 11
       options: {
         filter: false,
         customBodyRender: (value, tableMeta, updateValue) => (
@@ -285,7 +285,7 @@ function SharedTrivias(props) {
       }
     },
     {
-      name: 'Time Limit', // 7
+      name: 'Time Limit', // [6] 7
       options: {
         filter: false,
         customBodyRender: (value, tableMeta, updateValue) => (
@@ -301,14 +301,14 @@ function SharedTrivias(props) {
       }
     },
     {
-      name: 'Scheduled', // 6, 7, 8
+      name: 'Scheduled', // [7] 6, 7, 8
       options: {
         filter: false,
         customBodyRender: (value, tableMeta, updateValue) => buildSchedule(tableMeta.rowData)
       }
     },
     {
-      name: 'Status', // 9
+      name: 'Status', // [8] 9
       options: {
         filter: true,
         filterOptions: { fullWidth: true },
@@ -322,7 +322,7 @@ function SharedTrivias(props) {
       }
     },
     {
-      name: 'Action',
+      name: 'Action', // [9]
       options: {
         filter: false,
         viewColumns: true,
@@ -354,43 +354,47 @@ function SharedTrivias(props) {
       },
     },
     {
-      name: '', // 0
+      name: '', // [10] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [11] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [12] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [13] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [14] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [15] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [16] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [17] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [18] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [19] 0
+      options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: '', // [20] 0
       options: { display: false, filter: false, viewColumns: false }
     },
   ];

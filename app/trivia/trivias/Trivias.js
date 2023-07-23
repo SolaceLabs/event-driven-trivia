@@ -431,11 +431,11 @@ function Trivias(props) {
 
   const columns = [
     {
-      name: 'Id', // 0
+      name: 'Id', // [0] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: 'Trivia', // 1, 2
+      name: 'Trivia', // [1] 1, 2
       options: {
         filterOptions: { fullWidth: true },
         customBodyRender: (value, tableMeta, updateValue) => (
@@ -446,7 +446,7 @@ function Trivias(props) {
       }
     },
     {
-      name: 'Audience', // 3
+      name: 'Audience', // [2] 3
       options: {
         filterOptions: { fullWidth: true },
         customBodyRender: (value, tableMeta, updateValue) => (
@@ -472,7 +472,7 @@ function Trivias(props) {
       }
     },
     {
-      name: 'Winners', // 15, 16
+      name: 'Winners', // [3] 15, 16
       options: {
         filter: false,
         sort: false,
@@ -484,7 +484,7 @@ function Trivias(props) {
       }
     },
     {
-      name: 'Questions Count', // 11
+      name: 'Questions Count', // [4] 11
       options: {
         filter: false,
         customBodyRender: (value, tableMeta, updateValue) => (
@@ -499,7 +499,7 @@ function Trivias(props) {
       }
     },
     {
-      name: 'Time Limit', // 7
+      name: 'Time Limit', // [5] 7
       options: {
         filter: false,
         customBodyRender: (value, tableMeta, updateValue) => (
@@ -515,14 +515,14 @@ function Trivias(props) {
       }
     },
     {
-      name: 'Scheduled', // 6, 7, 8
+      name: 'Scheduled', // [6] 6, 7, 8
       options: {
         filter: false,
         customBodyRender: (value, tableMeta, updateValue) => buildSchedule(tableMeta.rowData)
       }
     },
     {
-      name: 'Status', // 9
+      name: 'Status', // [7] 9
       options: {
         filter: true,
         customBodyRender: (value, tableMeta, updateValue) => (
@@ -535,7 +535,7 @@ function Trivias(props) {
       }
     },
     {
-      name: 'Action',
+      name: 'Action', // [8]
       options: {
         filter: false,
         sort: false,
@@ -746,47 +746,51 @@ function Trivias(props) {
       },
     },
     {
-      name: '', // 0
+      name: '', // [9] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [10] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [11] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [12] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [13] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [14] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [15] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [16] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [17] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [18] 0
       options: { display: false, filter: false, viewColumns: false }
     },
     {
-      name: '', // 0
+      name: '', // [19] 0
+      options: { display: false, filter: false, viewColumns: false }
+    },
+    {
+      name: '', // [20] 0
       options: { display: false, filter: false, viewColumns: false }
     },
   ];

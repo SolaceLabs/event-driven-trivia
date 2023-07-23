@@ -3002,5 +3002,5 @@ const data = [
 ];
 
 function pickRandomName() {
-  return data[Math.floor(Math.random() * data.length)];
+  return data[Math.floor(Math.random() * data.length)] + Math.floor(Math.random() * data.length);
 }
