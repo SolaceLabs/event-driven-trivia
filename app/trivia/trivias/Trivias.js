@@ -549,6 +549,10 @@ function Trivias(props) {
                     updateResult('warning', 'Trivia is marked as deleted, not supported');
                     return;
                   }
+                  if (tableMeta.rowData[9] === 'COMPLETED') {
+                    updateResult('warning', 'Trivia is completed, clone or reopen and try again');
+                    return;
+                  }
                   if (tableMeta.rowData[9] === 'STARTED') {
                     updateResult('warning', 'Trivia in progress, try again later');
                     return;
