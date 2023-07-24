@@ -648,10 +648,15 @@ window.addEventListener('load', () => {
 
   window.state = 'GET';
   document.querySelector('#trivia-progress-title').innerHTML = 'Invite members to join... click on SET!';
+  document.querySelector('#green-btn').classList.remove('green-btn');
+  document.querySelector('#green-btn').classList.add('green-btn-disabled');
 
   document.querySelector('#amber-btn').addEventListener('click', () => {
     document.querySelector('#amber-btn').classList.remove('amber-btn');
     document.querySelector('#amber-btn').classList.add('amber-btn-disabled');
+    document.querySelector('#green-btn').classList.add('green-btn');
+    document.querySelector('#green-btn').classList.remove('green-btn-disabled');
+
     document.getElementById('progress-invite-container').classList.remove('w3-hide');
     document.getElementById('progress-bar-container').classList.add('w3-hide');
     document.querySelector('#trivia-progress-title').innerHTML = 'Waiting for members to join, when ready just click on GO!';
@@ -664,9 +669,14 @@ window.addEventListener('load', () => {
   document.querySelector('#green-btn').addEventListener('click', () => {
     document.querySelector('#green-btn').classList.remove('green-btn');
     document.querySelector('#green-btn').classList.add('green-btn-disabled');
+
     document.getElementById('progress-invite-container').classList.add('w3-hide');
     document.getElementById('progress-bar-container').classList.remove('w3-hide');
     document.querySelector('.button-container').style.display = 'none';
+
+    document.querySelector('.power-button').style.display = 'none';
+    document.querySelector('.abort-button').style.display = 'block';
+    client.publish(`trivia/${window.gameCode}/update/start/${window.nickName}`);
 
     window.state = 'GO';
   });

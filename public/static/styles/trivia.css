@@ -6,12 +6,21 @@
   display: none;
 }
 
-.player-name-modal, .admin-confirmation-modal {
+.player-name-modal, .admin-confirmation-modal, .winner-form-modal {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  margin-top: 20px;
+}
+
+.winner-form-modal {
+  margin-top: 60px;
+}
+
+#form-error {
+  color: white;
 }
 
 #trivia-modal {

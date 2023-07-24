@@ -368,6 +368,14 @@ class ConsoleCallbacks {
               console.log('Update winners failed: ', err);
               throw new Error('No Trivia found');
             }
+
+            // console.log(this.getTime(), `Publish trivia/${game_code}/broadcast/chat`);
+            // this.consoleClient.publish(`trivia/${game_code}/broadcast/chat`, {
+            //   name: 'controller',
+            //   message: `We have a winner - ${reply_to} at Rank #${detail.rank} 🏆`,
+            //   emoji: true,
+            //   timestamp: new Date().toISOString()
+            // });
           });
       })
       .catch(err => {

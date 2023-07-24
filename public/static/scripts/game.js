@@ -287,6 +287,16 @@ function gameInfo(message) {
     return;
   }
 
+  if (trivia.status === 'STARTED') {
+    document.getElementById('trivia-not-available').style.display = 'block';
+    document.getElementById('trivia-not-available').innerHTML = '<b><i class="fa fa-clock-o"></i> Sorry, Trivia already started</b>';
+    document.getElementById('trivia-controller').style.display = 'none';
+    document.getElementById('trivia-controller').style.height = 0;
+    document.getElementById('trivia-controller').style.marginTop = 0;
+    // client.disconnect();
+    return;
+  }
+
   if (trivia.status === 'ABORTED' || trivia.status === 'EXPIRED') {
     document.getElementById('trivia-not-available').style.display = 'block';
     document.getElementById('trivia-not-available').innerHTML = '<b><i class="fa fa-clock-o"></i> Sorry, Trivia either expired or was aborted</b>';
@@ -461,10 +471,10 @@ function showNextQuestion() {
                     <div id="fashion">
                       <div>${window.missed && window.missed > 0
           ? 'You missed ' + window.missed + '!'
-          : ''}</div>
+          : ''}</div><br/>
                       <div>${percent === 0
           ? 'Better luck next time!'
-          : 'Congrats! '} You answered ${answered} out of ${window.questions.length}!</div>
+          : 'Nice! '} <br/>You answered ${answered} out of ${window.questions.length}!</div>
                     </div>
                     `;
         const placeholder = document.getElementById('tsparticles');
@@ -495,6 +505,17 @@ function gameStart(message = undefined) {
     console.log('Hmm... duplicate game start, ignored!');
     return;
   }
+
+  if (!window.joined) {
+    document.getElementById('trivia-not-available').style.display = 'block';
+    document.getElementById('trivia-not-available').innerHTML = '<b><i class="fa fa-clock-o"></i> Sorry, Trivia already started</b>';
+    document.getElementById('trivia-controller').style.display = 'none';
+    document.getElementById('trivia-controller').style.height = 0;
+    document.getElementById('trivia-controller').style.marginTop = 0;
+    document.getElementById('player-join-form').style.display = 'none';
+    return;
+  }
+
   if (message) {
     const payload = JSON.parse(message.payloadString);
     window.sessionId = payload.sessionId;
@@ -540,8 +561,10 @@ function submitForm() {
   document.getElementById('ranktile').classList.remove('blink');
   document.getElementById('ranktilespan').classList.remove('blinkspan');
   document.getElementById('winnerForm').style.display = 'none';
+  document.querySelector('#refresh-winner-footer').style.display = 'none';
   window.collected = true;
   client.publish(`trivia/${window.gameCode}/update/winner/${window.nickName}`, { name, email, ...window.score });
+  sendChatMessage(`I, ${name} claim top spot #${window.score.rank} 🏆`);
 }
 
 function closeForm() {
@@ -704,7 +727,7 @@ function gameYourRank(message) {
         : score.rank
     );
 
-  setTimeout(exitTrivia, 15000);
+  setTimeout(exitTrivia, 5000);
 }
 
 function gameWinner(message) {
@@ -716,13 +739,13 @@ function gameWinner(message) {
 
   document.getElementById('ranktile').classList.add('blink');
   document.getElementById('ranktilespan').classList.add('blinkspan');
-  document.querySelector('#refresh-warning-footer').style.display = 'block';
-  document.querySelector('#refresh-warning-footer').innerHTML = 'Congratulations, you made it to Top ' + score.rank + ' - Click on 🏆 to claim your prize!';
+  document.querySelector('#refresh-winner-footer').style.display = 'block';
+  document.querySelector('#refresh-winner-footer').innerHTML = 'Congratulations, you are Ranked #' + score.rank + '🏆 - Click here to register your information!';
   window.collect = true;
   window.score = score;
   setTimeout(() => {
-    document.querySelector('#refresh-warning-footer').style.display = 'none';
-  }, 90000);
+    document.querySelector('#refresh-winner-footer').style.display = 'none';
+  }, 60000);
 }
 
 function gameLeaderboard(message) {

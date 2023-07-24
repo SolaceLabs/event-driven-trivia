@@ -65,8 +65,8 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
 
     <div id="player-name-container"  class="w3-row-padding" style="display: flex; flex-direction: row; justify-content: space-between; margin-top: 26px;">
       <div class="player-name-holder"> <span class="player-name" id="player-id"></span></div>
-      <div id="partial-dashboard-holder" class="w3-row-padding" style="cursor: pointer">
-        <div class="w3-right" style="display: flex; align-items: baseline;">
+      <div id="partial-dashboard-holder" class="w3-row-padding" style="width:100%; cursor: pointer">
+        <div class="w3-left" style="display: flex; align-items: baseline;">
           <i style="font-size: 18px;" class="fas fa-dashboard"></i>
           <span id="dashboard-visibility" class="w3-right" style="margin-left:10px;"></span>
         </div>
@@ -256,10 +256,46 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
       <div id="trivia-stats-received-resize"></div>
     </div>
 
+    <div id="refresh-winner-footer" class="refresh-footer" onclick="collectInfo()" style="display:none;"></div>
     <div id="refresh-warning-footer" class="refresh-footer"></div>
     <div id="snackbar"></div>
     
-    <div class="form-popup" id="winnerForm" name="winnerForm">
+    <div id="player-name-form" class="overlay image-background">
+      <div class="player-name-modal ">
+        <div class="msg-text" id="player-name-intro"></div>
+        <form class="center-of-div image-transbox">
+          <div><label class="image-transbox-title"><b>Nickname</b></label></div><br/>
+          <input class="w3-input w3-border w3-margin-bottom" type="text" 
+                placeholder="Enter Nickname" id="nickname" required>
+          <div class="w3-center"><br>
+            <button onclick="randomPlayerName()" type="button" class="w3-button trivia-subdued-button">Random</button>
+            <button onclick="updatePlayerName()" type="button" class="w3-button trivia-button">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  
+    <div id="winnerForm" class="overlay image-background" name="winnerForm" style="display:none">
+      <div class="winner-form-modal">
+        <div class="center-of-div image-transbox">
+          <div><label class="image-transbox-title"><b>Join the Winners Circle</b></label></div><br/>
+    
+          <input id='winner-name' class="w3-input w3-border w3-margin-bottom" type="text" 
+            placeholder="Name" name="name" required><br/>
+          <input id='winner-email' class="w3-input w3-border w3-margin-bottom" type="text" 
+            pattern="[^@\s]+@[^@\s]+" placeholder="Email" name="email" required>
+
+          <div id="form-error"></div>
+
+          <div class="w3-center"><br>
+            <button type="button" class="w3-button trivia-subdued-button btn cancel" onclick="closeForm()">Close</button>
+            <button type="submit" class="w3-button trivia-button btn" onclick="submitForm()">Submit</button>
+          </div>        
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="form-popup" id="winnerForm" name="winnerForm">
       <div class="form-container">
         <h4 class="w3-center">Join the Winners Circle</h4>
     
@@ -276,23 +312,8 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
         </div>
         <div id="form-error"></div>
       </div>
-    </div>
+    </div> -->
     
-    <!-- <div class="form-popup" id="myForm">
-      <form class="form-container">
-        <h4 class="w3-center">Join the Winners Circle</h4>
-    
-        <label for="name"><b>Name</b></label>
-        <input type="text" placeholder="Enter Name" name="name" required>
-    
-        <label for="email"><b>Email</b></label>
-        <input type="text" placeholder="Enter Email" name="email" required>
-        <div class="form-buttons">
-          <button onclick="closeForm()" type="button" class="btn cancel">Close</button>
-          <button onclick="submitForm()" type="submit" class="btn">Submit</button>
-        </div>
-      </form>
-    </div>     -->
     <!-- Footer -->
     <!-- <footer class="w3-container w3-padding-16 w3-light-grey">
       <h4>FOOTER</h4>
@@ -451,6 +472,7 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
     document.getElementById("tsparticles").style.display = 'none';
     document.getElementById('player-name-form').style.display = 'none';
     document.getElementById('player-join-form').style.display = 'none';
+    // document.getElementById('winnerForm').style.display = 'block';
 
     openNicknameDialog();
 

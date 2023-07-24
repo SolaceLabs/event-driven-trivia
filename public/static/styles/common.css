@@ -55,6 +55,7 @@ p{
   font-size: 1.5rem;;
   padding: 5px;
   z-index: 9999;
+  cursor: pointer;
 }
 
 .msg-text {
@@ -946,8 +947,15 @@ input[type="text"]{
 /* Add styles to the form container */
 .form-container {
   /* max-width: 60%; */
-  padding: 10px;
-  background-color: #999999;
+  /* padding: 10px;
+  background-color: #999999; */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin-top: 20px;
+
 }
 
 /* Full-width input fields */
