@@ -21,7 +21,6 @@ const activities = {
   'broadcast/invite': { category: 'Trivia Invite', background: '#4831D4', action: 'receive' },
   'query/getrank': { category: 'Member Rank', background: '#EE4E34', action: 'send' },
   'query/info': { category: 'Trivia Info', background: '#EE4E34', action: 'send' },
-  'query/stats': { category: 'Trivia Stats', background: '#EE4E34', action: 'send' },
   'query/leaderboard': { category: 'Trivia Leaderboard', background: '#EE4E34', action: 'send' },
   'query/performance': { category: 'Member Performance', background: '#EE4E34', action: 'send' },
   'query/scorecard': { category: 'Trivia Scorecard', background: '#EE4E34', action: 'send' },
@@ -29,7 +28,6 @@ const activities = {
   'query/winner': { category: 'Trivia Info', background: '#EE4E34', action: 'send' },
   'response/getrank': { category: 'Member Rank', background: '#783937', action: 'receive' },
   'response/info': { category: 'Trivia Info', background: '#783937', action: 'receive' },
-  'response/stats': { category: 'Trivia Stats', background: '#783937', action: 'receive' },
   'response/leaderboard': { category: 'Trivia Leaderboard', background: '#783937', action: 'receive' },
   'response/performance': { category: 'Member Performance', background: '#783937', action: 'receive' },
   'response/scorecard': { category: 'Trivia Scorecard', background: '#783937', action: 'receive' },
@@ -195,31 +193,6 @@ class ConsoleCallbacks {
         const error = 'No Trivia found';
         console.log(this.getTime(), err);
         this.consoleClient.publish(`trivia/${game_code}/update/error/info/${reply_to}`, { message: error });
-      });
-
-    // TriviaStats.find({ hash: game_code })
-    //   .then(trivias => {
-    //     const trivia = trivias[0];
-    //     if (trivia) {
-    //       this.consoleClient.publish(`trivia/${game_code}/response/stats/${reply_to}`, trivia);
-    //     }
-    //   });
-  }
-
-  onGameStatsCallback = (message) => {
-    // 'trivia/${game_code}/query/stats/${window.nickName}'
-    const topic = message.getDestination();
-    const parts = topic.getName().split('/');
-    const game_code = parts[1];
-    const reply_to = parts[4];
-    console.log(this.getTime(), '=== Trivia Console query on game code: ' + game_code + ' from ' + reply_to + '===');
-
-    TriviaStats.find({ hash: game_code })
-      .then(trivias => {
-        const trivia = trivias[0];
-        if (trivia) {
-          this.consoleClient.publish(`trivia/${game_code}/response/stats/${reply_to}`, trivia);
-        }
       });
   }
 

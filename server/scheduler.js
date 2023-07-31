@@ -34,7 +34,6 @@ class Scheduler {
           if (trivia.status === 'SCHEDULED') {
             const job = schedule.scheduleJob(new Date(trivia.start_at), ((t, l, c) => {
               l.info(`Starting scheduled Trivia - '${t.name}'`);
-              c.publish(`trivia/${t.hash}/update/start/scheduler`);
             }).bind(null, trivia, this.logger, this.client));
 
             this.jobs.push({
@@ -56,7 +55,6 @@ class Scheduler {
 
     const job = schedule.scheduleJob(new Date(trivia.start_at), ((t, l, c) => {
       l.info(`Starting scheduled Trivia - '${t.name}'`);
-      c.publish(`trivia/${t.hash}/update/start/scheduler`);
     }).bind(null, trivia, this.logger, this.client));
 
     this.jobs.push({

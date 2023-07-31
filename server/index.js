@@ -65,7 +65,6 @@ consoleCallbacks.setConsoleClient(consoleClient);
 
 consoleClient.connect();
 consoleClient.subscribe('trivia/*/query/info/>', consoleCallbacks.onGameInfoCallback);
-// consoleClient.subscribe('trivia/*/query/stats/>', consoleCallbacks.onGameStatsCallback);
 consoleClient.subscribe('trivia/*/query/scorecard/>', consoleCallbacks.onScorecardCallback);
 consoleClient.subscribe('trivia/*/query/performance/>', consoleCallbacks.onPerformanceCallback);
 consoleClient.subscribe('trivia/*/query/leaderboard/>', consoleCallbacks.onLeaderboardCallback);

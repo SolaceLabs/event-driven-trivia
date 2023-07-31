@@ -160,70 +160,6 @@ const slider = document.getElementById('myRange');
 const sliderStart = document.getElementById('slider-start');
 const sliderEnd = document.getElementById('slider-end');
 
-function gameActivityUpdate(message) {
-  const payload = JSON.parse(message.payloadString);
-  gameActivityChart.data.payloads.push(payload);
-
-  gameActivityChart.data.labels.push('');
-  gameActivityChart.data.topics.push(payload.topic);
-  gameActivityChart.data.categories.push(payload.category);
-  gameActivityChart.data.datasets[0].data.push(payload.axis);
-  gameActivityChart.data.datasets[0].pointBackgroundColor.push(payload.background);
-  gameActivityChart.data.datasets[0].pointBorderColor.push('#00cc91');
-
-  // re-render the chart
-  if (++eventCount > 20) {
-    gameActivityChart.data.labels = [];
-    gameActivityChart.data.topics = [];
-    gameActivityChart.data.categories = [];
-    gameActivityChart.data.datasets[0].pointBackgroundColor = [];
-    gameActivityChart.data.datasets[0].pointBorderColor = [];
-    gameActivityChart.data.datasets[0].data = [];
-    for (let i = eventCount - 20; i < eventCount; i++) {
-      let pl = gameActivityChart.data.payloads[i];
-      gameActivityChart.data.labels.push('');
-      gameActivityChart.data.topics.push(pl.topic);
-      gameActivityChart.data.categories.push(pl.category);
-      gameActivityChart.data.datasets[0].data.push(pl.axis);
-      gameActivityChart.data.datasets[0].pointBackgroundColor.push(pl.background);
-      gameActivityChart.data.datasets[0].pointBorderColor.push('#00cc91');
-    }
-  }
-  sliderPos = eventCount - 20;
-  if (sliderPos < 0) sliderPos = 1;
-  slider.setAttribute('value', sliderPos);
-  slider.setAttribute('max', eventCount);
-  sliderStart.innerHTML = 1;
-  sliderEnd.innerHTML = eventCount;
-  slider.style.display = 'none';
-  slider.style.display = 'block';
-
-  gameActivityChart.update();
-
-  // update table
-  const date = new Date(payload.ts);
-  const timestamp = date.toLocaleString('en-US', {
-    weekday: 'short', // long, short, narrow
-    day: 'numeric', // numeric, 2-digit
-    year: 'numeric', // numeric, 2-digit
-    month: 'short', // numeric, 2-digit, long, short, narrow
-    hour: 'numeric', // numeric, 2-digit
-    minute: 'numeric', // numeric, 2-digit
-    second: 'numeric', // numeric, 2-digit
-    fractionalSecondDigits: 3 // numeric, 3-digit
-  });
-
-  const table = document.getElementById('trivia-activity-table-body');
-  const item = `<tr>
-                <td><span class="w3-medium fa-stack fa-lg"><i style="color: ${payload.background};" class="fa fa-square-o fa-stack-2x"></i><i class=${payload.action === 'send' ? "'fa fa-arrow-up fa-stack-1x'" : "'fa fa-arrow-down fa-stack-1x'"}"></i></span></td>
-                <td><span class="w3-medium">${timestamp}</span></td>
-                <td><span class="w3-padding-small">${payload.topic}</span></td>
-              </tr>`;
-  table.insertAdjacentHTML('afterbegin', item);
-
-  updateHappening('Activity: [ ' + payload.topic + ', ' + payload.category + ' ]', INFO);
-}
-
 function gameRestart(message) {
   // `trivia/${window.gameCode}/broadcast/restart
   updateHappening('Message received on gameRestart: ' + message.destinationName, INFO);
@@ -317,22 +253,6 @@ function gameInfo(message) {
   } else {
     updateCountDown(trivia.start_at);
   }
-}
-
-function gameStats(message) {
-  // `trivia/${window.gameCode}/response/stats/${window.nickName}`
-  updateHappening('Message received on gameStats: ' + message.payloadString, INFO);
-  const trivia = JSON.parse(message.payloadString);
-
-  // load chat
-  emptyGameChat();
-  if (trivia.chat && trivia.chat.length) {
-    trivia.chat.forEach(c => {
-      updateGameChat(c);
-    });
-  }
-
-  // load events
 }
 
 function gameChat(message) {
@@ -805,13 +725,11 @@ function solaceClientConnected() {
     document.getElementById('game_content').classList.remove('hide');
     document.getElementById('game_content').classList.add('show');
 
-    client.subscribe(`trivia/${window.gameCode}/update/activity/${window.nickName}`, gameActivityUpdate);
-    // client.subscribe(`trivia/${window.gameCode}/broadcast/activity`, gameActivityUpdate);
     client.subscribe(`trivia/${window.gameCode}/broadcast/usercount/#`, gameUserCountUpdate);
+    client.subscribe(`trivia/${window.gameCode}/broadcast/leaderboard`, gameLeaderboard);
     client.subscribe(`trivia/${window.gameCode}/broadcast/chat`, gameChat);
     client.subscribe(`trivia/${window.gameCode}/broadcast/restart`, gameRestart);
     client.subscribe(`trivia/${window.gameCode}/response/info/${window.nickName}`, gameInfo);
-    // client.subscribe(`trivia/${window.gameCode}/response/stats/${window.nickName}`, gameStats);
     client.subscribe(`trivia/${window.gameCode}/response/scorecard/${window.nickName}`, gameScorecard);
     client.subscribe(`trivia/${window.gameCode}/response/leaderboard/${window.nickName}`, gameLeaderboard);
     client.subscribe(`trivia/${window.gameCode}/response/getrank/${window.nickName}`, gameYourRank);
@@ -1069,9 +987,6 @@ window.addEventListener('load', () => {
     });
   });
 
-  // document.querySelector('#trivia-chat-load').addEventListener('click', () => {
-  //   client.publish(`trivia/${window.gameCode}/query/stats/${window.nickName}`);
-  // });
   document.querySelector('#join-button').addEventListener('click', () => {
     window.joined = true;
     client.publish(`trivia/${window.gameCode}/update/join/${window.nickName}`);
@@ -1083,9 +998,6 @@ window.addEventListener('load', () => {
   document.querySelector('#trivia-scorecard-load').addEventListener('click', () => {
     client.publish(`trivia/${window.gameCode}/query/scorecard/${window.nickName}`);
   });
-  // document.querySelector('#trivia-activity-load').addEventListener('click', () => {
-  //   client.publish(`trivia/${window.gameCode}/query/stats/${window.nickName}`);
-  // });
 
   triviaGameChatEmojiBtn.addEventListener('click', () => {
     gamePicker.togglePicker(triviaGameChatEmojiBtn);

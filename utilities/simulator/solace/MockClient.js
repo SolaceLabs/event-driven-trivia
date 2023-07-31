@@ -36,9 +36,7 @@ module.exports = class MockClient {
     this.client.subscribe(`trivia/${this.mocks.gameCode}/update/activity/${this.name}`, this.gameActivityUpdate);
     this.client.subscribe(`trivia/${this.mocks.gameCode}/broadcast/usercount/>`, this.gameUserCountUpdate);
     this.client.subscribe(`trivia/${this.mocks.gameCode}/broadcast/chat`, this.gameChat);
-    // this.client.subscribe(`trivia/${this.mocks.gameCode}/broadcast/restart`, this.gameRestart);
     this.client.subscribe(`trivia/${this.mocks.gameCode}/response/info/${this.name}`, this.gameInfo);
-    // this.client.subscribe(`trivia/${this.mocks.gameCode}/response/stats/${this.name}`, this.gameStats);
     this.client.subscribe(`trivia/${this.mocks.gameCode}/response/scorecard/${this.name}`, this.gameScorecard);
     this.client.subscribe(`trivia/${this.mocks.gameCode}/response/leaderboard/${this.name}`, this.gameLeaderboard);
     this.client.subscribe(`trivia/${this.mocks.gameCode}/response/getrank/${this.name}`, this.gameYourRank);
