@@ -34,14 +34,11 @@ const styles = theme => ({
 });
 
 const data = {
-  title: 'FAQ (How it works)',
+  title: 'Basics',
   rows: [
     {
-      title: 'Lorem ipsum dolor sit amet,',
-      content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sed tempor sem. Aenean vel turpis feugiat,
-        ultricies metus at, consequat velit. Curabitur est nibh, varius in tellus nec, mattis pulvinar metus.
-        In maximus cursus lorem, nec laoreet velit eleifend vel. Ut aliquet mauris tortor, sed egestas libero interdum vitae.
-        Fusce sed commodo purus, at tempus turpis.`,
+      title: 'What is Fireball Trivia?',
+      content: '',
     },
     {
       title: 'Nunc maximus, magna at ultricies elementum',
@@ -87,6 +84,9 @@ function FaqTrivia(props) {
         title={title}
         // desc={description}
       >
+        <div>
+          🔥📚🎉 Introducing "Fireball Trivia" - the ultimate event-driven trivia app that sparks your knowledge and ignites your competitive spirit! Immerse yourself in a dynamic and thrilling trivia experience, powered by the cutting-edge Solace PubSub+ Broker and its event-driven constructs. Answer questions in real-time, challenge friends, and explore a diverse range of trivia categories. Join "Fireball Trivia" now and let the fiery trivia adventure begin! Available for free on iOS and Android. 🎉📚🔥
+        </div>
         <Faq
           data={data}
           styles={faqStyles}

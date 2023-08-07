@@ -156,6 +156,71 @@ function gameError(message) {
   }
 }
 
+function gameActivityUpdate(message) {
+  const payload = JSON.parse(message.payloadString);
+  gameActivityChart.data.payloads.push(payload);
+
+  gameActivityChart.data.labels.push('');
+  gameActivityChart.data.topics.push(payload.topic);
+  gameActivityChart.data.categories.push(payload.category);
+  gameActivityChart.data.datasets[0].data.push(payload.axis);
+  gameActivityChart.data.datasets[0].pointBackgroundColor.push(payload.background);
+  gameActivityChart.data.datasets[0].pointBorderColor.push('#00cc91');
+
+  // re-render the chart
+  if (++eventCount > 20) {
+    gameActivityChart.data.labels = [];
+    gameActivityChart.data.topics = [];
+    gameActivityChart.data.categories = [];
+    gameActivityChart.data.datasets[0].pointBackgroundColor = [];
+    gameActivityChart.data.datasets[0].pointBorderColor = [];
+    gameActivityChart.data.datasets[0].data = [];
+    for (let i = eventCount - 20; i < eventCount; i++) {
+      let pl = gameActivityChart.data.payloads[i];
+      gameActivityChart.data.labels.push('');
+      gameActivityChart.data.topics.push(pl.topic);
+      gameActivityChart.data.categories.push(pl.category);
+      gameActivityChart.data.datasets[0].data.push(pl.axis);
+      gameActivityChart.data.datasets[0].pointBackgroundColor.push(pl.background);
+      gameActivityChart.data.datasets[0].pointBorderColor.push('#00cc91');
+    }
+  }
+  sliderPos = eventCount - 20;
+  if (sliderPos < 0) sliderPos = 1;
+  slider.setAttribute('value', sliderPos);
+  slider.setAttribute('max', eventCount);
+  sliderStart.innerHTML = 1;
+  sliderEnd.innerHTML = eventCount;
+  slider.style.display = 'none';
+  slider.style.display = 'block';
+
+  gameActivityChart.update();
+
+  // update table
+  const date = new Date(payload.ts);
+  const timestamp = date.toLocaleString('en-US', {
+    weekday: 'short', // long, short, narrow
+    day: 'numeric', // numeric, 2-digit
+    year: 'numeric', // numeric, 2-digit
+    month: 'short', // numeric, 2-digit, long, short, narrow
+    hour: 'numeric', // numeric, 2-digit
+    minute: 'numeric', // numeric, 2-digit
+    second: 'numeric', // numeric, 2-digit
+    fractionalSecondDigits: 3 // numeric, 3-digit
+  });
+
+  const table = document.getElementById('trivia-activity-table-body');
+  const item = `<tr>
+                <td><span class="w3-medium fa-stack fa-lg"><i style="color: ${payload.background};" class="fa fa-square-o fa-stack-2x"></i><i class=${payload.action === 'send' ? "'fa fa-arrow-up fa-stack-1x'" : "'fa fa-arrow-down fa-stack-1x'"}"></i></span></td>
+                <td><span class="w3-medium">${timestamp}</span></td>
+                <td><span class="w3-padding-small">${payload.topic}</span></td>
+              </tr>`;
+  table.insertAdjacentHTML('afterbegin', item);
+
+  updateHappening('Activity: [ ' + payload.topic + ', ' + payload.category + ' ]', INFO);
+}
+
+
 const slider = document.getElementById('myRange');
 const sliderStart = document.getElementById('slider-start');
 const sliderEnd = document.getElementById('slider-end');
@@ -268,6 +333,42 @@ function gameControllerChat(message) {
   updateGameChat(msg, true);
 }
 
+function exitTrivia() {
+  if (window.exited) return;
+
+  document.getElementById('count-down-tracker').style.display = 'none';
+  document.getElementById('count-down-tracker').parentNode.classList.remove('w3-padding-large');
+  document.getElementById('tsparticles').style.display = 'none';
+  if (document.getElementById('full-dashboard')) document.getElementById('full-dashboard').style.display = 'block';
+  if (document.getElementById('dashboard-visibility')) document.getElementById('dashboard-visibility').innerHTML = 'Hide Dashboard';
+
+  const flipDown = document.querySelector('#flipdown');
+  if (flipDown) {
+    const clonedFlipDown = flipDown.cloneNode(false);
+    const flipDownParent = flipDown.parentNode;
+    flipDownParent.removeChild(flipDown);
+  }
+  document.getElementById('trivia-modal').style.display = 'none';
+  document.getElementById('game_content').style.display = 'block';
+  client.publish(`trivia/${window.gameCode}/query/leaderboard/${window.nickName}`);
+  client.publish(`trivia/${window.gameCode}/query/scorecard/${window.nickName}`);
+  if (window.gameEnded) {
+    client.publish(`trivia/${window.gameCode}/query/winner/${window.nickName}`);
+  }
+
+  window.gameEnded = false;
+  window.gameAborted = false;
+  window.missed = 0;
+  window.currentQuestion = 0;
+  window.questions = [];
+  window.sessionId = false;
+  window.exited = true;
+
+  if (window.gameAborted) {
+    location.reload();
+  }
+}
+
 async function endGame() {
   if (window.gameAborted) {
     console.log('Oops, Game Aborted');
@@ -288,13 +389,16 @@ async function endGame() {
     temp = `<div id="fashion">
                 <div>Sorry, the game was aborted.</div>
               </div>`;
+    if (!window.joined) setTimeout(exitTrivia, 5000);
   } else if (window.gameEnded) {
     temp = `<div id="fashion">
                 <div>Sorry, the game has ended.</div>
                 <div>You missed all the questions.</div>
                 <div>Better luck next time!</div>
               </div>`;
+    if (!window.joined) setTimeout(exitTrivia, 5000);
   }
+
   window.gameEnded = false;
   window.gameAborted = false;
   window.missed = 0;
@@ -323,15 +427,15 @@ function showNextQuestion() {
   let question = window.questions[window.currentQuestion++];
   console.log('Show question', question);
 
-  if (!question.choice_3) {
-    document.getElementById('trivia-question-choice-container-3').style.display = 'none';
-  } else {
+  if (question.choice_3) {
     document.getElementById('trivia-question-choice-container-3').style.display = 'block';
-  }
-  if (!question.choice_4) {
-    document.getElementById('trivia-question-choice-container-4').style.display = 'none';
   } else {
+    document.getElementById('trivia-question-choice-container-3').style.display = 'none';
+  }
+  if (question.choice_4) {
     document.getElementById('trivia-question-choice-container-4').style.display = 'block';
+  } else {
+    document.getElementById('trivia-question-choice-container-4').style.display = 'none';
   }
 
   const triviaAnswer = document.querySelectorAll('.trivia-answer');
@@ -394,7 +498,7 @@ function showNextQuestion() {
           : ''}</div><br/>
                       <div>${percent === 0
           ? 'Better luck next time!'
-          : 'Nice! '} <br/>You answered ${answered} out of ${window.questions.length}!</div>
+          : 'Nice! '} <br/>You answered ${answered} out of ${window.questions.length}!<br/>Ranking in progress...</div>
                     </div>
                     `;
         const placeholder = document.getElementById('tsparticles');
@@ -460,7 +564,11 @@ function gameInvite(message = undefined) {
   //   return;
   // }
 
-  if (!window.joined) document.getElementById('player-join-form').style.display = 'block';
+  if (!window.joined) {
+    document.getElementById('player-join-form').style.display = 'block';
+    document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName + ' <span>&#10003;</span>';
+    document.getElementById('player-id').style.padding = '3px';
+  }
 }
 
 function submitForm() {
@@ -578,44 +686,12 @@ function gameQuestion(message) {
   // `trivia/${window.gameCode}/broadcast/question/#`
 
   const question = JSON.parse(message.payloadString);
+  // const question = JSON.parse(message.getBinaryAttachment().toString());
 
   if (window.gameStarted && question.sessionId === window.sessionId) {
     updateHappening('Message received on gameQuestion' + message.payloadString, INFO);
     question.timestamp = Date.now();
     window.questions.push(question);
-  }
-}
-
-function exitTrivia() {
-  if (window.exited) return;
-
-  document.getElementById('count-down-tracker').style.display = 'none';
-  document.getElementById('count-down-tracker').parentNode.classList.remove('w3-padding-large');
-
-  const flipDown = document.querySelector('#flipdown');
-  if (flipDown) {
-    const clonedFlipDown = flipDown.cloneNode(false);
-    const flipDownParent = flipDown.parentNode;
-    flipDownParent.removeChild(flipDown);
-  }
-  document.getElementById('trivia-modal').style.display = 'none';
-  document.getElementById('game_content').style.display = 'block';
-  client.publish(`trivia/${window.gameCode}/query/leaderboard/${window.nickName}`);
-  client.publish(`trivia/${window.gameCode}/query/scorecard/${window.nickName}`);
-  if (window.gameEnded) {
-    client.publish(`trivia/${window.gameCode}/query/winner/${window.nickName}`);
-  }
-
-  window.gameEnded = false;
-  window.gameAborted = false;
-  window.missed = 0;
-  window.currentQuestion = 0;
-  window.questions = [];
-  window.sessionId = false;
-  window.exited = true;
-
-  if (window.gameAborted) {
-    location.reload();
   }
 }
 
@@ -629,7 +705,7 @@ function gameUserCountUpdate(message) {
   document.getElementById('trivia-participants').innerHTML = count;
 }
 
-function gameYourRank(message) {
+function gameRank(message) {
   // `trivia/${window.gameCode}/response/getrank/${window.nickName}`
   updateHappening('Message received on gameRank' + message.payloadString, INFO);
   const score = JSON.parse(message.payloadString);
@@ -647,7 +723,11 @@ function gameYourRank(message) {
         : score.rank
     );
 
-  setTimeout(exitTrivia, 5000);
+  if (document.getElementById('full-dashboard')) document.getElementById('full-dashboard').style.display = 'block';
+  if (document.getElementById('dashboard-visibility')) document.getElementById('dashboard-visibility').innerHTML = 'Hide Dashboard';
+
+  // setTimeout(exitTrivia, 5000);
+  exitTrivia();
 }
 
 function gameWinner(message) {
@@ -725,6 +805,7 @@ function solaceClientConnected() {
     document.getElementById('game_content').classList.remove('hide');
     document.getElementById('game_content').classList.add('show');
 
+    client.subscribe(`trivia/${window.gameCode}/update/activity/${window.nickName}`, gameActivityUpdate);
     client.subscribe(`trivia/${window.gameCode}/broadcast/usercount/#`, gameUserCountUpdate);
     client.subscribe(`trivia/${window.gameCode}/broadcast/leaderboard`, gameLeaderboard);
     client.subscribe(`trivia/${window.gameCode}/broadcast/chat`, gameChat);
@@ -732,7 +813,7 @@ function solaceClientConnected() {
     client.subscribe(`trivia/${window.gameCode}/response/info/${window.nickName}`, gameInfo);
     client.subscribe(`trivia/${window.gameCode}/response/scorecard/${window.nickName}`, gameScorecard);
     client.subscribe(`trivia/${window.gameCode}/response/leaderboard/${window.nickName}`, gameLeaderboard);
-    client.subscribe(`trivia/${window.gameCode}/response/getrank/${window.nickName}`, gameYourRank);
+    client.subscribe(`trivia/${window.gameCode}/response/getrank/${window.nickName}`, gameRank);
     client.subscribe(`trivia/${window.gameCode}/response/winner/${window.nickName}`, gameWinner);
     client.subscribe(`trivia/${window.gameCode}/update/error/+/${window.nickName}`, gameError);
     client.subscribe(`trivia/${window.gameCode}/broadcast/invite`, gameInvite);
@@ -803,7 +884,7 @@ function init() {
 
 function join() {
   try {
-    document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName;
+    document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName + ' <span>&#63;</span>';
     document.getElementById('player-id').style.padding = '3px';
     document.getElementById('game_content').classList.add('hide');
     document.getElementById('spinner').classList.add('show');
@@ -853,7 +934,7 @@ function updatePlayerName() {
   const nickName = document.getElementById('nickname').value;
   if (nickName && nickName.length) {
     window.nickName = nickName;
-    document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName;
+    document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName + ' <span>&#63;</span>';
     document.getElementById('player-id').style.padding = '3px';
     document.getElementById('player-name-form').style.display = 'none';
     join();
@@ -862,7 +943,7 @@ function updatePlayerName() {
 }
 
 function randomPlayerName() {
-  document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName;
+  document.getElementById('player-id').innerHTML = 'Hi, ' + window.nickName + ' <span>&#63;</span>';
   document.getElementById('player-id').style.padding = '3px';
   document.getElementById('player-name-form').style.display = 'none';
   join();
