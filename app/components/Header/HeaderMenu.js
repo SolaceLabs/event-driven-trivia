@@ -150,7 +150,7 @@ function HeaderMenu(props) { // eslint-disable-line
                   <InvertColors />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Show Guide" placement="bottom">
+              <Tooltip title="FAQ" placement="bottom">
                 <IconButton className={classes.button} onClick={openGuide}>
                   <HelpOutlineOutlined />
                 </IconButton>

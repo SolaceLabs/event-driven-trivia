@@ -502,7 +502,7 @@
   "boilerplate.components.Header.action.fullscreen": "Full Screen",
   "boilerplate.components.Header.action.exitFullScreen": "Exit Full Screen",
   "boilerplate.components.Header.action.lamp": "Turn Dark/Light",
-  "boilerplate.components.Header.action.guide": "Show Guide",
+  "boilerplate.components.Header.action.guide": "FAQ",
   "boilerplate.components.Header.search": "Search Ui",
   "boilerplate.components.Header.user.profile": "My Profile",
   "boilerplate.components.Header.user.task": "My Task",

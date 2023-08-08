@@ -296,11 +296,25 @@ function Categories(props) {
     },
     {
       name: 'Description',
-      options: { filter: false, }
+      options: {
+        filter: false,
+        customBodyRender: (value, tableMeta, updateValue) => (
+          <React.Fragment >
+            {tableMeta.rowData[2]}
+          </React.Fragment>
+        )
+      },
     },
     {
       name: 'No. of Questions',
-      options: { filter: false, }
+      options: {
+        filter: false,
+        customBodyRender: (value, tableMeta, updateValue) => (
+          <React.Fragment >
+            {tableMeta.rowData[3]}
+          </React.Fragment>
+        )
+      },
     },
     {
       name: 'Action',

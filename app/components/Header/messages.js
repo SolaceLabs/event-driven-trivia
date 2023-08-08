@@ -22,7 +22,7 @@ export default defineMessages({
   },
   guide: {
     id: `${scope}.action.guide`,
-    defaultMessage: 'Show Guide',
+    defaultMessage: 'FAQ',
   },
   search: {
     id: `${scope}.search`,
