@@ -87,7 +87,7 @@
     "@draft-js-plugins/buttons": "^4.1.1",
     "@draft-js-plugins/editor": "^4.1.0",
     "@draft-js-plugins/inline-toolbar": "^4.1.1",
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "^10.5.0",
     "@mapbox/node-pre-gyp": "^1.0.10",
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",
